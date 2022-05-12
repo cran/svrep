@@ -1,0 +1,1528 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Calibrating to Estimated Control Totals</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">
+/* for pandoc --citeproc since 2.11 */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Calibrating to Estimated Control
+Totals</h1>
+
+
+<div id="TOC">
+<ul>
+<li><a href="#sample-based-calibration-an-introduction">Sample-based
+Calibration: An Introduction</a></li>
+<li><a href="#functions-for-implementing-sample-based-calibration">Functions
+for Implementing Sample-Based Calibration</a></li>
+<li><a href="#an-example-using-a-vaccination-survey">An Example Using a
+Vaccination Survey</a>
+<ul>
+<li><a href="#raking-to-estimated-control-totals">Raking to estimated
+control totals</a></li>
+<li><a href="#post-stratification">Post-stratification</a></li>
+</ul></li>
+<li><a href="#reproducibility">Reproducibility</a></li>
+<li><a href="#references">References</a></li>
+</ul>
+</div>
+
+<div id="sample-based-calibration-an-introduction" class="section level2">
+<h2>Sample-based Calibration: An Introduction</h2>
+<p>Calibration weighting adjustments such as post-stratification or
+raking are often helpful for reducing sampling variance or non-sampling
+errors such as nonresponse bias. Typically, the benchmark data used for
+these calibration adjustments are estimates published by agencies such
+as the United States Census Bureau. For example, pollsters in the United
+States frequently rake polling data so that estimates for variables such
+as age or educational attainment match benchmark estimates from the
+American Community Survey (ACS).</p>
+<p>While benchmark data (also known as control totals) for raking and
+calibration are often treated as the “true” population values, they are
+usually themselves estimates with their own sampling variance or margin
+of error. When we calibrate to estimated control totals rather than to
+“true” population values, we may need to account for the variance of the
+estimated control totals to ensure that calibrated estimates
+appropriately reflect sampling error of both the primary survey of
+interest and the survey from which the control totals were estimated.
+This is especially important if the control totals have large margins of
+error.</p>
+<p>A handful of statistical methods have been developed for the problem
+of conducting replication variance estimation after sample-based
+calibration; see <span class="citation">Opsomer and Erciulescu
+(2021)</span> for a clear overview of the literature on this topic. All
+of these methods apply calibration weighting adjustment to full-sample
+weights and to each column of replicate weights. The key “trick” of
+these methods is to adjust each column of replicate weights to a
+slightly different set of control totals, varying the control totals
+used across all of the replicates in such a way that the variation
+across the columns is in a sense proportionate to the sampling variance
+of the control totals.</p>
+<p>These statistical methods differ in the way that they generate
+different control totals for each column of replicate weights and in the
+type of data they require the analyst to use. The method of <span class="citation">Fuller (1998)</span> requires the analyst to have a
+variance-covariance matrix for the estimated control totals, while the
+method of <span class="citation">Opsomer and Erciulescu (2021)</span>
+requires the analyst to use the full dataset for the control survey
+along with associated replicate weights.</p>
+</div>
+<div id="functions-for-implementing-sample-based-calibration" class="section level2">
+<h2>Functions for Implementing Sample-Based Calibration</h2>
+<p>The ‘svrep’ package provides two functions to implement sample-based
+calibration.</p>
+<p>With the function <code>calibrate_to_estimate()</code>, adjustments
+to replicate weights are conducted using the method of Fuller (1998),
+requiring a variance-covariance matrix for the estimated control
+totals.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">calibrate_to_estimate</span>(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">rep_design =</span> rep_design,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimate =</span> vector_of_control_totals,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">vcov_estimate =</span> variance_covariance_matrix_for_controls,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">cal_formula =</span> <span class="sc">~</span> CALIBRATION_VARIABLE_1 <span class="sc">+</span> CALIBRATION_VARIABLE_2 <span class="sc">+</span> ...,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<p>With the function <code>calibrate_to_sample()</code>, adjustments to
+replicate weights are conducted using the method proposed by Opsomer and
+Erciulescu (2021), requiring a dataset with replicate weights to use for
+estimating control totals and their sampling variance.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">calibrate_to_sample</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">primary_rep_design =</span> primary_rep_design,</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">control_rep_design =</span> control_rep_design</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">cal_formula =</span> <span class="sc">~</span> CALIBRATION_VARIABLE_1 <span class="sc">+</span> CALIBRATION_VARIABLE_2 <span class="sc">+</span> ...,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<p>For both functions, it is possible to use a variety of calibration
+options from the <code>survey</code> package’s <code>calibrate()</code>
+function. For example, the user can specify a specific calibration
+function to use, such as <code>calfun = survey::cal.linear</code> to
+implement post-stratification or
+<code>calfun = survey::cal.raking</code> to implement raking. The
+<code>bounds</code> argument can be used to specify bounds for the
+calibration weights, and the arguments such as <code>maxit</code> or
+<code>epsilon</code> allow finer control over the Newton-Raphson
+algorithm used to implement calibration.</p>
+</div>
+<div id="an-example-using-a-vaccination-survey" class="section level2">
+<h2>An Example Using a Vaccination Survey</h2>
+<p>To illustrate the different methods for conducting sample-based
+calibration, we’ll use an example survey measuring Covid-19 vaccination
+status and a handful of demographic variables, based on a simple random
+sample of 1,000 residents of Louisville, Kentucky.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the data</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(svrep)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;lou_vax_survey&quot;</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Inspect the first few rows</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(lou_vax_survey) <span class="sc">|&gt;</span> knitr<span class="sc">::</span><span class="fu">kable</span>()</span></code></pre></div>
+<table>
+<colgroup>
+<col width="12%" />
+<col width="43%" />
+<col width="5%" />
+<col width="17%" />
+<col width="8%" />
+<col width="12%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">RESPONSE_STATUS</th>
+<th align="left">RACE_ETHNICITY</th>
+<th align="left">SEX</th>
+<th align="left">EDUC_ATTAINMENT</th>
+<th align="left">VAX_STATUS</th>
+<th align="right">SAMPLING_WEIGHT</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Nonrespondent</td>
+<td align="left">White alone, not Hispanic or Latino</td>
+<td align="left">Female</td>
+<td align="left">Less than high school</td>
+<td align="left">NA</td>
+<td align="right">596.702</td>
+</tr>
+<tr class="even">
+<td align="left">Nonrespondent</td>
+<td align="left">Black or African American alone, not Hispanic or
+Latino</td>
+<td align="left">Female</td>
+<td align="left">High school or beyond</td>
+<td align="left">NA</td>
+<td align="right">596.702</td>
+</tr>
+<tr class="odd">
+<td align="left">Respondent</td>
+<td align="left">White alone, not Hispanic or Latino</td>
+<td align="left">Female</td>
+<td align="left">Less than high school</td>
+<td align="left">Vaccinated</td>
+<td align="right">596.702</td>
+</tr>
+<tr class="even">
+<td align="left">Nonrespondent</td>
+<td align="left">White alone, not Hispanic or Latino</td>
+<td align="left">Female</td>
+<td align="left">Less than high school</td>
+<td align="left">NA</td>
+<td align="right">596.702</td>
+</tr>
+<tr class="odd">
+<td align="left">Nonrespondent</td>
+<td align="left">White alone, not Hispanic or Latino</td>
+<td align="left">Female</td>
+<td align="left">High school or beyond</td>
+<td align="left">NA</td>
+<td align="right">596.702</td>
+</tr>
+<tr class="even">
+<td align="left">Respondent</td>
+<td align="left">White alone, not Hispanic or Latino</td>
+<td align="left">Female</td>
+<td align="left">High school or beyond</td>
+<td align="left">Vaccinated</td>
+<td align="right">596.702</td>
+</tr>
+</tbody>
+</table>
+<p>For the purpose of variance estimation, we’ll create jackknife
+replicate weights.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">suppressPackageStartupMessages</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">library</span>(survey)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>lou_vax_survey_rep <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> lou_vax_survey,</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">ids =</span> <span class="sc">~</span> <span class="dv">1</span>, <span class="at">weights =</span> <span class="sc">~</span> SAMPLING_WEIGHT</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> </span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.svrepdesign</span>(<span class="at">type =</span> <span class="st">&quot;JK1&quot;</span>, <span class="at">mse =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<pre><code>#&gt; Call: as.svrepdesign.default(svydesign(data = lou_vax_survey, ids = ~1, 
+#&gt;     weights = ~SAMPLING_WEIGHT), type = &quot;JK1&quot;, mse = TRUE)
+#&gt; Unstratified cluster jacknife (JK1) with 1000 replicates and MSE variances.</code></pre>
+<p>Because the survey’s key outcome, vaccination status, is only
+measured for respondents, we’ll do a quick nonresponse weighting
+adjustment to help make reasonable estimates for this outcome.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Conduct nonresponse weighting adjustment</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>nr_adjusted_design <span class="ot">&lt;-</span> lou_vax_survey_rep <span class="sc">|&gt;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">redistribute_weights</span>(</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">reduce_if =</span> RESPONSE_STATUS <span class="sc">==</span> <span class="st">&quot;Nonrespondent&quot;</span>,</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">increase_if =</span> RESPONSE_STATUS <span class="sc">==</span> <span class="st">&quot;Respondent&quot;</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">subset</span>(RESPONSE_STATUS <span class="sc">==</span> <span class="st">&quot;Respondent&quot;</span>)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Inspect the result of the adjustment</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="fu">rbind</span>(</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;Original&#39;</span> <span class="ot">=</span> <span class="fu">summarize_rep_weights</span>(lou_vax_survey_rep, <span class="at">type =</span> <span class="st">&#39;overall&#39;</span>),</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;NR-adjusted&#39;</span> <span class="ot">=</span> <span class="fu">summarize_rep_weights</span>(nr_adjusted_design, <span class="at">type =</span> <span class="st">&#39;overall&#39;</span>)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>)[,<span class="fu">c</span>(<span class="st">&quot;nrows&quot;</span>, <span class="st">&quot;rank&quot;</span>, <span class="st">&quot;avg_wgt_sum&quot;</span>, <span class="st">&quot;sd_wgt_sums&quot;</span>)]</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             nrows rank avg_wgt_sum  sd_wgt_sums</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Original     1000 1000      596702 0.000000e+00</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; NR-adjusted   502  502      596702 8.219437e-11</span></span></code></pre></div>
+<p>All of the work so far has given us the replicate design for the
+primary survey, prepared for calibration. Now we need to obtain
+benchmark data we can use for the calibration. We’ll use a Public-Use
+Microdata Sample (PUMS) dataset from the ACS as our source for benchmark
+data on race/ethnicity, sex, and educational attainment.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;lou_pums_microdata&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Inspect some of the rows/columns of data ----</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tail</span>(lou_pums_microdata, <span class="at">n =</span> <span class="dv">5</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(AGE, SEX, RACE_ETHNICITY, EDUC_ATTAINMENT) <span class="sc">|&gt;</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>()</span></code></pre></div>
+<table>
+<colgroup>
+<col width="5%" />
+<col width="10%" />
+<col width="51%" />
+<col width="32%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="right">AGE</th>
+<th align="left">SEX</th>
+<th align="left">RACE_ETHNICITY</th>
+<th align="left">EDUC_ATTAINMENT</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">20</td>
+<td align="left">Female</td>
+<td align="left">Other Race, not Hispanic or Latino</td>
+<td align="left">High school or beyond</td>
+</tr>
+<tr class="even">
+<td align="right">50</td>
+<td align="left">Male</td>
+<td align="left">Hispanic or Latino</td>
+<td align="left">Less than high school</td>
+</tr>
+<tr class="odd">
+<td align="right">57</td>
+<td align="left">Female</td>
+<td align="left">Other Race, not Hispanic or Latino</td>
+<td align="left">High school or beyond</td>
+</tr>
+<tr class="even">
+<td align="right">44</td>
+<td align="left">Male</td>
+<td align="left">Hispanic or Latino</td>
+<td align="left">High school or beyond</td>
+</tr>
+<tr class="odd">
+<td align="right">25</td>
+<td align="left">Female</td>
+<td align="left">Hispanic or Latino</td>
+<td align="left">High school or beyond</td>
+</tr>
+</tbody>
+</table>
+<p>Next, we’ll prepare the PUMS data to use replication variance
+estimation using provided replicate weights.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert to a survey design object ----</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  pums_rep_design <span class="ot">&lt;-</span> <span class="fu">svrepdesign</span>(</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>      <span class="at">data =</span> lou_pums_microdata,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>      <span class="at">weights =</span> <span class="sc">~</span> PWGTP,</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">repweights =</span> <span class="st">&quot;PWGTP</span><span class="sc">\\</span><span class="st">d{1,2}&quot;</span>,</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">type =</span> <span class="st">&quot;successive-difference&quot;</span>,</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">variables =</span> <span class="sc">~</span> AGE <span class="sc">+</span> SEX <span class="sc">+</span> RACE_ETHNICITY <span class="sc">+</span> EDUC_ATTAINMENT,</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">mse =</span> <span class="cn">TRUE</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  pums_rep_design</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Call: svrepdesign.default(data = lou_pums_microdata, weights = ~PWGTP, </span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     repweights = &quot;PWGTP\\d{1,2}&quot;, type = &quot;successive-difference&quot;, </span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     variables = ~AGE + SEX + RACE_ETHNICITY + EDUC_ATTAINMENT, </span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     mse = TRUE)</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; with 80 replicates and MSE variances.</span></span></code></pre></div>
+<p>When conduction calibration, we have to make sure that the data from
+the control survey represent the same population as the primary survey.
+Since the Louisville vaccination survey only represents adults, we need
+to subset the control survey design to adults.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Subset to only include adults</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>pums_rep_design <span class="ot">&lt;-</span> pums_rep_design <span class="sc">|&gt;</span> <span class="fu">subset</span>(AGE <span class="sc">&gt;=</span> <span class="dv">18</span>)</span></code></pre></div>
+<p>In addition, we need to ensure that the control survey design has
+calibration variables that align with the variables in the primary
+survey design of interest. This may require some data manipulation.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">suppressPackageStartupMessages</span>(</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">library</span>(dplyr)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Check that variables match across data sources ----</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  pums_rep_design<span class="sc">$</span>variables <span class="sc">|&gt;</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">distinct</span>(RACE_ETHNICITY)</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                            RACE_ETHNICITY</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 Black or African American alone, not Hispanic or Latino</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2                     White alone, not Hispanic or Latino</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3                                      Hispanic or Latino</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4                      Other Race, not Hispanic or Latino</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setdiff</span>(lou_vax_survey_rep<span class="sc">$</span>variables<span class="sc">$</span>RACE_ETHNICITY,</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>          pums_rep_design<span class="sc">$</span>variables<span class="sc">$</span>RACE_ETHNICITY)</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; character(0)</span></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setdiff</span>(lou_vax_survey_rep<span class="sc">$</span>variables<span class="sc">$</span>SEX,</span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>          pums_rep_design<span class="sc">$</span>variables<span class="sc">$</span>SEX)</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; character(0)</span></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setdiff</span>(lou_vax_survey_rep<span class="sc">$</span>variables<span class="sc">$</span>EDUC_ATTAINMENT,</span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>          pums_rep_design<span class="sc">$</span>variables<span class="sc">$</span>EDUC_ATTAINMENT)</span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; character(0)</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimates from the control survey (ACS)</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">svymean</span>(</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">design =</span> pums_rep_design,</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> <span class="sc">~</span> RACE_ETHNICITY <span class="sc">+</span> SEX <span class="sc">+</span> EDUC_ATTAINMENT</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                                                          mean</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; RACE_ETHNICITYBlack or African American alone, not Hispanic or Latino 0.19950</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; RACE_ETHNICITYHispanic or Latino                                      0.04525</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; RACE_ETHNICITYOther Race, not Hispanic or Latino                      0.04631</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; RACE_ETHNICITYWhite alone, not Hispanic or Latino                     0.70894</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; SEXMale                                                               0.47543</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; SEXFemale                                                             0.52457</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; EDUC_ATTAINMENTHigh school or beyond                                  0.38736</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; EDUC_ATTAINMENTLess than high school                                  0.61264</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                                                           SE</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; RACE_ETHNICITYBlack or African American alone, not Hispanic or Latino 0.0010</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; RACE_ETHNICITYHispanic or Latino                                      0.0002</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; RACE_ETHNICITYOther Race, not Hispanic or Latino                      0.0008</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; RACE_ETHNICITYWhite alone, not Hispanic or Latino                     0.0007</span></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; SEXMale                                                               0.0007</span></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; SEXFemale                                                             0.0007</span></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; EDUC_ATTAINMENTHigh school or beyond                                  0.0033</span></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; EDUC_ATTAINMENTLess than high school                                  0.0033</span></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimates from the primary survey (Louisville vaccination survey)</span></span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a><span class="fu">svymean</span>(</span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">design =</span> nr_adjusted_design,</span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> <span class="sc">~</span> RACE_ETHNICITY <span class="sc">+</span> SEX <span class="sc">+</span> EDUC_ATTAINMENT</span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                                                           mean</span></span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; RACE_ETHNICITYBlack or African American alone, not Hispanic or Latino 0.169323</span></span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; RACE_ETHNICITYHispanic or Latino                                      0.033865</span></span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; RACE_ETHNICITYOther Race, not Hispanic or Latino                      0.057769</span></span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; RACE_ETHNICITYWhite alone, not Hispanic or Latino                     0.739044</span></span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; SEXFemale                                                             0.535857</span></span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; SEXMale                                                               0.464143</span></span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; EDUC_ATTAINMENTHigh school or beyond                                  0.458167</span></span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; EDUC_ATTAINMENTLess than high school                                  0.541833</span></span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                                                           SE</span></span>
+<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; RACE_ETHNICITYBlack or African American alone, not Hispanic or Latino 0.0168</span></span>
+<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; RACE_ETHNICITYHispanic or Latino                                      0.0081</span></span>
+<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; RACE_ETHNICITYOther Race, not Hispanic or Latino                      0.0104</span></span>
+<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; RACE_ETHNICITYWhite alone, not Hispanic or Latino                     0.0196</span></span>
+<span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; SEXFemale                                                             0.0223</span></span>
+<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; SEXMale                                                               0.0223</span></span>
+<span id="cb12-46"><a href="#cb12-46" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; EDUC_ATTAINMENTHigh school or beyond                                  0.0223</span></span>
+<span id="cb12-47"><a href="#cb12-47" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; EDUC_ATTAINMENTLess than high school                                  0.0223</span></span></code></pre></div>
+<div id="raking-to-estimated-control-totals" class="section level3">
+<h3>Raking to estimated control totals</h3>
+<p>We’ll start by raking to estimates from the ACS for race/ethnicity,
+sex, and educational attainment, first using the
+<code>calibrate_to_sample()</code> method and then using the
+<code>calibrate_to_estimate()</code> method. For the
+<code>calibrate_to_sample()</code> method, we need to obtain a vector of
+point estimates for the control totals, and an accompanying
+variance-covariance matrix for the estimates.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>acs_control_totals <span class="ot">&lt;-</span> <span class="fu">svytotal</span>(</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> <span class="sc">~</span> RACE_ETHNICITY <span class="sc">+</span> SEX <span class="sc">+</span> EDUC_ATTAINMENT,</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">design =</span> pums_rep_design</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>control_totals_for_raking <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;estimates&#39;</span> <span class="ot">=</span> <span class="fu">coef</span>(acs_control_totals),</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;variance-covariance&#39;</span> <span class="ot">=</span> <span class="fu">vcov</span>(acs_control_totals)</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Inspect point estimates</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>control_totals_for_raking<span class="sc">$</span>estimates</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; RACE_ETHNICITYBlack or African American alone, not Hispanic or Latino </span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                                                119041 </span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                      RACE_ETHNICITYHispanic or Latino </span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                                                 27001 </span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                      RACE_ETHNICITYOther Race, not Hispanic or Latino </span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                                                 27633 </span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                     RACE_ETHNICITYWhite alone, not Hispanic or Latino </span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                                                423027 </span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                                               SEXMale </span></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                                                283688 </span></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                                             SEXFemale </span></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                                                313014 </span></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                  EDUC_ATTAINMENTHigh school or beyond </span></span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                                                231136 </span></span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                  EDUC_ATTAINMENTLess than high school </span></span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                                                365566</span></span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Inspect a few rows of the control totals&#39; variance-covariance matrix</span></span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>control_totals_for_raking<span class="sc">$</span><span class="st">`</span><span class="at">variance-covariance</span><span class="st">`</span>[<span class="dv">5</span><span class="sc">:</span><span class="dv">8</span>,<span class="dv">5</span><span class="sc">:</span><span class="dv">8</span>] <span class="sc">|&gt;</span></span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">colnames&lt;-</span><span class="st">`</span>(<span class="cn">NULL</span>)</span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                           [,1]      [,2]        [,3]       [,4]</span></span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; SEXMale                              355572.45 -29522.95   129208.95   196840.6</span></span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; SEXFemale                            -29522.95 379494.65    81455.95   268515.8</span></span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; EDUC_ATTAINMENTHigh school or beyond 129208.95  81455.95  4019242.10 -3808577.2</span></span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; EDUC_ATTAINMENTLess than high school 196840.55 268515.75 -3808577.20  4273933.5</span></span></code></pre></div>
+<p>Crucially, we note that the vector of control totals has the same
+names as the estimates produced by using <code>svytotal()</code> with
+the primary survey design object whose weights we plan to adjust.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">svytotal</span>(<span class="at">x =</span> <span class="sc">~</span> RACE_ETHNICITY <span class="sc">+</span> SEX <span class="sc">+</span> EDUC_ATTAINMENT,</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>         <span class="at">design =</span> nr_adjusted_design)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                                                        total</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; RACE_ETHNICITYBlack or African American alone, not Hispanic or Latino 101035</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; RACE_ETHNICITYHispanic or Latino                                       20207</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; RACE_ETHNICITYOther Race, not Hispanic or Latino                       34471</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; RACE_ETHNICITYWhite alone, not Hispanic or Latino                     440989</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; SEXFemale                                                             319747</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; SEXMale                                                               276955</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; EDUC_ATTAINMENTHigh school or beyond                                  273389</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; EDUC_ATTAINMENTLess than high school                                  323313</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                                                            SE</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; RACE_ETHNICITYBlack or African American alone, not Hispanic or Latino 10003.0</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; RACE_ETHNICITYHispanic or Latino                                       4824.4</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; RACE_ETHNICITYOther Race, not Hispanic or Latino                       6222.7</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; RACE_ETHNICITYWhite alone, not Hispanic or Latino                     11713.1</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; SEXFemale                                                             13301.6</span></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; SEXMale                                                               13301.6</span></span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; EDUC_ATTAINMENTHigh school or beyond                                  13289.2</span></span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; EDUC_ATTAINMENTLess than high school                                  13289.2</span></span></code></pre></div>
+<p>To calibrate the design to the estimates, we supply the estimates and
+the variance-covariance matrix to <code>calibrate_to_estimate()</code>,
+and we supply the <code>cal_formula</code> argument with the same
+formula we would use for <code>svytotal()</code>. To use a raking
+adjustment, we specify <code>calfun = survey::cal.raking</code>.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>raked_design <span class="ot">&lt;-</span> <span class="fu">calibrate_to_estimate</span>(</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">rep_design =</span> nr_adjusted_design,</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimate =</span> control_totals_for_raking<span class="sc">$</span>estimates,</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">vcov_estimate =</span> control_totals_for_raking<span class="sc">$</span><span class="st">`</span><span class="at">variance-covariance</span><span class="st">`</span>,</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">cal_formula =</span> <span class="sc">~</span> RACE_ETHNICITY <span class="sc">+</span> SEX <span class="sc">+</span> EDUC_ATTAINMENT,</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">calfun =</span> survey<span class="sc">::</span>cal.raking, <span class="co"># Required for raking</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">epsilon =</span> <span class="fl">1e-9</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Selection of replicate columns whose control totals will be perturbed will be done at random.</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; For tips on reproducible selection, see `help(&#39;calibrate_to_estimate&#39;)`</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in svrepdesign.default(data = rep_design$variables, repweights =</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; adjusted_replicate_weights, : rho not relevant to JK1 design: ignored.</span></span></code></pre></div>
+<p>Now we can compare the estimated totals for the calibration variables
+to the actual control totals. As we might intuitively expect, the
+estimated totals from the survey now match the control totals, and the
+standard errors for the estimated totals match the standard errors of
+the control totals.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimated totals after calibration</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">svytotal</span>(<span class="at">x =</span> <span class="sc">~</span> RACE_ETHNICITY <span class="sc">+</span> SEX <span class="sc">+</span> EDUC_ATTAINMENT,</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">design =</span> raked_design)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                                                        total</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; RACE_ETHNICITYBlack or African American alone, not Hispanic or Latino 119041</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; RACE_ETHNICITYHispanic or Latino                                       27001</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; RACE_ETHNICITYOther Race, not Hispanic or Latino                       27633</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; RACE_ETHNICITYWhite alone, not Hispanic or Latino                     423027</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; SEXFemale                                                             313014</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; SEXMale                                                               283688</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; EDUC_ATTAINMENTHigh school or beyond                                  231136</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; EDUC_ATTAINMENTLess than high school                                  365566</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                                                            SE</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; RACE_ETHNICITYBlack or African American alone, not Hispanic or Latino  633.63</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; RACE_ETHNICITYHispanic or Latino                                       107.98</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; RACE_ETHNICITYOther Race, not Hispanic or Latino                       472.41</span></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; RACE_ETHNICITYWhite alone, not Hispanic or Latino                      594.14</span></span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; SEXFemale                                                              616.03</span></span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; SEXMale                                                                596.30</span></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; EDUC_ATTAINMENTHigh school or beyond                                  2004.80</span></span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; EDUC_ATTAINMENTLess than high school                                  2067.35</span></span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Matches the control totals!</span></span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a><span class="fu">cbind</span>(</span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;total&#39;</span> <span class="ot">=</span> control_totals_for_raking<span class="sc">$</span>estimates,</span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>  <span class="st">&#39;SE&#39;</span> <span class="ot">=</span> control_totals_for_raking<span class="sc">$</span><span class="st">`</span><span class="at">variance-covariance</span><span class="st">`</span> <span class="sc">|&gt;</span></span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">diag</span>() <span class="sc">|&gt;</span> <span class="fu">sqrt</span>()</span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                                                        total</span></span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; RACE_ETHNICITYBlack or African American alone, not Hispanic or Latino 119041</span></span>
+<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; RACE_ETHNICITYHispanic or Latino                                       27001</span></span>
+<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; RACE_ETHNICITYOther Race, not Hispanic or Latino                       27633</span></span>
+<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; RACE_ETHNICITYWhite alone, not Hispanic or Latino                     423027</span></span>
+<span id="cb16-34"><a href="#cb16-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; SEXMale                                                               283688</span></span>
+<span id="cb16-35"><a href="#cb16-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; SEXFemale                                                             313014</span></span>
+<span id="cb16-36"><a href="#cb16-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; EDUC_ATTAINMENTHigh school or beyond                                  231136</span></span>
+<span id="cb16-37"><a href="#cb16-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; EDUC_ATTAINMENTLess than high school                                  365566</span></span>
+<span id="cb16-38"><a href="#cb16-38" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                                                              SE</span></span>
+<span id="cb16-39"><a href="#cb16-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; RACE_ETHNICITYBlack or African American alone, not Hispanic or Latino  633.6287</span></span>
+<span id="cb16-40"><a href="#cb16-40" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; RACE_ETHNICITYHispanic or Latino                                       107.9829</span></span>
+<span id="cb16-41"><a href="#cb16-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; RACE_ETHNICITYOther Race, not Hispanic or Latino                       472.4107</span></span>
+<span id="cb16-42"><a href="#cb16-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; RACE_ETHNICITYWhite alone, not Hispanic or Latino                      594.1448</span></span>
+<span id="cb16-43"><a href="#cb16-43" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; SEXMale                                                                596.2990</span></span>
+<span id="cb16-44"><a href="#cb16-44" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; SEXFemale                                                              616.0314</span></span>
+<span id="cb16-45"><a href="#cb16-45" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; EDUC_ATTAINMENTHigh school or beyond                                  2004.8048</span></span>
+<span id="cb16-46"><a href="#cb16-46" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; EDUC_ATTAINMENTLess than high school                                  2067.3494</span></span></code></pre></div>
+<p>We can now see what effect the raking adjustment has had on our
+primary estimate of interest, which is the overall Covid-19 vaccination
+rate. The raking adjustment has reduced our estimate of the vaccination
+rate by about one percentage point and results in a similar standard
+error estimate.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>estimates_by_design <span class="ot">&lt;-</span> <span class="fu">svyby_repwts</span>(</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">rep_designs =</span> <span class="fu">list</span>(</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;NR-adjusted&quot;</span> <span class="ot">=</span> nr_adjusted_design,</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Raked&quot;</span> <span class="ot">=</span> raked_design</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">FUN =</span> svytotal,</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> <span class="sc">~</span> RACE_ETHNICITY <span class="sc">+</span> SEX <span class="sc">+</span> EDUC_ATTAINMENT</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="fu">t</span>(estimates_by_design[,<span class="sc">-</span><span class="dv">1</span>]) <span class="sc">|&gt;</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>()</span></code></pre></div>
+<table style="width:100%;">
+<colgroup>
+<col width="74%" />
+<col width="12%" />
+<col width="12%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="right">NR-adjusted</th>
+<th align="right">Raked</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">RACE_ETHNICITYBlack or African American alone, not
+Hispanic or Latino</td>
+<td align="right">101035.199</td>
+<td align="right">119041.0000</td>
+</tr>
+<tr class="even">
+<td align="left">RACE_ETHNICITYHispanic or Latino</td>
+<td align="right">20207.040</td>
+<td align="right">27001.0000</td>
+</tr>
+<tr class="odd">
+<td align="left">RACE_ETHNICITYOther Race, not Hispanic or Latino</td>
+<td align="right">34470.833</td>
+<td align="right">27633.0000</td>
+</tr>
+<tr class="even">
+<td align="left">RACE_ETHNICITYWhite alone, not Hispanic or Latino</td>
+<td align="right">440988.928</td>
+<td align="right">423027.0000</td>
+</tr>
+<tr class="odd">
+<td align="left">SEXFemale</td>
+<td align="right">319746.689</td>
+<td align="right">313014.0000</td>
+</tr>
+<tr class="even">
+<td align="left">SEXMale</td>
+<td align="right">276955.311</td>
+<td align="right">283688.0000</td>
+</tr>
+<tr class="odd">
+<td align="left">EDUC_ATTAINMENTHigh school or beyond</td>
+<td align="right">273389.363</td>
+<td align="right">231136.0000</td>
+</tr>
+<tr class="even">
+<td align="left">EDUC_ATTAINMENTLess than high school</td>
+<td align="right">323312.637</td>
+<td align="right">365566.0000</td>
+</tr>
+<tr class="odd">
+<td align="left">se1</td>
+<td align="right">10002.951</td>
+<td align="right">633.6013</td>
+</tr>
+<tr class="even">
+<td align="left">se2</td>
+<td align="right">4824.430</td>
+<td align="right">107.8910</td>
+</tr>
+<tr class="odd">
+<td align="left">se3</td>
+<td align="right">6222.719</td>
+<td align="right">471.9384</td>
+</tr>
+<tr class="even">
+<td align="left">se4</td>
+<td align="right">11713.138</td>
+<td align="right">593.9867</td>
+</tr>
+<tr class="odd">
+<td align="left">se5</td>
+<td align="right">13301.627</td>
+<td align="right">615.9416</td>
+</tr>
+<tr class="even">
+<td align="left">se6</td>
+<td align="right">13301.627</td>
+<td align="right">595.8601</td>
+</tr>
+<tr class="odd">
+<td align="left">se7</td>
+<td align="right">13289.206</td>
+<td align="right">2004.2516</td>
+</tr>
+<tr class="even">
+<td align="left">se8</td>
+<td align="right">13289.206</td>
+<td align="right">2065.7822</td>
+</tr>
+</tbody>
+</table>
+<p>Instead of doing the raking using a vector of control totals and
+their variance-covariance matrix, we could have instead done the raking
+by simply supplying the two replicate design objects to the function
+<code>calibrate_to_sample()</code>. This uses the Opsomer-Erciulescu
+method of adjusting replicate weights, in contrast to
+<code>calibrate_to_estimate()</code>, which uses Fuller’s method of
+adjusting replicate weights.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>raked_design_opsomer_erciulescu <span class="ot">&lt;-</span> <span class="fu">calibrate_to_sample</span>(</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">primary_rep_design =</span> nr_adjusted_design,</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">control_rep_design =</span> pums_rep_design,</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">cal_formula =</span> <span class="sc">~</span> RACE_ETHNICITY <span class="sc">+</span> SEX <span class="sc">+</span> EDUC_ATTAINMENT,</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">calfun =</span> survey<span class="sc">::</span>cal.raking,</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">epsilon =</span> <span class="fl">1e-9</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Matching between primary and control replicates will be done at random.</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; For tips on reproducible matching, see `help(&#39;calibrate_to_sample&#39;)`</span></span></code></pre></div>
+<p>We can see that the two methods yield identical point estimates from
+the full-sample weights, and the standard errors match nearly exactly
+for the calibration variables (race/ethnicity, sex, and educational
+attainment). However, there are small but slightly more noticeable
+differences in the standard errors for other variables, such as
+<code>VAX_STATUS</code>, resulting from the fact that the two methods
+have different methods of adjusting the replicate weights. <span class="citation">Opsomer and Erciulescu (2021)</span> explain the
+differences between the two methods and discuss why the the
+Opsomer-Erciulescu method used in <code>calibrate_to_sample()</code> may
+have better statistical properties than the Fuller method used in
+<code>calibrate_to_estimate()</code>.</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>estimates_by_design <span class="ot">&lt;-</span> <span class="fu">svyby_repwts</span>(</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">rep_designs =</span> <span class="fu">list</span>(</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;calibrate_to_estimate()&quot;</span> <span class="ot">=</span> raked_design,</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;calibrate_to_sample()&quot;</span> <span class="ot">=</span> raked_design_opsomer_erciulescu</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">FUN =</span> svytotal,</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> <span class="sc">~</span> VAX_STATUS <span class="sc">+</span> RACE_ETHNICITY <span class="sc">+</span> SEX <span class="sc">+</span> EDUC_ATTAINMENT</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="fu">t</span>(estimates_by_design[,<span class="sc">-</span><span class="dv">1</span>]) <span class="sc">|&gt;</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>()</span></code></pre></div>
+<table>
+<colgroup>
+<col width="60%" />
+<col width="20%" />
+<col width="18%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="right">calibrate_to_estimate()</th>
+<th align="right">calibrate_to_sample()</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">VAX_STATUSUnvaccinated</td>
+<td align="right">282904.4084</td>
+<td align="right">282904.4084</td>
+</tr>
+<tr class="even">
+<td align="left">VAX_STATUSVaccinated</td>
+<td align="right">313797.5916</td>
+<td align="right">313797.5916</td>
+</tr>
+<tr class="odd">
+<td align="left">RACE_ETHNICITYBlack or African American alone, not
+Hispanic or Latino</td>
+<td align="right">119041.0000</td>
+<td align="right">119041.0000</td>
+</tr>
+<tr class="even">
+<td align="left">RACE_ETHNICITYHispanic or Latino</td>
+<td align="right">27001.0000</td>
+<td align="right">27001.0000</td>
+</tr>
+<tr class="odd">
+<td align="left">RACE_ETHNICITYOther Race, not Hispanic or Latino</td>
+<td align="right">27633.0000</td>
+<td align="right">27633.0000</td>
+</tr>
+<tr class="even">
+<td align="left">RACE_ETHNICITYWhite alone, not Hispanic or Latino</td>
+<td align="right">423027.0000</td>
+<td align="right">423027.0000</td>
+</tr>
+<tr class="odd">
+<td align="left">SEXFemale</td>
+<td align="right">313014.0000</td>
+<td align="right">313014.0000</td>
+</tr>
+<tr class="even">
+<td align="left">SEXMale</td>
+<td align="right">283688.0000</td>
+<td align="right">283688.0000</td>
+</tr>
+<tr class="odd">
+<td align="left">EDUC_ATTAINMENTHigh school or beyond</td>
+<td align="right">231136.0000</td>
+<td align="right">231136.0000</td>
+</tr>
+<tr class="even">
+<td align="left">EDUC_ATTAINMENTLess than high school</td>
+<td align="right">365566.0000</td>
+<td align="right">365566.0000</td>
+</tr>
+<tr class="odd">
+<td align="left">se1</td>
+<td align="right">13431.8530</td>
+<td align="right">13394.9418</td>
+</tr>
+<tr class="even">
+<td align="left">se2</td>
+<td align="right">13428.3505</td>
+<td align="right">13423.6436</td>
+</tr>
+<tr class="odd">
+<td align="left">se3</td>
+<td align="right">633.6013</td>
+<td align="right">633.5867</td>
+</tr>
+<tr class="even">
+<td align="left">se4</td>
+<td align="right">107.8910</td>
+<td align="right">107.9815</td>
+</tr>
+<tr class="odd">
+<td align="left">se5</td>
+<td align="right">471.9384</td>
+<td align="right">471.9864</td>
+</tr>
+<tr class="even">
+<td align="left">se6</td>
+<td align="right">593.9867</td>
+<td align="right">594.0839</td>
+</tr>
+<tr class="odd">
+<td align="left">se7</td>
+<td align="right">615.9416</td>
+<td align="right">616.0278</td>
+</tr>
+<tr class="even">
+<td align="left">se8</td>
+<td align="right">595.8601</td>
+<td align="right">596.2711</td>
+</tr>
+<tr class="odd">
+<td align="left">se9</td>
+<td align="right">2004.2516</td>
+<td align="right">2003.8989</td>
+</tr>
+<tr class="even">
+<td align="left">se10</td>
+<td align="right">2065.7822</td>
+<td align="right">2066.5749</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="post-stratification" class="section level3">
+<h3>Post-stratification</h3>
+<p>The primary difference between post-stratification and raking is that
+post-stratification essentially involves only a single calibration
+variable, with population benchmarks provided for each value of that
+variable. In the Louisville vaccination survey, that variable is called
+<code>POSTSTRATUM</code> and is based on combinations of race/ethnicity,
+sex, and educational attainment.</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create matching post-stratification variable in both datasets</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  nr_adjusted_design <span class="ot">&lt;-</span> nr_adjusted_design <span class="sc">|&gt;</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">transform</span>(<span class="at">POSTSTRATUM =</span> <span class="fu">interaction</span>(RACE_ETHNICITY, SEX, EDUC_ATTAINMENT,</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">sep =</span> <span class="st">&quot;|&quot;</span>))</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  pums_rep_design <span class="ot">&lt;-</span> pums_rep_design <span class="sc">|&gt;</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">transform</span>(<span class="at">POSTSTRATUM =</span> <span class="fu">interaction</span>(RACE_ETHNICITY, SEX, EDUC_ATTAINMENT,</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">sep =</span> <span class="st">&quot;|&quot;</span>))</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">levels</span>(pums_rep_design<span class="sc">$</span>variables<span class="sc">$</span>POSTSTRATUM) <span class="ot">&lt;-</span> <span class="fu">levels</span>(</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>    nr_adjusted_design<span class="sc">$</span>variables<span class="sc">$</span>POSTSTRATUM</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimate control totals</span></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>  acs_control_totals <span class="ot">&lt;-</span> <span class="fu">svytotal</span>(</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="sc">~</span> POSTSTRATUM,</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">design =</span> pums_rep_design</span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>  poststratification_totals <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;estimate&#39;</span> <span class="ot">=</span> <span class="fu">coef</span>(acs_control_totals),</span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;variance-covariance&#39;</span> <span class="ot">=</span> <span class="fu">vcov</span>(acs_control_totals)</span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Inspect the control totals</span></span>
+<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a>  poststratification_totals<span class="sc">$</span>estimate <span class="sc">|&gt;</span></span>
+<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as.data.frame</span>() <span class="sc">|&gt;</span></span>
+<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">colnames&lt;-</span><span class="st">`</span>(<span class="st">&#39;estimate&#39;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a>    knitr<span class="sc">::</span><span class="fu">kable</span>()</span></code></pre></div>
+<table>
+<colgroup>
+<col width="92%" />
+<col width="7%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="right">estimate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">POSTSTRATUMBlack or African American alone, not
+Hispanic or Latino|Female|High school or beyond</td>
+<td align="right">12168</td>
+</tr>
+<tr class="even">
+<td align="left">POSTSTRATUMHispanic or Latino|Female|High school or
+beyond</td>
+<td align="right">3998</td>
+</tr>
+<tr class="odd">
+<td align="left">POSTSTRATUMOther Race, not Hispanic or
+Latino|Female|High school or beyond</td>
+<td align="right">6190</td>
+</tr>
+<tr class="even">
+<td align="left">POSTSTRATUMWhite alone, not Hispanic or
+Latino|Female|High school or beyond</td>
+<td align="right">84041</td>
+</tr>
+<tr class="odd">
+<td align="left">POSTSTRATUMBlack or African American alone, not
+Hispanic or Latino|Male|High school or beyond</td>
+<td align="right">17648</td>
+</tr>
+<tr class="even">
+<td align="left">POSTSTRATUMHispanic or Latino|Male|High school or
+beyond</td>
+<td align="right">4132</td>
+</tr>
+<tr class="odd">
+<td align="left">POSTSTRATUMOther Race, not Hispanic or Latino|Male|High
+school or beyond</td>
+<td align="right">6687</td>
+</tr>
+<tr class="even">
+<td align="left">POSTSTRATUMWhite alone, not Hispanic or
+Latino|Male|High school or beyond</td>
+<td align="right">96272</td>
+</tr>
+<tr class="odd">
+<td align="left">POSTSTRATUMBlack or African American alone, not
+Hispanic or Latino|Female|Less than high school</td>
+<td align="right">41944</td>
+</tr>
+<tr class="even">
+<td align="left">POSTSTRATUMHispanic or Latino|Female|Less than high
+school</td>
+<td align="right">10321</td>
+</tr>
+<tr class="odd">
+<td align="left">POSTSTRATUMOther Race, not Hispanic or
+Latino|Female|Less than high school</td>
+<td align="right">6753</td>
+</tr>
+<tr class="even">
+<td align="left">POSTSTRATUMWhite alone, not Hispanic or
+Latino|Female|Less than high school</td>
+<td align="right">118273</td>
+</tr>
+<tr class="odd">
+<td align="left">POSTSTRATUMBlack or African American alone, not
+Hispanic or Latino|Male|Less than high school</td>
+<td align="right">47281</td>
+</tr>
+<tr class="even">
+<td align="left">POSTSTRATUMHispanic or Latino|Male|Less than high
+school</td>
+<td align="right">8550</td>
+</tr>
+<tr class="odd">
+<td align="left">POSTSTRATUMOther Race, not Hispanic or Latino|Male|Less
+than high school</td>
+<td align="right">8003</td>
+</tr>
+<tr class="even">
+<td align="left">POSTSTRATUMWhite alone, not Hispanic or
+Latino|Male|Less than high school</td>
+<td align="right">124441</td>
+</tr>
+</tbody>
+</table>
+<p>To post-stratify the design, we can either supply the estimates and
+their variance-covariance matrix to
+<code>calibrate_to_estimate()</code>, or we can supply the two replicate
+design objects to <code>calibrate_to_sample()</code>. With either
+method, we need to supply the <code>cal_formula</code> argument with the
+same formula we would use for <code>svytotal()</code>. To use a
+post-stratification adjustment (rather than raking), we specify
+<code>calfun = survey::cal.linear</code>.</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Post-stratify the design using the estimates</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>poststrat_design_fuller <span class="ot">&lt;-</span> <span class="fu">calibrate_to_estimate</span>(</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">rep_design =</span> nr_adjusted_design,</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimate =</span> poststratification_totals<span class="sc">$</span>estimate,</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">vcov_estimate =</span> poststratification_totals<span class="sc">$</span><span class="st">`</span><span class="at">variance-covariance</span><span class="st">`</span>,</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">cal_formula =</span> <span class="sc">~</span> POSTSTRATUM, <span class="co"># Specify the post-stratification variable</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">calfun =</span> survey<span class="sc">::</span>cal.linear <span class="co"># This option is required for post-stratification</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Selection of replicate columns whose control totals will be perturbed will be done at random.</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; For tips on reproducible selection, see `help(&#39;calibrate_to_estimate&#39;)`</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in svrepdesign.default(data = rep_design$variables, repweights =</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; adjusted_replicate_weights, : rho not relevant to JK1 design: ignored.</span></span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Post-stratify the design using the two samples</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>poststrat_design_opsomer_erciulescu <span class="ot">&lt;-</span> <span class="fu">calibrate_to_sample</span>(</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">primary_rep_design =</span> nr_adjusted_design,</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">control_rep_design =</span> pums_rep_design,</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">cal_formula =</span> <span class="sc">~</span> POSTSTRATUM, <span class="co"># Specify the post-stratification variable</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">calfun =</span> survey<span class="sc">::</span>cal.linear <span class="co"># This option is required for post-stratification</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Matching between primary and control replicates will be done at random.</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; For tips on reproducible matching, see `help(&#39;calibrate_to_sample&#39;)`</span></span></code></pre></div>
+<p>As with the raking example, we can see that the full-sample
+post-stratified estimates are exactly the same for the two methods. The
+standard errors for post-stratification variables are essentially
+identical, while the standard errors for other variables differ
+slightly.</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>estimates_by_design <span class="ot">&lt;-</span> <span class="fu">svyby_repwts</span>(</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">rep_designs =</span> <span class="fu">list</span>(</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;calibrate_to_estimate()&quot;</span> <span class="ot">=</span> poststrat_design_fuller,</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;calibrate_to_sample()&quot;</span> <span class="ot">=</span> poststrat_design_opsomer_erciulescu</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">FUN =</span> svymean,</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> <span class="sc">~</span> VAX_STATUS <span class="sc">+</span> RACE_ETHNICITY <span class="sc">+</span> SEX <span class="sc">+</span> EDUC_ATTAINMENT</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a><span class="fu">t</span>(estimates_by_design[,<span class="sc">-</span><span class="dv">1</span>]) <span class="sc">|&gt;</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>()</span></code></pre></div>
+<table>
+<colgroup>
+<col width="60%" />
+<col width="20%" />
+<col width="18%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="right">calibrate_to_estimate()</th>
+<th align="right">calibrate_to_sample()</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">VAX_STATUSUnvaccinated</td>
+<td align="right">0.4779776</td>
+<td align="right">0.4779776</td>
+</tr>
+<tr class="even">
+<td align="left">VAX_STATUSVaccinated</td>
+<td align="right">0.5220224</td>
+<td align="right">0.5220224</td>
+</tr>
+<tr class="odd">
+<td align="left">RACE_ETHNICITYBlack or African American alone, not
+Hispanic or Latino</td>
+<td align="right">0.1994982</td>
+<td align="right">0.1994982</td>
+</tr>
+<tr class="even">
+<td align="left">RACE_ETHNICITYHispanic or Latino</td>
+<td align="right">0.0452504</td>
+<td align="right">0.0452504</td>
+</tr>
+<tr class="odd">
+<td align="left">RACE_ETHNICITYOther Race, not Hispanic or Latino</td>
+<td align="right">0.0463095</td>
+<td align="right">0.0463095</td>
+</tr>
+<tr class="even">
+<td align="left">RACE_ETHNICITYWhite alone, not Hispanic or Latino</td>
+<td align="right">0.7089418</td>
+<td align="right">0.7089418</td>
+</tr>
+<tr class="odd">
+<td align="left">SEXFemale</td>
+<td align="right">0.4754266</td>
+<td align="right">0.4754266</td>
+</tr>
+<tr class="even">
+<td align="left">SEXMale</td>
+<td align="right">0.5245734</td>
+<td align="right">0.5245734</td>
+</tr>
+<tr class="odd">
+<td align="left">EDUC_ATTAINMENTHigh school or beyond</td>
+<td align="right">0.3873558</td>
+<td align="right">0.3873558</td>
+</tr>
+<tr class="even">
+<td align="left">EDUC_ATTAINMENTLess than high school</td>
+<td align="right">0.6126442</td>
+<td align="right">0.6126442</td>
+</tr>
+<tr class="odd">
+<td align="left">se1</td>
+<td align="right">0.0234580</td>
+<td align="right">0.0234699</td>
+</tr>
+<tr class="even">
+<td align="left">se2</td>
+<td align="right">0.0234580</td>
+<td align="right">0.0234699</td>
+</tr>
+<tr class="odd">
+<td align="left">se3</td>
+<td align="right">0.0009762</td>
+<td align="right">0.0009765</td>
+</tr>
+<tr class="even">
+<td align="left">se4</td>
+<td align="right">0.0001856</td>
+<td align="right">0.0001856</td>
+</tr>
+<tr class="odd">
+<td align="left">se5</td>
+<td align="right">0.0007811</td>
+<td align="right">0.0007802</td>
+</tr>
+<tr class="even">
+<td align="left">se6</td>
+<td align="right">0.0007037</td>
+<td align="right">0.0007036</td>
+</tr>
+<tr class="odd">
+<td align="left">se7</td>
+<td align="right">0.0007464</td>
+<td align="right">0.0007464</td>
+</tr>
+<tr class="even">
+<td align="left">se8</td>
+<td align="right">0.0007464</td>
+<td align="right">0.0007464</td>
+</tr>
+<tr class="odd">
+<td align="left">se9</td>
+<td align="right">0.0033292</td>
+<td align="right">0.0033324</td>
+</tr>
+<tr class="even">
+<td align="left">se10</td>
+<td align="right">0.0033292</td>
+<td align="right">0.0033324</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="reproducibility" class="section level2">
+<h2>Reproducibility</h2>
+<p>The calibration methods for <code>calibrate_to_estimate()</code> and
+<code>calibrate_to_sample()</code> involve one element of randomization:
+determining which columns of replicate weights are assigned to a given
+perturbation of the control totals. In the
+<code>calibrate_to_sample()</code> method of <span class="citation">Fuller (1998)</span>, if the control totals are a
+vector of dimension <span class="math inline">\(p\)</span>, then <span class="math inline">\(p\)</span> columns of replicate weights will be
+calibrated to <span class="math inline">\(p\)</span> different vectors
+of perturbed control totals, formed using the <span class="math inline">\(p\)</span> scaled eigenvectors from a spectral
+decomposition of the control totals’ variance-covariance matrix (sorted
+in order by the largest to smallest eigenvalues). To control which
+columns of replicate weights will be calibrated to each set of perturbed
+control totals, we can use the function argument
+<code>col_selection</code>.</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Randomly select which columns will be assigned to each set of perturbed control totals</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>dimension_of_control_totals <span class="ot">&lt;-</span> <span class="fu">length</span>(poststratification_totals<span class="sc">$</span>estimate)</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>columns_to_perturb <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="at">x =</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">ncol</span>(nr_adjusted_design<span class="sc">$</span>repweights),</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>                             <span class="at">size =</span> dimension_of_control_totals)</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(columns_to_perturb)</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [1]  40 945 122 764 609 751 170 948 835 118 276 355 974 454 378 686</span></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform the calibration</span></span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>poststratified_design <span class="ot">&lt;-</span> <span class="fu">calibrate_to_estimate</span>(</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">rep_design =</span> nr_adjusted_design,</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimate =</span> poststratification_totals<span class="sc">$</span>estimate,</span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">vcov_estimate =</span> poststratification_totals<span class="sc">$</span><span class="st">`</span><span class="at">variance-covariance</span><span class="st">`</span>,</span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">cal_formula =</span> <span class="sc">~</span> POSTSTRATUM,</span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">calfun =</span> survey<span class="sc">::</span>cal.linear,</span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">col_selection =</span> columns_to_perturb <span class="co"># Specified for reproducibility</span></span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in svrepdesign.default(data = rep_design$variables, repweights =</span></span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; adjusted_replicate_weights, : rho not relevant to JK1 design: ignored.</span></span></code></pre></div>
+<p>The calibrated survey design object contains an element
+<code>perturbed_control_cols</code> which indicates which columns were
+calibrated to the perturbed control totals; this can be useful to save
+and use as an input to <code>col_selection</code> to ensure
+reproducibility.</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>poststratified_design<span class="sc">$</span>perturbed_control_cols</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [1]  40 945 122 764 609 751 170 948 835 118 276 355 974 454 378 686</span></span></code></pre></div>
+<p>For <code>calibrate_to_sample()</code>, matching is done between
+columns of replicate weights in the primary survey and columns of
+replicate weights in the control survey. The matching is done at random
+unless the user specifies otherwise using the argument
+<code>control_col_matches</code>. In the Louisville Vaccination Survey,
+the primary survey has 1,000 replicates while the control survey has 80
+columns. So we can match these 80 columns to the 1,000 replicates by
+specifying 1,000 values consisting of <code>NA</code> or integers
+between 1 and 80.</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Randomly match the primary replicates to control replicates</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1999</span>)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>column_matching <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="cn">NA</span>, <span class="at">times =</span> <span class="fu">ncol</span>(nr_adjusted_design<span class="sc">$</span>repweights))</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>column_matching[<span class="fu">sample</span>(<span class="at">x =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">1000</span>, <span class="at">size =</span> <span class="dv">80</span>)] <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">80</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(column_matching)</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  int [1:1000] NA NA NA 34 NA NA NA 68 NA NA ...</span></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform the calibration</span></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>poststratified_design <span class="ot">&lt;-</span> <span class="fu">calibrate_to_sample</span>(</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">primary_rep_design =</span> nr_adjusted_design,</span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">control_rep_design =</span> pums_rep_design,</span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">cal_formula =</span> <span class="sc">~</span> POSTSTRATUM,</span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">calfun =</span> survey<span class="sc">::</span>cal.linear,</span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">control_col_matches =</span> column_matching</span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<p>The calibrated survey design object contains an element
+<code>control_column_matches</code> which control survey replicate each
+primary survey replicate column was matched to.</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(poststratified_design<span class="sc">$</span>control_column_matches)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  int [1:1000] NA NA NA 34 NA NA NA 68 NA NA ...</span></span></code></pre></div>
+</div>
+<div id="references" class="section level1 unnumbered">
+<h1 class="unnumbered">References</h1>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-10.2307/24306529" class="csl-entry">
+Fuller, Wayne A. 1998. <span>“Replication <span>Variance
+Estimation</span> for <span>Two-Phase Samples</span>.”</span>
+<em>Statistica Sinica</em> 8 (4): 1153–64.
+</div>
+<div id="ref-opsomerReplicationVarianceEstimation2021" class="csl-entry">
+Opsomer, J. D., and A. L. Erciulescu. 2021. <span>“Replication Variance
+Estimation After Sample-Based Calibration.”</span> <em>Survey
+Methodology, Statistics Canada</em> Vol. 47 (No. 2).
+</div>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
