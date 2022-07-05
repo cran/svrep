@@ -801,9 +801,7 @@ adjustment, we specify <code>calfun = survey::cal.raking</code>.</p>
 <span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">epsilon =</span> <span class="fl">1e-9</span></span>
 <span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Selection of replicate columns whose control totals will be perturbed will be done at random.</span></span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; For tips on reproducible selection, see `help(&#39;calibrate_to_estimate&#39;)`</span></span>
-<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in svrepdesign.default(data = rep_design$variables, repweights =</span></span>
-<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; adjusted_replicate_weights, : rho not relevant to JK1 design: ignored.</span></span></code></pre></div>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; For tips on reproducible selection, see `help(&#39;calibrate_to_estimate&#39;)`</span></span></code></pre></div>
 <p>Now we can compare the estimated totals for the calibration variables
 to the actual control totals. As we might intuitively expect, the
 estimated totals from the survey now match the control totals, and the
@@ -1073,13 +1071,13 @@ Hispanic or Latino</td>
 </tr>
 <tr class="odd">
 <td align="left">se1</td>
-<td align="right">13431.8530</td>
-<td align="right">13394.9418</td>
+<td align="right">13407.3086</td>
+<td align="right">13408.9377</td>
 </tr>
 <tr class="even">
 <td align="left">se2</td>
-<td align="right">13428.3505</td>
-<td align="right">13423.6436</td>
+<td align="right">13412.0645</td>
+<td align="right">13416.9623</td>
 </tr>
 <tr class="odd">
 <td align="left">se3</td>
@@ -1272,9 +1270,7 @@ post-stratification adjustment (rather than raking), we specify
 <span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">calfun =</span> survey<span class="sc">::</span>cal.linear <span class="co"># This option is required for post-stratification</span></span>
 <span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Selection of replicate columns whose control totals will be perturbed will be done at random.</span></span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; For tips on reproducible selection, see `help(&#39;calibrate_to_estimate&#39;)`</span></span>
-<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in svrepdesign.default(data = rep_design$variables, repweights =</span></span>
-<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; adjusted_replicate_weights, : rho not relevant to JK1 design: ignored.</span></span></code></pre></div>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; For tips on reproducible selection, see `help(&#39;calibrate_to_estimate&#39;)`</span></span></code></pre></div>
 <div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Post-stratify the design using the two samples</span></span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>poststrat_design_opsomer_erciulescu <span class="ot">&lt;-</span> <span class="fu">calibrate_to_sample</span>(</span>
 <span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">primary_rep_design =</span> nr_adjusted_design,</span>
@@ -1367,13 +1363,13 @@ Hispanic or Latino</td>
 </tr>
 <tr class="odd">
 <td align="left">se1</td>
-<td align="right">0.0234580</td>
-<td align="right">0.0234699</td>
+<td align="right">0.0234869</td>
+<td align="right">0.0234767</td>
 </tr>
 <tr class="even">
 <td align="left">se2</td>
-<td align="right">0.0234580</td>
-<td align="right">0.0234699</td>
+<td align="right">0.0234869</td>
+<td align="right">0.0234767</td>
 </tr>
 <tr class="odd">
 <td align="left">se3</td>
@@ -1441,7 +1437,7 @@ control totals, we can use the function argument
 <span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>                             <span class="at">size =</span> dimension_of_control_totals)</span>
 <span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(columns_to_perturb)</span>
-<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [1]  40 945 122 764 609 751 170 948 835 118 276 355 974 454 378 686</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [1] 618 579 387 788 685 895 831 277 386 897 283 370 289   1 394 790</span></span>
 <span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform the calibration</span></span>
 <span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>poststratified_design <span class="ot">&lt;-</span> <span class="fu">calibrate_to_estimate</span>(</span>
@@ -1451,16 +1447,14 @@ control totals, we can use the function argument
 <span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">cal_formula =</span> <span class="sc">~</span> POSTSTRATUM,</span>
 <span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">calfun =</span> survey<span class="sc">::</span>cal.linear,</span>
 <span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">col_selection =</span> columns_to_perturb <span class="co"># Specified for reproducibility</span></span>
-<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in svrepdesign.default(data = rep_design$variables, repweights =</span></span>
-<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; adjusted_replicate_weights, : rho not relevant to JK1 design: ignored.</span></span></code></pre></div>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <p>The calibrated survey design object contains an element
 <code>perturbed_control_cols</code> which indicates which columns were
 calibrated to the perturbed control totals; this can be useful to save
 and use as an input to <code>col_selection</code> to ensure
 reproducibility.</p>
 <div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>poststratified_design<span class="sc">$</span>perturbed_control_cols</span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [1]  40 945 122 764 609 751 170 948 835 118 276 355 974 454 378 686</span></span></code></pre></div>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [1] 618 579 387 788 685 895 831 277 386 897 283 370 289   1 394 790</span></span></code></pre></div>
 <p>For <code>calibrate_to_sample()</code>, matching is done between
 columns of replicate weights in the primary survey and columns of
 replicate weights in the control survey. The matching is done at random

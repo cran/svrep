@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Nonresponse Adjustments</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Nonresponse Adjustments</h1>
+
+
+<div id="TOC">
+<ul>
+<li><a href="#creating-initial-replicate-weights">Creating initial
+replicate weights</a></li>
+<li><a href="#redistributing-weight-from-nonrespondents-to-respondents">Redistributing
+weight from nonrespondents to respondents</a></li>
+<li><a href="#conducting-weighting-class-adjustments">Conducting
+weighting class adjustments</a>
+<ul>
+<li><a href="#propensity-cell-adjustment">Propensity cell
+adjustment</a></li>
+</ul></li>
+<li><a href="#saving-the-final-weights-to-a-data-file">Saving the final
+weights to a data file</a></li>
+<li><a href="#statistical-background">Statistical background</a></li>
+<li><a href="#recommended-reading">Recommended Reading</a></li>
+</ul>
+</div>
+
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr) <span class="co"># For data manipulation</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(survey) <span class="co"># For complex survey analysis</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(srvyr) <span class="co"># For complex survey analysis with dplyr syntax</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(svrep)</span></code></pre></div>
+<p>In this short vignette, we’ll demonstrate how the svrep package can
+be used to implement weighting adjustments for nonresponse in survey
+samples. For illustration, we’ll use an example survey measuring
+Covid-19 vaccination status and a handful of demographic variables,
+based on a simple random sample of 1,000 residents of Louisville,
+Kentucky.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load and inspect the data</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;lou_vax_survey&quot;</span>, <span class="at">package =</span> <span class="st">&#39;svrep&#39;</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(lou_vax_survey)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 6 × 6</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   RESPONSE_STATUS RACE_ETHNICITY                SEX   EDUC_ATTAINMENT VAX_STATUS</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;           &lt;chr&gt;                         &lt;chr&gt; &lt;chr&gt;           &lt;chr&gt;     </span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 Nonrespondent   White alone, not Hispanic or… Fema… Less than high… &lt;NA&gt;      </span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 Nonrespondent   Black or African American al… Fema… High school or… &lt;NA&gt;      </span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 Respondent      White alone, not Hispanic or… Fema… Less than high… Vaccinated</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 Nonrespondent   White alone, not Hispanic or… Fema… Less than high… &lt;NA&gt;      </span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5 Nonrespondent   White alone, not Hispanic or… Fema… High school or… &lt;NA&gt;      </span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6 Respondent      White alone, not Hispanic or… Fema… High school or… Vaccinated</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # … with 1 more variable: SAMPLING_WEIGHT &lt;dbl&gt;</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(lou_vax_survey)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;RESPONSE_STATUS&quot; &quot;RACE_ETHNICITY&quot;  &quot;SEX&quot;             &quot;EDUC_ATTAINMENT&quot;</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [5] &quot;VAX_STATUS&quot;      &quot;SAMPLING_WEIGHT&quot;</span></span></code></pre></div>
+<p>This vaccination survey has an overall response rate of 50.2%, which
+means that estimated vaccination rates may be significantly biased by
+nonresponse. We’ll use nonresponse weighting adjustments to try and
+reduce potential nonresponse bias.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>lou_vax_survey <span class="sc">|&gt;</span> <span class="fu">count</span>(RESPONSE_STATUS) <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">pct =</span> n<span class="sc">/</span><span class="fu">sum</span>(n))</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 2 × 3</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   RESPONSE_STATUS     n   pct</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;           &lt;int&gt; &lt;dbl&gt;</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 Nonrespondent     498 0.498</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 Respondent        502 0.502</span></span></code></pre></div>
+<div id="creating-initial-replicate-weights" class="section level2">
+<h2>Creating initial replicate weights</h2>
+<p>To begin with, we’ll create bootstrap replicate weights using the
+<code>as.svrepdesign()</code> function from the survey package. The
+initial step is to describe the survey design using the
+<code>svydesign()</code> function and then create appropriate replicate
+weights using <code>as.svrepdesign()</code> and additional arguments
+such as <code>type</code> (with options <code>&#39;JK1&#39;</code>,
+<code>&#39;JKn&#39;</code>, <code>&#39;bootstrap&#39;</code>, <code>&#39;BRR&#39;</code>,
+<code>&#39;Fay&#39;</code>, etc.) At the beginning, the replicate weights allow
+us to estimate variance in unadjusted estimates caused by random
+sampling. Note that when creating the initial replicate weights, it is
+almost always necessary to use data for the entire selected sample
+(i.e. respondents as well as nonrespondents).</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Describe the survey design</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>lou_vax_survey <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(<span class="at">ids =</span> <span class="sc">~</span> <span class="dv">1</span>, <span class="at">weights =</span> <span class="sc">~</span> SAMPLING_WEIGHT,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>                            <span class="at">data =</span> lou_vax_survey)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(lou_vax_survey)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Independent Sampling design (with replacement)</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; svydesign(ids = ~1, weights = ~SAMPLING_WEIGHT, data = lou_vax_survey)</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Create appropriate replicate weights</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>lou_vax_survey <span class="ot">&lt;-</span> lou_vax_survey <span class="sc">|&gt;</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.svrepdesign</span>(<span class="at">type =</span> <span class="st">&quot;boot&quot;</span>, <span class="at">replicates =</span> <span class="dv">100</span>, <span class="at">mse =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(lou_vax_survey)</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Call: as.svrepdesign.default(lou_vax_survey, type = &quot;boot&quot;, replicates = 100, </span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     mse = TRUE)</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Survey bootstrap with 100 replicates and MSE variances.</span></span></code></pre></div>
+<p>For convenience, we’ll convert this survey design object into an
+object with class <code>tbl_svy</code>, which allows us to use
+convenient tidyverse/dplyr syntax (<code>group_by()</code>,
+<code>summarize()</code>, etc.) as well as other helpful functions from
+the srvyr package.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>lou_vax_survey <span class="ot">&lt;-</span> lou_vax_survey <span class="sc">|&gt;</span> <span class="fu">as_survey</span>()</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(lou_vax_survey)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Call: Called via srvyr</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Survey bootstrap with 100 replicates and MSE variances.</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Data variables: RESPONSE_STATUS (chr), RACE_ETHNICITY (chr), SEX (chr),</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   EDUC_ATTAINMENT (chr), VAX_STATUS (chr), SAMPLING_WEIGHT (dbl)</span></span></code></pre></div>
+</div>
+<div id="redistributing-weight-from-nonrespondents-to-respondents" class="section level2">
+<h2>Redistributing weight from nonrespondents to respondents</h2>
+<p>A common form of nonresponse adjustment is to simply ‘redistribute’
+weight from the nonrespondents to the nonrespondents. In other words,
+the weight for each nonrespondent is set to <span class="math inline">\(0\)</span>, and the weight for each respondent is
+increased by a factor greater than one so that the sum of adjusted
+weights in the sample of respondents equals the sum of unadjusted
+weights from the full sample. For example, if the sum of weights among
+respondents is <span class="math inline">\(299,544.4\)</span> and the
+sum of weights among nonrespondents is <span class="math inline">\(297,157.6\)</span>, then a basic nonresponse
+adjustment would set the weights among nonrespondents to <span class="math inline">\(0\)</span> and multiply the weight for each
+respondent by an adjustment factor equal to <span class="math inline">\(1 + (297,157.6/299,544.4)\)</span>. This type of
+adjustment is succinctly described in mathematical notation below.</p>
+<span class="math display">\[\begin{aligned}
+w_i &amp;= \textit{Original sampling weight for case }i \\
+    &amp;= 1/\pi_i, \textit{ where } \pi_i \textit{ is the probability
+case i }\textit{had of being sampled}\\
+f_{NR,i} &amp;= \textit{Nonresponse adjustment factor for case i} \\
+w_{NR, i} &amp;= w_i \times f_{NR,i} = \textit{Weight for case }i
+\textit{ after nonresponse adjustment} \\
+
+\\
+\sum_{i \in s_{resp}} w_i &amp;= \textit{Sum of sampling weights among
+respondents} \\
+\sum_{i \in s_{nonresp}} w_i &amp;= \textit{Sum of sampling weights
+among nonrespondents} \\
+\\
+f_{NR_i} &amp;= \begin{cases}
+     0 &amp; \textit{if case }i\textit{ is a nonrespondent} \\
+     1 + \frac{\sum_{i \in s_{nonresp}} w_i}{\sum_{i \in s_{resp}}}
+&amp; \textit{if case }i\textit{ is a respondent}
+           \end{cases}
+\end{aligned}\]</span>
+<p>We’ll illustrate this type of adjustment with the Louisville
+vaccination survey. First, we’ll inspect the sum of the sampling weights
+for respondents, nonrespondents, and the overall sample.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Weights before adjustment</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>lou_vax_survey <span class="sc">|&gt;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(RESPONSE_STATUS) <span class="sc">|&gt;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cascade</span>(</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Sum of Weights</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">sum</span>(<span class="fu">cur_svy_wts</span>()),</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">.fill =</span> <span class="st">&quot;TOTAL&quot;</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 3 × 2</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   RESPONSE_STATUS `Sum of Weights`</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;                      &lt;dbl&gt;</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 Nonrespondent            297158.</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 Respondent               299544.</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 TOTAL                    596702</span></span></code></pre></div>
+<p>Next, we’ll redistribute weight from nonrespondents to respondents
+using the <code>redistribute_weights()</code> function, which adjusts
+the full-sample weights as well as each set of replicate weights. To
+specify which subset of data should have its weights reduced, we supply
+a logical expression to the argument <code>reduce_if</code>. To specify
+which subset of data should have its weights increased, we supply a
+logical expression to the argument <code>increase_if</code>.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Conduct a basic nonresponse adjustment</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>nr_adjusted_survey <span class="ot">&lt;-</span> lou_vax_survey <span class="sc">|&gt;</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">redistribute_weights</span>(</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">reduce_if =</span> RESPONSE_STATUS <span class="sc">==</span> <span class="st">&quot;Nonrespondent&quot;</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">increase_if =</span> RESPONSE_STATUS <span class="sc">==</span> <span class="st">&quot;Respondent&quot;</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<p>After making the adjustment, we can check that all of the weight from
+nonrespondents has been redistributed to respondents.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check the sum of full-sample weights by response status</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>nr_adjusted_survey <span class="sc">|&gt;</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(RESPONSE_STATUS) <span class="sc">|&gt;</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cascade</span>(</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Sum of Weights</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">sum</span>(<span class="fu">cur_svy_wts</span>()),</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">.fill =</span> <span class="st">&quot;TOTAL&quot;</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 3 × 2</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   RESPONSE_STATUS `Sum of Weights`</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;                      &lt;dbl&gt;</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 Nonrespondent                  0</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 Respondent                596702</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 TOTAL                     596702</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check sums of replicate weights by response status</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>nr_adjusted_survey <span class="sc">|&gt;</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize_rep_weights</span>(</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">type =</span> <span class="st">&quot;specific&quot;</span>,</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">by =</span> <span class="st">&quot;RESPONSE_STATUS&quot;</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(Rep_Column, RESPONSE_STATUS) <span class="sc">|&gt;</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">10</span>)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    RESPONSE_STATUS Rep_Column   N N_NONZERO    SUM     MEAN        CV MIN</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1    Nonrespondent          1 498         0      0    0.000       NaN   0</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2       Respondent          1 502       321 596702 1188.649 0.9712066   0</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3    Nonrespondent          2 498         0      0    0.000       NaN   0</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4       Respondent          2 502       338 596702 1188.649 0.9427751   0</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5    Nonrespondent          3 498         0      0    0.000       NaN   0</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6       Respondent          3 502       315 596702 1188.649 0.9950186   0</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 7    Nonrespondent          4 498         0      0    0.000       NaN   0</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 8       Respondent          4 502       323 596702 1188.649 0.9861058   0</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 9    Nonrespondent          5 498         0      0    0.000       NaN   0</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10      Respondent          5 502       303 596702 1188.649 1.0688640   0</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         MAX</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1     0.000</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2  5873.051</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3     0.000</span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4  8110.513</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5     0.000</span></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6  6101.247</span></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 7     0.000</span></span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 8  5815.809</span></span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 9     0.000</span></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10 7276.854</span></span></code></pre></div>
+</div>
+<div id="conducting-weighting-class-adjustments" class="section level2">
+<h2>Conducting weighting class adjustments</h2>
+<p>Nonresponse bias is liable to occur if different subpopulations
+systematically differ in terms of their response rates to the survey and
+also differ in terms of what the survey is trying to measure (in this
+case, vaccination status). In our example, we can see some fairly large
+differences in response rates across different race/ethnicity
+groups.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>lou_vax_survey <span class="sc">|&gt;</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(RACE_ETHNICITY) <span class="sc">|&gt;</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">Response_Rate =</span> <span class="fu">mean</span>(RESPONSE_STATUS <span class="sc">==</span> <span class="st">&quot;Respondent&quot;</span>),</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">Sample_Size =</span> <span class="fu">n</span>(),</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">n_Respondents =</span> <span class="fu">sum</span>(RESPONSE_STATUS <span class="sc">==</span> <span class="st">&quot;Respondent&quot;</span>))</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 4 × 4</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   RACE_ETHNICITY                         Response_Rate Sample_Size n_Respondents</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;                                          &lt;dbl&gt;       &lt;int&gt;         &lt;int&gt;</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 Black or African American alone, not …         0.452         188            85</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 Hispanic or Latino                             0.378          45            17</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 Other Race, not Hispanic or Latino             0.492          59            29</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 White alone, not Hispanic or Latino            0.524         708           371</span></span></code></pre></div>
+<p>Weighting adjustments may be able to help reduce nonresponse bias
+caused by these differences in response rates. One standard form of
+adjustment known as <strong>weighting class adjustment</strong> is to
+redistribute weights from nonrespondents to respondents separately by
+different categories of auxiliary variables (such as race/ethnicity).
+The survey textbook Heeringa, West, and Berglund (2017) provides an
+excellent overview of weighting class adjustments. To implement a
+weighting class adjustment with the svrep package, we can simply use the
+<code>by</code> argument of <code>redistribute_weights()</code>.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>nr_adjusted_survey <span class="ot">&lt;-</span> lou_vax_survey <span class="sc">|&gt;</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">redistribute_weights</span>(</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">reduce_if =</span> RESPONSE_STATUS <span class="sc">==</span> <span class="st">&quot;Nonrespondent&quot;</span>,</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">increase_if =</span> RESPONSE_STATUS <span class="sc">==</span> <span class="st">&quot;Respondent&quot;</span>,</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;RACE_ETHNICITY&quot;</span>)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<p>Multiple grouping variables may be supplied to the <code>by</code>
+argument. For example, one can specify
+<code>by = c(&quot;STRATUM&quot;, &quot;RACE_ETHNICITY&quot;)</code> to redistribute weights
+separately by combinations of stratum and race/ethnicity category.</p>
+<div id="propensity-cell-adjustment" class="section level3">
+<h3>Propensity cell adjustment</h3>
+<p>The popular method of forming weighting classes based on estimated
+response propensities (known as <strong>propensity cell
+adjustment</strong>) can also be used, for example by adding a variable
+<code>PROPENSITY_CELL</code> to the data and using
+<code>redistribute_weights(..., by = &quot;PROPENSITY_CELL&quot;)</code>.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit a response propensity model</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>response_propensity_model <span class="ot">&lt;-</span> lou_vax_survey <span class="sc">|&gt;</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">IS_RESPONDENT =</span> <span class="fu">ifelse</span>(RESPONSE_STATUS <span class="sc">==</span> <span class="st">&quot;Respondent&quot;</span>, <span class="dv">1</span>, <span class="dv">0</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">svyglm</span>(<span class="at">formula =</span> IS_RESPONDENT <span class="sc">~</span> RACE_ETHNICITY <span class="sc">+</span> EDUC_ATTAINMENT,</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">family =</span> <span class="fu">quasibinomial</span>(<span class="at">link =</span> <span class="st">&#39;logit&#39;</span>))</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Predict response propensities for individual cases</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>lou_vax_survey <span class="ot">&lt;-</span> lou_vax_survey <span class="sc">|&gt;</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">RESPONSE_PROPENSITY =</span> <span class="fu">predict</span>(response_propensity_model,</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>                                  <span class="at">newdata =</span> <span class="fu">cur_svy</span>(),</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>                                  <span class="at">type =</span> <span class="st">&quot;response&quot;</span>)</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Divide sample into propensity classes</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>lou_vax_survey <span class="ot">&lt;-</span> lou_vax_survey <span class="sc">|&gt;</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">PROPENSITY_CELL =</span> <span class="fu">ntile</span>(<span class="at">x =</span> RESPONSE_PROPENSITY, <span class="at">n =</span> <span class="dv">5</span>))</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>lou_vax_survey <span class="sc">|&gt;</span></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(PROPENSITY_CELL) <span class="sc">|&gt;</span></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarize</span>(<span class="at">n =</span> <span class="fu">n</span>(),</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>              <span class="at">min =</span> <span class="fu">min</span>(RESPONSE_PROPENSITY),</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>              <span class="at">mean =</span> <span class="fu">mean</span>(RESPONSE_PROPENSITY),</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>              <span class="at">max =</span> <span class="fu">max</span>(RESPONSE_PROPENSITY))</span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 5 × 5</span></span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   PROPENSITY_CELL     n   min  mean   max</span></span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             &lt;int&gt; &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;</span></span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1               1   200 0.357 0.424 0.459</span></span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2               2   200 0.459 0.484 0.488</span></span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3               3   200 0.488 0.488 0.512</span></span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4               4   200 0.512 0.551 0.564</span></span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5               5   200 0.564 0.564 0.564</span></span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Redistribute weights by propensity class</span></span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a>nr_adjusted_survey <span class="ot">&lt;-</span> lou_vax_survey <span class="sc">|&gt;</span></span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">redistribute_weights</span>(</span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">reduce_if =</span> RESPONSE_STATUS <span class="sc">==</span> <span class="st">&quot;Nonrespondent&quot;</span>,</span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">increase_if =</span> RESPONSE_STATUS <span class="sc">==</span> <span class="st">&quot;Respondent&quot;</span>,</span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">by =</span> <span class="st">&quot;PROPENSITY_CELL&quot;</span></span>
+<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a><span class="co"># Inspect weights before adjustment</span></span>
+<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a>lou_vax_survey <span class="sc">|&gt;</span></span>
+<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize_rep_weights</span>(<span class="at">type =</span> <span class="st">&quot;specific&quot;</span>,</span>
+<span id="cb12-46"><a href="#cb12-46" aria-hidden="true" tabindex="-1"></a>                        <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;PROPENSITY_CELL&quot;</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb12-47"><a href="#cb12-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(Rep_Column, PROPENSITY_CELL) <span class="sc">|&gt;</span></span>
+<span id="cb12-48"><a href="#cb12-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(PROPENSITY_CELL, Rep_Column,</span>
+<span id="cb12-49"><a href="#cb12-49" aria-hidden="true" tabindex="-1"></a>         N_NONZERO, SUM) <span class="sc">|&gt;</span></span>
+<span id="cb12-50"><a href="#cb12-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">10</span>)</span>
+<span id="cb12-51"><a href="#cb12-51" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    PROPENSITY_CELL Rep_Column N_NONZERO      SUM</span></span>
+<span id="cb12-52"><a href="#cb12-52" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1                1          1       132 122323.9</span></span>
+<span id="cb12-53"><a href="#cb12-53" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2                2          1       115 110389.9</span></span>
+<span id="cb12-54"><a href="#cb12-54" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3                3          1       125 120533.8</span></span>
+<span id="cb12-55"><a href="#cb12-55" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4                4          1       124 111583.3</span></span>
+<span id="cb12-56"><a href="#cb12-56" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5                5          1       140 131871.1</span></span>
+<span id="cb12-57"><a href="#cb12-57" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6                1          2       140 132467.8</span></span>
+<span id="cb12-58"><a href="#cb12-58" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 7                2          2       126 117550.3</span></span>
+<span id="cb12-59"><a href="#cb12-59" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 8                3          2       124 113373.4</span></span>
+<span id="cb12-60"><a href="#cb12-60" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 9                4          2       127 117550.3</span></span>
+<span id="cb12-61"><a href="#cb12-61" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10               5          2       129 115760.2</span></span>
+<span id="cb12-62"><a href="#cb12-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-63"><a href="#cb12-63" aria-hidden="true" tabindex="-1"></a><span class="co"># Inspect weights after adjustment</span></span>
+<span id="cb12-64"><a href="#cb12-64" aria-hidden="true" tabindex="-1"></a>nr_adjusted_survey <span class="sc">|&gt;</span></span>
+<span id="cb12-65"><a href="#cb12-65" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize_rep_weights</span>(<span class="at">type =</span> <span class="st">&quot;specific&quot;</span>,</span>
+<span id="cb12-66"><a href="#cb12-66" aria-hidden="true" tabindex="-1"></a>                        <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;PROPENSITY_CELL&quot;</span>, <span class="st">&quot;RESPONSE_STATUS&quot;</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb12-67"><a href="#cb12-67" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(Rep_Column, PROPENSITY_CELL, RESPONSE_STATUS) <span class="sc">|&gt;</span></span>
+<span id="cb12-68"><a href="#cb12-68" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(PROPENSITY_CELL, RESPONSE_STATUS, Rep_Column,</span>
+<span id="cb12-69"><a href="#cb12-69" aria-hidden="true" tabindex="-1"></a>         N_NONZERO, SUM) <span class="sc">|&gt;</span></span>
+<span id="cb12-70"><a href="#cb12-70" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">10</span>)</span>
+<span id="cb12-71"><a href="#cb12-71" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    PROPENSITY_CELL RESPONSE_STATUS Rep_Column N_NONZERO      SUM</span></span>
+<span id="cb12-72"><a href="#cb12-72" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1                1   Nonrespondent          1         0      0.0</span></span>
+<span id="cb12-73"><a href="#cb12-73" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2                1      Respondent          1        56 122323.9</span></span>
+<span id="cb12-74"><a href="#cb12-74" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3                2   Nonrespondent          1         0      0.0</span></span>
+<span id="cb12-75"><a href="#cb12-75" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4                2      Respondent          1        53 110389.9</span></span>
+<span id="cb12-76"><a href="#cb12-76" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5                3   Nonrespondent          1         0      0.0</span></span>
+<span id="cb12-77"><a href="#cb12-77" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6                3      Respondent          1        63 120533.8</span></span>
+<span id="cb12-78"><a href="#cb12-78" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 7                4   Nonrespondent          1         0      0.0</span></span>
+<span id="cb12-79"><a href="#cb12-79" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 8                4      Respondent          1        66 111583.3</span></span>
+<span id="cb12-80"><a href="#cb12-80" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 9                5   Nonrespondent          1         0      0.0</span></span>
+<span id="cb12-81"><a href="#cb12-81" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10               5      Respondent          1        83 131871.1</span></span></code></pre></div>
+</div>
+</div>
+<div id="saving-the-final-weights-to-a-data-file" class="section level2">
+<h2>Saving the final weights to a data file</h2>
+<p>Once we’re satisfied with the weights, we can create a data frame
+with the analysis variables and columns of replicate weights. This
+format is easy to export to data files that can be loaded into R or
+other software later.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>data_frame_with_nr_adjusted_weights <span class="ot">&lt;-</span> nr_adjusted_survey <span class="sc">|&gt;</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_data_frame_with_weights</span>(</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">full_wgt_name =</span> <span class="st">&quot;NR_ADJ_WGT&quot;</span>,</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">rep_wgt_prefix =</span> <span class="st">&quot;NR_ADJ_REP_WGT_&quot;</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Preview first few column names</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(data_frame_with_nr_adjusted_weights) <span class="sc">|&gt;</span> <span class="fu">head</span>(<span class="dv">12</span>)</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [1] &quot;RESPONSE_STATUS&quot;     &quot;RACE_ETHNICITY&quot;      &quot;SEX&quot;                </span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [4] &quot;EDUC_ATTAINMENT&quot;     &quot;VAX_STATUS&quot;          &quot;SAMPLING_WEIGHT&quot;    </span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [7] &quot;RESPONSE_PROPENSITY&quot; &quot;PROPENSITY_CELL&quot;     &quot;NR_ADJ_WGT&quot;         </span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [10] &quot;NR_ADJ_REP_WGT_1&quot;    &quot;NR_ADJ_REP_WGT_2&quot;    &quot;NR_ADJ_REP_WGT_3&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Write the data to a CSV file</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> data_frame_with_nr_adjusted_weights,</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">file =</span> <span class="st">&quot;survey-data-with-nonresponse-adjusted-weights.csv&quot;</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+</div>
+<div id="statistical-background" class="section level2">
+<h2>Statistical background</h2>
+<p>The motivation for making this adjustment is that standard methods of
+statistical inference assume that every person in the population has a
+known, nonzero probability of participating in the survey (i.e. has a
+nonzero chance of being sampled and a nonzero chance of responding if
+they are sampled), denoted <span class="math inline">\(p_{i,overall}\)</span>. Basic results in survey
+sampling theory guarantee that if this assumption is true, we can
+produce unbiased estimates of population means and totals by weighting
+data from each respondent with the weight <span class="math inline">\(1/{p_{i,overall}}\)</span>. Crucially, the overall
+probability of participation <span class="math inline">\(p_{i,overall}\)</span> is the product of two
+components: the probability that a person is sampled (denoted <span class="math inline">\(\pi_i\)</span>), and the probability that a person
+would respond to the survey if they are sampled (denoted <span class="math inline">\(p_i\)</span> and referred to as the
+<strong>“response propensity”</strong>). The sampling probability <span class="math inline">\(\pi_i\)</span> is known since we can control the
+method of sampling, but the response propensity <span class="math inline">\(p_i\)</span> is unknown and can only be
+estimated.</p>
+<p><span class="math display">\[
+\begin{aligned}
+w^{*}_i &amp;= 1/p_{i,overall} \text{ (weights needed for unbiased
+estimation)} \\
+p_{i,overall} &amp;= \pi_i \times p_i \\
+\pi_i &amp;= \textbf{Sampling probability} \\
+&amp;\textit{i.e. the probability that case }i\textit{ is randomly
+sampled } \text{ (}\textit{Known}\text{)} \\
+p_i &amp;= \textbf{Response propensity} \\
+&amp;\textit{i.e. the probability that case }i\textit{ responds, if
+sampled } \text{ (}\textit{Unknown}\text{)}  \\
+\end{aligned}
+\]</span></p>
+<p>The component <span class="math inline">\(p_i\)</span> must be
+estimated using data (with estimate <span class="math inline">\(\hat{p}_i\)</span>) and then nonresponse-adjusted
+weights for respondents can be formed as <span class="math inline">\(w_{NR,i} = 1/(\pi_i \times \hat{p}_i)\)</span> and
+used to obtain approximately unbiased estimates of population means and
+totals. To use our earlier notation, the nonresponse adjustment factor
+for respondents <span class="math inline">\(f_{NR,i}\)</span> is
+actually defined using <span class="math inline">\(1/\hat{p}_i\)</span>.</p>
+<p><span class="math display">\[
+\begin{aligned}
+w_i &amp;= \textit{Original sampling weight for case }i \\
+    &amp;= 1/\pi_i, \textit{ where } \pi_i \textit{ is the probability
+case i }\textit{had of being sampled}\\
+w_{NR, i} &amp;= w_i \times f_{NR,i} = \textit{Weight for case }i
+\textit{ after nonresponse adjustment} \\
+\\
+f_{NR,i} &amp;= \begin{cases}
+  0 &amp; \text{if case } i \text{ is a nonrespondent} \\
+  1 / \hat{p}_i &amp; \text{if case } i \text{ is a respondent} \\
+\end{cases} \\
+\hat{p}_i &amp;= \textbf{Estimated response propensity}
+\end{aligned}
+\]</span></p>
+<p>In essence, different methods of nonresponse weighting adjustments
+vary in terms of how they estimate <span class="math inline">\(\hat{p}_i\)</span>. The basic weight
+redistribution method in effect estimates <span class="math inline">\(p_i\)</span> as constant across all <span class="math inline">\(i\)</span>, equal to the overall weighted response
+rate, and uses that to form the weights. In other words, the basic
+weight redistribution essentially is a way of forming an adjustment
+factor <span class="math inline">\(f_{NR,i}\)</span> based on the
+estimated response propensity <span class="math inline">\(\hat{p}_i =
+\frac{\sum_{i \in s_{resp}}w_i}{\sum_{i \in s}w_i}\)</span>.</p>
+<p>Weighting class adjustments and propensity cell adjustments are
+essentially more refined ways of forming <span class="math inline">\(f_{NR,i}\)</span> by estimating <span class="math inline">\(p_i\)</span> with a more realistic model, where
+<span class="math inline">\(p_i\)</span> is not constant across the
+entire sample but instead varies among weighting classes or propensity
+cells.</p>
+<p>The reason for conducting weighting adjustments not only in the
+full-sample weights but in the replicate weights is to account for the
+nonresponse adjustment process when estimating sampling variances and
+inferential statistics such as confidence intervals. Because of random
+sampling, the adjustment factors used in the nonresponse adjustment will
+vary from one sample to the next, and applying weighting adjustments
+separately for each replicate reflects this variability. As we’ve seen
+in this vignette, the <code>redistribute_weights()</code> function
+handles this for us: after nonresponse adjustment, all of the weight in
+each replicate is redistributed in the same manner that weight was
+redistributed for the full-sample weights.</p>
+</div>
+<div id="recommended-reading" class="section level2">
+<h2>Recommended Reading</h2>
+<ul>
+<li>See Chapter 2, Section 2.7.3 of “Applied Survey Data Analysis” for a
+statistical explanation of the weighting adjustments described in this
+vignette.</li>
+</ul>
+<blockquote>
+<p>Heeringa, S., West, B., Berglund, P. (2017). Applied Survey Data
+Analysis, 2nd edition. Boca Raton, FL: CRC Press.</p>
+</blockquote>
+<ul>
+<li>Chapter 13 of “Practical Tools for Designing and Weighting Survey
+Samples” also provides an excellent overview of nonresponse adjustment
+methods.</li>
+</ul>
+<blockquote>
+<p>Valliant, R., Dever, J., Kreuter, F. (2018). Practical Tools for
+Designing and Weighting Survey Samples, 2nd edition. New York:
+Springer.</p>
+</blockquote>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

@@ -1,3 +1,25 @@
+# svrep 0.3.0
+
+* Added helper function `as_data_frame_with_weights()` to convert
+a survey design object into a data frame with columns of 
+weights (full-sample weights and, if applicable, replicate weights).
+This is useful for saving data and weights to a data file.
+
+* Added `by` argument to `summarize_rep_weights()` which allows
+the specification of one or more grouping variables to use for summaries
+(e.g. `by = c('stratum', 'response_status')` can be used to summarize by 
+response status within each stratum).
+
+* Added a small vignette "Nonresponse Adjustments" to illustrate how to 
+conduct nonresponse adjustments using `redistribute_weights()`.
+
+* Minor Updates and Bug Fixes:
+  * Internal code update to avoid annoying but harmless warning message
+  about `rho` in `calibrate_to_estimate()`.
+  * Bug fix for `stack_replicate_designs()` where designs created with
+  `as.svrepdesign(..., type = 'mrbbootstrap')` 
+  or `as.svrepdesign(..., type = 'subbootstrap')` threw an error.
+
 # svrep 0.2.0
 
 * Added functions `calibrate_to_estimate()` and `calibrate_to_sample()`
