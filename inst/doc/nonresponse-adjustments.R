@@ -28,7 +28,8 @@ print(lou_vax_survey)
 
 # Create appropriate replicate weights
 lou_vax_survey <- lou_vax_survey |>
-  as.svrepdesign(type = "boot", replicates = 100, mse = TRUE)
+  as_bootstrap_design(replicates = 100, mse = TRUE,
+                      type = "Rao-Wu-Yue-Beaumont")
 
 print(lou_vax_survey)
 

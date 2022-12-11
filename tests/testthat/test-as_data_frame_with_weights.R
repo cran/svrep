@@ -1,4 +1,8 @@
-suppressPackageStartupMessages(library(survey))
+suppressWarnings({
+  suppressPackageStartupMessages({
+    library(survey)
+  })
+})
 
 data("lou_vax_survey", package = 'svrep')
 
@@ -37,7 +41,7 @@ data("lou_vax_survey", package = 'svrep')
       object = suppressMessages(
         as_data_frame_with_weights(survey_design, full_wgt_name = NULL)
       ),
-      expected = c(colnames(survey_design), "FULL_SAMPLE_WEIGHT")
+      expected = c(colnames(survey_design), "FULL_SAMPLE_WGT")
     )
   })
 
@@ -63,8 +67,8 @@ data("lou_vax_survey", package = 'svrep')
     )
 
     expect_equal(
-      object = rep_df_names[rep_df_names == "FULL_SAMPLE_WEIGHT"],
-      expected = "FULL_SAMPLE_WEIGHT"
+      object = rep_df_names[rep_df_names == "FULL_SAMPLE_WGT"],
+      expected = "FULL_SAMPLE_WGT"
     )
 
   })

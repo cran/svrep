@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Bootstrap Methods for Surveys</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">
+
+div.csl-bib-body { }
+div.csl-entry {
+clear: both;
+}
+.hanging div.csl-entry {
+margin-left:2em;
+text-indent:-2em;
+}
+div.csl-left-margin {
+min-width:2em;
+float:left;
+}
+div.csl-right-inline {
+margin-left:2em;
+padding-left:1em;
+}
+div.csl-indent {
+margin-left: 2em;
+}
+</style>
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Bootstrap Methods for Surveys</h1>
+
+
+<div id="TOC">
+<ul>
+<li><a href="#the-bootstrap-vs.-other-replication-methods" id="toc-the-bootstrap-vs.-other-replication-methods">The Bootstrap
+vs. Other Replication Methods</a></li>
+<li><a href="#choosing-a-bootstrap-method" id="toc-choosing-a-bootstrap-method">Choosing a Bootstrap
+Method</a></li>
+<li><a href="#basic-bootstrap-methods" id="toc-basic-bootstrap-methods">Basic Bootstrap Methods</a>
+<ul>
+<li><a href="#implementation" id="toc-implementation">Implementation</a></li>
+</ul></li>
+<li><a href="#generalized-survey-bootstrap" id="toc-generalized-survey-bootstrap">Generalized Survey Bootstrap</a>
+<ul>
+<li><a href="#statistical-background" id="toc-statistical-background">Statistical Background</a></li>
+<li><a href="#details-and-notation-for-the-generalized-survey-bootstrap-method" id="toc-details-and-notation-for-the-generalized-survey-bootstrap-method">Details
+and Notation for the Generalized Survey Bootstrap Method</a></li>
+<li><a href="#implementation-1" id="toc-implementation-1">Implementation</a></li>
+</ul></li>
+<li><a href="#choosing-the-number-of-bootstrap-replicates" id="toc-choosing-the-number-of-bootstrap-replicates">Choosing the Number
+of Bootstrap Replicates</a>
+<ul>
+<li><a href="#general-strategy" id="toc-general-strategy">General
+Strategy</a></li>
+<li><a href="#measuring-and-estimating-simulation-error" id="toc-measuring-and-estimating-simulation-error">Measuring and
+Estimating Simulation Error</a></li>
+</ul></li>
+<li><a href="#references" id="toc-references">References</a></li>
+</ul>
+</div>
+
+<p>This vignette provide guidance on when the bootstrap can be used for
+complex survey data and how to choose a bootstrap method and number of
+bootstrap replicates for a survey. It further demonstrates how to use
+functions from the “svrep” package to implement bootstrap methods and
+help decide the number of bootstrap replicates needed for your data. The
+functions covered in this vignette include:</p>
+<p><strong>Functions for Creating Bootstrap Weights</strong>:</p>
+<ul>
+<li><p><code>as_bootstrap_design()</code>, which converts a survey
+design object to a replicate survey design object with bootstrap
+replicate weights.</p></li>
+<li><p><code>make_rwyb_bootstrap_weights()</code>, which creates
+bootstrap replicate weights for general survey designs using the method
+of Rao-Wu-Yue-Beaumont. The survey designs may potentially include
+stratification, multistage clustering, and sampling with or without
+replacement with unequal probabilities.</p></li>
+</ul>
+<p><strong>Functions for Creating Generalized Survey Bootstrap
+Weights</strong>:</p>
+<ul>
+<li><p><code>as_gen_boot_design()</code>, which creates a replicate
+survey design using the generalized survey bootstrap method as described
+by <span class="citation">Beaumont and Patak (2012)</span>.</p></li>
+<li><p><code>make_gen_boot_factors()</code>, which creates a matrix of
+replicate weights using the generalized survey bootstrap method. This
+function will usually be used in conjunction with the function
+<code>make_quad_form_matrix()</code>, which returns the quadratic form
+matrix representation of common variance estimators.</p></li>
+</ul>
+<p><strong>Functions to Help Choose the Number of Bootstrap
+Replicates</strong>:</p>
+<ul>
+<li><p><code>estimate_boot_sim_cv()</code>, which estimates the
+simulation error of a bootstrap estimate.</p></li>
+<li><p><code>estimate_boot_reps_for_target_cv()</code>, which estimates
+the number of bootstrap replicates needed to reduce a bootstrap’s
+simulation error to a target level.</p></li>
+</ul>
+<div id="the-bootstrap-vs.-other-replication-methods" class="section level2">
+<h2>The Bootstrap vs. Other Replication Methods</h2>
+<blockquote>
+<p>Far better an approximate answer to the right question, which is
+often vague, than the exact answer to the wrong question, which can
+always be made precise.</p>
+<p>-- John Tukey</p>
+<p>Ok, but what if the approximate answer is, like, <em>really</em>
+approximate or requires a whole lot of computing?</p>
+<p>-- Survey sampling statisticians</p>
+</blockquote>
+<p>Survey bootstrap methods are directly applicable to a wider variety
+of sample designs than the jackknife or balanced repeated replication
+(BRR). Nonetheless, complex survey designs are often shoehorned into
+jackknife or BRR variance estimation by pretending that the actual
+survey design was something simpler. The BRR method, for instance, is
+only applicable to samples with two clusters sampled from each stratum,
+but statisticians frequently use it for designs with three or more
+sampled clusters by grouping the actual clusters into two
+pseudo-clusters. For designs with a large number of sampling units in a
+stratum, the exact jackknife (JK1 or JKn) requires a large number of
+replicates and so is often replaced by the “delete-a-group jackknife
+(DAGJK) which randomly groups clusters into larger pseudo-clusters.</p>
+<p>Why do statisticians go to all this effort to shoehorn their variance
+estimation problem into jackknife or BRR methods when they could just
+use the bootstrap?</p>
+<p>The simple answer is that bootstrap methods generally require many
+more replicates than other methods in order to obtain a stable variance
+estimate. And using a large number of replicates can be a problem if you
+have to do a large amount of computing or if your dataset is large and
+you’re concerned about storage costs. Statistical agencies are
+particularly sensitive to these concerns when they publish microdata,
+since agencies often serve a large number of end-users with varying
+computational resources.</p>
+<p><strong>So why use the bootstrap?</strong></p>
+<ol style="list-style-type: decimal">
+<li><p><strong>The bootstrap tends to works well for a larger class of
+statistics than the jackknife.</strong> For example, for estimating the
+sampling variance of an estimated median or other quantiles, the
+jackknife tends to perform poorly but bootstrap methods at least do an
+adequate job.</p></li>
+<li><p><strong>Bootstrap methods enable different options for forming
+confidence intervals.</strong> For all of the standard replication
+methods (BRR, Jackknife, etc.), confidence intervals are generally
+formed using a Wald interval (<span class="math inline">\(\hat{\theta}
+\pm \hat{se}(\hat{\theta}) \times z_{1-\frac{\alpha}{2}}\)</span>).<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> But for
+certain bootstrap methods, it is possible to also form confidence
+intervals using other approaches, such as the bootstrap percentile
+method.</p></li>
+<li><p><strong>You can analyze your design rather than an approximation
+of your design, which can both reduce costs and better control
+errors</strong>. To use BRR for general survey designs, you have to
+approximate your actual survey design with a “two PSUs per stratum”
+design. This works surprisingly well in many cases, but it requires
+careful work on the part of a specially-trained statistician. For the
+jackknife with a large number of sampling units, you either end up with
+the same number of replicates as a bootstrap method or you have to
+randomly group your sampling units into a smaller number so you can use
+the DAGJK method to essentially approximate your actual survey design
+with a simpler one. Again, this takes careful work on the part of a
+specially-trained statistician.</p>
+<ol style="list-style-type: decimal">
+<li><p>By analyzing your design for what it is, <strong>you don’t have
+to pay a specially-trained statistician to meticulously approximate a
+design so that it can be shoehorned into a jackknife or BRR variance
+estimation problem</strong>, which is perhaps not the best use of a
+limited budget.</p></li>
+<li><p><strong>If the variance estimation is based on a bootstrap method
+tailored to the actual survey design, then the replication error in the
+variance estimates for key statistics is unbiased and can be quantified
+and controlled as a function of the number of replicates</strong>. In
+contrast, when variance estimation is based on approximating a design so
+that it can be shoehorned into a jackknife or BRR variance estimation
+problem, then the replication error in the variance estimates is more
+difficult to quantify and can consist of both noise and bias.</p></li>
+</ol></li>
+<li><p><strong>For most statisticians, it’s probably easier to
+learn.</strong> The bootstrap is the most well-known replication method
+among general statisticians, to the point that it’s often taught in
+first-year undergraduate statistics courses. So the basic idea is
+already familiar even to statisticians with only passing familiarity
+with complex survey sampling. BRR, in contrast, takes specialized
+training to learn and entails pre-requisite concepts such as Hadamard
+matrices, partial balancing, and so on. Outside of survey statistics,
+the jackknife tends to be much less used (and taught) compared to the
+bootstrap, due to its limitations with non-smooth statistics and the
+complexity required to make it work efficiently for large sample
+sizes.</p></li>
+</ol>
+</div>
+<div id="choosing-a-bootstrap-method" class="section level2">
+<h2>Choosing a Bootstrap Method</h2>
+<p>Essentially every bootstrap method commonly used for surveys can be
+used for simple random sampling with replacement and can easily be
+applied to stratified sampling (simply repeat the method separately for
+each stratum). However, things become more complicated for other types
+of sampling and care is needed to use a bootstrap method appropriate to
+the survey design. For many common designs used in practice, it is
+possible (and easy!) to use one of the bootstrap methods described in
+the section of this vignette titled “Basic Bootstrap Methods.” If the
+design isn’t appropriate for one of those basic bootstrap methods, then
+it may be possible to use the generalized survey bootstrap described in
+a later section of this vignette, which covers a wide range of designs.
+The interested reader is encouraged to read <span class="citation">Mashreghi, Haziza, and Léger (2016)</span> for an
+overview of bootstrap methods developed for survey samples.</p>
+</div>
+<div id="basic-bootstrap-methods" class="section level2">
+<h2>Basic Bootstrap Methods</h2>
+<p>For most sample designs used in practice, there are three basic
+survey design features that must be considered when choosing a bootstrap
+method:</p>
+<ul>
+<li><p>Whether there are multiple stages of sampling</p></li>
+<li><p>Whether the design uses without-replacement sampling with large
+sampling fractions</p></li>
+<li><p>Whether the design uses unequal-probability sampling (commonly
+referred to as “probability proportional to size (PPS)” sampling in
+statistics jargon)</p></li>
+</ul>
+<p>The ‘svrep’ and ‘survey’ packages implement four basic bootstrap
+methods, each of which can handle one or more of these survey design
+features. Of the four methods, the Rao-Wu-Yue-Beaumont bootstrap method
+<span class="citation">(Beaumont and Émond 2022)</span> is the only one
+able to directly handle all three of these design features and is thus
+the default method used in the function
+<code>as_bootstrap_design()</code>.<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a> The following table summarizes these four
+basic bootstrap methods and their appropriateness for each of the common
+design features described earlier.</p>
+<table>
+<caption>Designs Covered by Each Bootstrap Method</caption>
+<colgroup>
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Method</th>
+<th>Handles Multistage Samples?</th>
+<th>Appropriate for Without-Replacement Sampling with Large Sample
+Fractions?</th>
+<th>Unequal Probability Sampling (PPS)?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Rao-Wu-Yue-Beaumont</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr class="even">
+<td>Rao-Wu</td>
+<td>Only if first-stage sampling is without replacement or has a small
+sampling fraction</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr class="odd">
+<td>Preston</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr class="even">
+<td>Canty-Davison</td>
+<td>Only if first-stage sampling is without replacement or has a small
+sampling fraction</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<table style="width:100%;">
+<caption>Data Required for Each Bootstrap Method</caption>
+<colgroup>
+<col width="16%" />
+<col width="16%" />
+<col width="16%" />
+<col width="16%" />
+<col width="16%" />
+<col width="16%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Method</th>
+<th>Strata IDs</th>
+<th>Cluster IDs</th>
+<th>Final Sampling Weights</th>
+<th>Finite Population Corrections</th>
+<th>Selection Probabilities by Stage</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Rao-Wu-Yue-Beaumont</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes, if sampling is without-replacement</td>
+<td>If the design has unequal probability sampling (PPS)</td>
+</tr>
+<tr class="even">
+<td>Rao-Wu</td>
+<td>Yes (first stage only)</td>
+<td>Yes (first stage only)</td>
+<td>Yes</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr class="odd">
+<td>Preston</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes, if sampling is without replacement</td>
+<td>No</td>
+</tr>
+<tr class="even">
+<td>Canty-Davison</td>
+<td>Yes (first-stage only)</td>
+<td>Yes (first stage only)</td>
+<td>Yes</td>
+<td>Yes (first stage only), if sampling is without replacement</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<div id="implementation" class="section level4">
+<h4>Implementation</h4>
+<p>To implement these basic bootstrap methods, we can create a survey
+design object with the <code>svydesign()</code> function from the survey
+package, and then convert this object to a bootstrap replicate design
+using <code>as_bootstrap_design()</code>. This method can be used for
+multistage, stratified designs with one or more different kinds of
+sampling, provided the “Rao-Wu-Yue-Beaumont” method is used.</p>
+<p><strong>Example 1: Multistage Simple Random Sampling without
+Replacement (SRSWOR)</strong></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(survey) <span class="co"># For complex survey analysis</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(svrep)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2022</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Load an example dataset from a multistage sample, with two stages of SRSWOR</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data</span>(<span class="st">&quot;mu284&quot;</span>, <span class="at">package =</span> <span class="st">&#39;survey&#39;</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  multistage_srswor_design <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(<span class="at">data =</span> mu284,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">ids =</span> <span class="sc">~</span> id1 <span class="sc">+</span> id2,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">fpc =</span> <span class="sc">~</span> n1 <span class="sc">+</span> n2)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  bootstrap_rep_design <span class="ot">&lt;-</span> <span class="fu">as_bootstrap_design</span>(multistage_srswor_design,</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">type =</span> <span class="st">&quot;Rao-Wu-Yue-Beaumont&quot;</span>,</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">replicates =</span> <span class="dv">500</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">svytotal</span>(<span class="at">x =</span> <span class="sc">~</span> y1, <span class="at">design =</span> multistage_srswor_design)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    total     SE</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; y1 15080 2274.3</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">svytotal</span>(<span class="at">x =</span> <span class="sc">~</span> y1, <span class="at">design =</span> bootstrap_rep_design)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    total     SE</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; y1 15080 2311.1</span></span></code></pre></div>
+<p><strong>Example 2: Single-stage unequal probability sampling without
+replacement</strong></p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load example dataset of U.S. counties and states with 2004 Presidential vote counts</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data</span>(<span class="st">&quot;election&quot;</span>, <span class="at">package =</span> <span class="st">&#39;survey&#39;</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  pps_wor_design <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(<span class="at">data =</span> election_pps,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>                              <span class="at">pps =</span> <span class="fu">HR</span>(),</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>                              <span class="at">fpc =</span> <span class="sc">~</span> p, <span class="co"># Inclusion probabilities</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>                              <span class="at">ids =</span> <span class="sc">~</span> <span class="dv">1</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  bootstrap_rep_design <span class="ot">&lt;-</span> <span class="fu">as_bootstrap_design</span>(pps_wor_design,</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">type =</span> <span class="st">&quot;Rao-Wu-Yue-Beaumont&quot;</span>,</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">replicates =</span> <span class="dv">100</span>)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">svytotal</span>(<span class="at">x =</span> <span class="sc">~</span> Bush <span class="sc">+</span> Kerry, <span class="at">design =</span> pps_wor_design)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          total      SE</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Bush  64518472 2472753</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Kerry 51202102 2426842</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">svytotal</span>(<span class="at">x =</span> <span class="sc">~</span> Bush <span class="sc">+</span> Kerry, <span class="at">design =</span> bootstrap_rep_design)</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          total      SE</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Bush  64518472 2331148</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Kerry 51202102 2337653</span></span></code></pre></div>
+<p><strong>Example 3: Multistage Sampling with Different Sampling
+Methods at Each Stage</strong></p>
+<p>For designs that use different sampling methods at different stages,
+we can use the argument <code>samp_method_by_stage</code> to ensure that
+the correct method is used to form the bootstrap weights. In general, if
+a multistage design uses unequal probability sampling for only some
+stages, then when creating the initial design object, the stage-specific
+sampling probabilities should be supplied to the <code>fpc</code>
+argument of the <code>svydesign()</code> function, and the user should
+specify <code>pps = &quot;brewer&quot;</code>.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Declare a multistage design</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># where first-stage probabilities are PPSWOR sampling</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># and second-stage probabilities are based on SRSWOR</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>multistage_design <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> library_multistage_sample,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">ids =</span> <span class="sc">~</span> PSU_ID <span class="sc">+</span> SSU_ID,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">probs =</span> <span class="sc">~</span> PSU_SAMPLING_PROB <span class="sc">+</span> SSU_SAMPLING_PROB,</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">pps =</span> <span class="st">&quot;brewer&quot;</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert to a bootstrap replicate design</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>boot_design <span class="ot">&lt;-</span> <span class="fu">as_bootstrap_design</span>(</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">design =</span> multistage_design,</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">&quot;Rao-Wu-Yue-Beaumont&quot;</span>,</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">samp_method_by_stage =</span> <span class="fu">c</span>(<span class="st">&quot;PPSWOR&quot;</span>, <span class="st">&quot;SRSWOR&quot;</span>),</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">replicates =</span> <span class="dv">1000</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare variance estimates</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="fu">svytotal</span>(<span class="at">x =</span> <span class="sc">~</span> TOTCIR, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">design =</span> multistage_design)</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             total        SE</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; TOTCIR 1634739229 250890030</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="fu">svytotal</span>(<span class="at">x =</span> <span class="sc">~</span> TOTCIR, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">design =</span> boot_design)</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             total        SE</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; TOTCIR 1634739229 259570779</span></span></code></pre></div>
+</div>
+</div>
+<div id="generalized-survey-bootstrap" class="section level2">
+<h2>Generalized Survey Bootstrap</h2>
+<p>For sample designs with additional complex features beyond the three
+highlighted above, the generalized survey bootstrap method can be used.
+This is especially useful for systematic samples or for complex designs
+where one wishes to use a general-purpose estimator such as the
+Horvitz-Thompson or Yates-Grundy estimator.</p>
+<div id="statistical-background" class="section level3">
+<h3>Statistical Background</h3>
+<p>The generalized survey bootstrap is based on a remarkable observation
+from <span class="citation">Fay (1984)</span>, summarized nicely by
+<span class="citation">Dippo, Fay, and Morganstein (1984)</span>:</p>
+<blockquote>
+<p><em>…there is no variance estimator based on sums of squares and
+cross-products that cannot be represented by a resampling plan.</em></p>
+<p>-- <span class="citation">Dippo, Fay, and Morganstein
+(1984)</span></p>
+</blockquote>
+<p>In other words, if a sample design has a textbook variance estimator
+for totals that can be represented as a quadratic form (i.e., sums of
+squares and cross-products), then we can make a replication estimator
+out of it. Fay developed a general methodology for producing replication
+estimators from a textbook estimator’s quadratic form, encompassing the
+jackknife, bootstrap, and balanced repeated replication as special
+cases. Within this framework, the “generalized survey bootstrap”
+developed by <span class="citation">Bertail and Combris (1997)</span> is
+one specific strategy for making bootstrap replication estimators out of
+textbook variance estimators. See <span class="citation">Beaumont and
+Patak (2012)</span> for a clear overview of the generalized survey
+bootstrap.</p>
+<p>The starting point for implementing the generalized survey bootstrap
+method is to choose a textbook variance estimator appropriate to the
+sampling design which can be represented as a quadratic form. Luckily,
+there are many useful variance estimators which can be represented as
+quadratic forms. We highlight a few prominent examples below:</p>
+<ul>
+<li><p>For stratified, multistage cluster samples:</p>
+<ul>
+<li>The usual multistage variance estimator used in the ‘survey’
+package, based on adding variance contributions from each stage. The
+estimator can be used for any number of sampling stages.</li>
+</ul></li>
+<li><p>Highly-general variance estimators which work for any
+‘measurable’ survey design (i.e., designs where every pair of units in
+the population has a nonzero probability of appearing in the sample).
+This covers most designs used in practice, with the primary exceptions
+being “one-PSU-per-stratum” designs and systematic sampling designs.</p>
+<ul>
+<li><p>The Horvitz-Thompson estimator</p></li>
+<li><p>The Sen-Yates-Grundy estimator</p></li>
+</ul></li>
+<li><p>For systematic samples:</p>
+<ul>
+<li>The SD1 and SD2 successive-differences estimators, which are the
+basis of the commonly-used “successive-differences replication” (SDR)
+estimator (see <span class="citation">Ash (2014)</span> for an overview
+of SDR).</li>
+</ul></li>
+</ul>
+<p>Once the textbook variance estimator has been selected and its
+quadratic form identified, the generalized survey bootstrap method
+consists of randomly generating each set of replicate weights from a
+multivariate distribution whose expectation is the <span class="math inline">\(n\)</span>-vector <span class="math inline">\(\mathbf{1}_n\)</span> and whose
+variance-covariance matrix is the matrix of the quadratic form used for
+the textbook variance estimator. This ensures that, in expectation, the
+bootstrap variance estimator for a total equals the textbook variance
+estimator and thus inherits properties such as design-unbiasedness and
+design-consistency.</p>
+</div>
+<div id="details-and-notation-for-the-generalized-survey-bootstrap-method" class="section level3">
+<h3>Details and Notation for the Generalized Survey Bootstrap
+Method</h3>
+<p>In this section, we describe the generalized survey bootstrap in
+greater detail, using the notation of <span class="citation">Beaumont
+and Patak (2012)</span>.</p>
+<div id="quadratic-forms" class="section level5">
+<h5>Quadratic Forms</h5>
+<p>Let <span class="math inline">\(v( \hat{T_y})\)</span> be the
+textbook variance estimator for an estimated population total <span class="math inline">\(\hat{T}_y\)</span> of some variable <span class="math inline">\(y\)</span>. The base weight for case <span class="math inline">\(i\)</span> in our sample is <span class="math inline">\(w_i\)</span>, and we let <span class="math inline">\(\breve{y}_i\)</span> denote the weighted value
+<span class="math inline">\(w_iy_i\)</span>.</p>
+<p>Suppose we can represent our textbook variance estimator as a
+quadratic form: <span class="math inline">\(v(\hat{T}_y) =
+\breve{y}\Sigma\breve{y}^T\)</span>, for some <span class="math inline">\(n \times n\)</span> matrix <span class="math inline">\(\Sigma\)</span>. Our only constraint on <span class="math inline">\(\Sigma\)</span> is that, for our sample, it must
+be symmetric and positive semi-definite (in other words, it should never
+lead to a negative variance estimate, no matter what the value of <span class="math inline">\(\breve{y}\)</span> is).</p>
+<p>For example, the popular Horvitz-Thompson estimator based on
+first-order inclusion probabilities <span class="math inline">\(\pi_k\)</span> and second-order inclusion
+probabilities <span class="math inline">\(\pi_{kl}\)</span> can be
+represented as a positive semi-definite matrix with entries <span class="math inline">\((1-\pi_k)\)</span> along the main diagonal and
+entries <span class="math inline">\((1 - \frac{\pi_k
+\pi_l}{\pi_{kl}})\)</span> everywhere else. An illustration for a sample
+with <span class="math inline">\(n=3\)</span> is shown below:</p>
+<p><span class="math display">\[
+\Sigma_{HT} = \begin{bmatrix}
+(1-\pi_1) &amp; (1 - \frac{\pi_1 \pi_2}{\pi_{12}}) &amp; (1 -
+\frac{\pi_1 \pi_3}{\pi_{13}}) \\
+(1 - \frac{\pi_2 \pi_1}{\pi_{21}}) &amp; (1 - \pi_2) &amp; (1 -
+\frac{\pi_2 \pi_3}{\pi_{23}}) \\
+(1 - \frac{\pi_3 \pi_1}{\pi_{31}}) &amp; (1 - \frac{\pi_3
+\pi_2}{\pi_{32}}) &amp; (1 - \pi_3)
+\end{bmatrix}
+\]</span></p>
+<p>As another example, the successive-difference variance estimator for
+a systematic sample can be represented as a positive semi-definite
+matrix whose diagonal entries are all <span class="math inline">\(1\)</span>, whose superdiagonal and subdiagonal
+entries are all <span class="math inline">\(-1/2\)</span>, and whose top
+right and bottom left entries are <span class="math inline">\(-1/2\)</span> <span class="citation">(Ash
+2014)</span>. An illustration for a sample with <span class="math inline">\(n=5\)</span> is shown below:</p>
+<p><span class="math display">\[
+\Sigma_{SD2} = \begin{bmatrix}
+1 &amp; -1/2 &amp; 0 &amp; 0 &amp; -1/2\\
+-1/2 &amp; 1 &amp; -1/2 &amp; 0 &amp; 0 \\
+0 &amp; -1/2 &amp; 1 &amp; -1/2 &amp; 0 \\
+0 &amp; 0 &amp; -1/2 &amp; 1&amp; -1/2 \\
+-1/2 &amp; 0 &amp; 0 &amp; -1/2 &amp; 1
+\end{bmatrix}
+\]</span></p>
+<p>To obtain a quadratic form matrix for a variance estimator, we can
+use the function <code>make_quad_form_matrix()</code>, which takes as
+inputs the name of a variance estimator and relevant survey design
+information. For example, the following code produces the quadratic form
+matrix of the “SD2” variance estimator we saw earlier.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">make_quad_form_matrix</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">variance_estimator =</span> <span class="st">&quot;SD2&quot;</span>,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">cluster_ids =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>) <span class="sc">|&gt;</span> <span class="fu">data.frame</span>(),</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">strata_ids =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>) <span class="sc">|&gt;</span> <span class="fu">data.frame</span>(),</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">sort_order =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      [,1] [,2] [,3] [,4] [,5]</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,]  1.0 -0.5  0.0  0.0 -0.5</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [2,] -0.5  1.0 -0.5  0.0  0.0</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [3,]  0.0 -0.5  1.0 -0.5  0.0</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [4,]  0.0  0.0 -0.5  1.0 -0.5</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [5,] -0.5  0.0  0.0 -0.5  1.0</span></span></code></pre></div>
+<p>In the following example, we use this method to estimate the variance
+for a stratified systematic sample of U.S. public libraries. First, we
+create a quadratic form matrix to represent the SD2
+successive-difference estimator.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load an example dataset of a stratified systematic sample</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&#39;library_stsys_sample&#39;</span>, <span class="at">package =</span> <span class="st">&#39;svrep&#39;</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Represent the SD2 successive-difference estimator as a quadratic form,</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># and obtain the matrix of that quadratic form</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>sd2_quad_form <span class="ot">&lt;-</span> <span class="fu">make_quad_form_matrix</span>(</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">variance_estimator =</span> <span class="st">&#39;SD2&#39;</span>,</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">cluster_ids =</span> library_stsys_sample <span class="sc">|&gt;</span> <span class="fu">select</span>(FSCSKEY),</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">strata_ids =</span> library_stsys_sample <span class="sc">|&gt;</span> <span class="fu">select</span>(SAMPLING_STRATUM),</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">strata_pop_sizes =</span> library_stsys_sample <span class="sc">|&gt;</span> <span class="fu">select</span>(STRATUM_POP_SIZE),</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">sort_order =</span> library_stsys_sample <span class="sc">|&gt;</span> <span class="fu">pull</span>(<span class="st">&quot;SAMPLING_SORT_ORDER&quot;</span>)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(sd2_quad_form)</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;matrix&quot; &quot;array&quot;</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(sd2_quad_form)</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 219 219</span></span></code></pre></div>
+<p>Next, we estimate the sampling variance of the estimated total for
+the <code>TOTCIR</code> variable using the quadratic form.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Obtain weighted values</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>wtd_y <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(library_stsys_sample[[<span class="st">&#39;TOTCIR&#39;</span>]] <span class="sc">/</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                     library_stsys_sample[[<span class="st">&#39;SAMPLING_PROB&#39;</span>]])</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>wtd_y[<span class="fu">is.na</span>(wtd_y)] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Obtain point estimate for a population total</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>point_estimate <span class="ot">&lt;-</span> <span class="fu">sum</span>(wtd_y)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Obtain the variance estimate using the quadratic form</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>variance_estimate <span class="ot">&lt;-</span> <span class="fu">t</span>(wtd_y) <span class="sc">%*%</span> sd2_quad_form <span class="sc">%*%</span> wtd_y</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Summarize results</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="fu">sprintf</span>(<span class="st">&quot;Estimate: %s&quot;</span>, point_estimate)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;Estimate: 2195846830.39647&quot;</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="fu">sprintf</span>(<span class="st">&quot;Standard Error: %s&quot;</span>, <span class="fu">sqrt</span>(variance_estimate[<span class="dv">1</span>,<span class="dv">1</span>]))</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;Standard Error: 564706867.832222&quot;</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="fu">sprintf</span>(<span class="st">&quot;Coefficient of Variation: %s&quot;</span>,</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>        <span class="fu">round</span>(<span class="fu">sqrt</span>(variance_estimate[<span class="dv">1</span>,<span class="dv">1</span>])<span class="sc">/</span>point_estimate, <span class="dv">2</span>))</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;Coefficient of Variation: 0.26&quot;</span></span></code></pre></div>
+</div>
+<div id="forming-adjustment-factors" class="section level5">
+<h5>Forming Adjustment Factors</h5>
+<p>Our goal is to form <span class="math inline">\(B\)</span> sets of
+bootstrap weights, where the <span class="math inline">\(b\)</span>-th
+set of bootstrap weights is a vector of length <span class="math inline">\(n\)</span> denoted <span class="math inline">\(\mathbf{a}^{(b)}\)</span>, whose <span class="math inline">\(k\)</span>-th value is denoted <span class="math inline">\(a_k^{(b)}\)</span>. This gives us <span class="math inline">\(B\)</span> replicate estimates of the population
+total, <span class="math inline">\(\hat{T}_y^{*(b)}=\sum_{k \in s}
+a_k^{(b)} \breve{y}_k\)</span>, for <span class="math inline">\(b=1,
+\ldots B\)</span>, from which we can easily calculate an estimate of the
+sampling variance.</p>
+<p><span class="math display">\[
+v_B\left(\hat{T}_y\right)=\frac{\sum_{b=1}^B\left(\hat{T}_y^{*(b)}-\hat{T}_y\right)^2}{B}
+\]</span></p>
+<p>We can write this bootstrap variance estimator as a quadratic
+form:</p>
+<p><span class="math display">\[
+\begin{aligned}
+v_B\left(\hat{T}_y\right) &amp;=\mathbf{\breve{y}}^{\prime}\Sigma_B
+\mathbf{\breve{y}} \\
+\textit{where}&amp; \\
+\boldsymbol{\Sigma}_B &amp;=
+\frac{\sum_{b=1}^B\left(\mathbf{a}^{(b)}-\mathbf{1}_n\right)\left(\mathbf{a}^{(b)}-\mathbf{1}_n\right)^{\prime}}{B}
+\end{aligned}
+\]</span></p>
+<p>Note that if the vector of adjustment factors <span class="math inline">\(\mathbf{a}^{(b)}\)</span> has expectation <span class="math inline">\(\mathbf{1}_n\)</span> and variance-covariance
+matrix <span class="math inline">\(\boldsymbol{\Sigma}\)</span>, then we
+have the bootstrap expectation <span class="math inline">\(E_{*}\left(
+\boldsymbol{\Sigma}_B \right) = \boldsymbol{\Sigma}\)</span>. Since the
+bootstrap process takes the sample values <span class="math inline">\(\breve{y}\)</span> as fixed, the bootstrap
+expectation of the variance estimator is <span class="math inline">\(E_{*} \left( \mathbf{\breve{y}}^{\prime}\Sigma_B
+\mathbf{\breve{y}}\right)= \mathbf{\breve{y}}^{\prime}\Sigma
+\mathbf{\breve{y}}\)</span>. Thus, we can produce a bootstrap variance
+estimator with the same expectation as the textbook variance estimator
+simply by randomly generating <span class="math inline">\(\mathbf{a}^{(b)}\)</span> from a distribution with
+the following two conditions:</p>
+<p><u><strong>Condition 1</strong></u>: <span class="math inline">\(\quad
+\mathbf{E}_*(\mathbf{a})=\mathbf{1}_n\)</span></p>
+<p><u><strong>Condition 2</strong></u>: <span class="math inline">\(\quad
+\mathbf{E}_*\left(\mathbf{a}-\mathbf{1}_n\right)\left(\mathbf{a}-\mathbf{1}_n\right)^{\prime}=\mathbf{\Sigma}\)</span></p>
+<p>The simplest, general way to generate the adjustment factors is to
+simulate from a multivariate normal distribution <span class="math inline">\(\mathbf{a} \sim MVN(\mathbf{1}_n,
+\boldsymbol{\Sigma})\)</span>, which is the method used in this package.
+However, this method can lead to negative adjustment factors and hence
+negative bootstrap weights, which–while perfectly valid for variance
+estimation–may be undesirable from a practical point of view. Thus, in
+the following subsection, we describe one method for adjusting the
+replicate factors so that they are nonnegative and <span class="math inline">\(E_{*} \left( \mathbf{\breve{y}}^{\prime}\Sigma_B
+\mathbf{\breve{y}}\right) =\mathbf{\breve{y}}^{\prime}\Sigma
+\mathbf{\breve{y}}\)</span>.</p>
+</div>
+<div id="adjusting-generalized-survey-bootstrap-replicates-to-avoid-negative-weights" class="section level5">
+<h5>Adjusting Generalized Survey Bootstrap Replicates to Avoid Negative
+Weights</h5>
+<p>Let <span class="math inline">\(\mathbf{A} = \left[ \mathbf{a}^{(1)}
+\cdots \mathbf{a}^{(b)} \cdots \mathbf{a}^{(B)} \right]\)</span> denote
+the <span class="math inline">\((n \times B)\)</span> matrix of
+bootstrap adjustment factors. To eliminate negative adjustment factors,
+<span class="citation">Beaumont and Patak (2012)</span> propose forming
+a rescaled matrix of nonnegative replicate factors <span class="math inline">\(\mathbf{A}^S\)</span> by rescaling each adjustment
+factor <span class="math inline">\(a_k^{(b)}\)</span> as follows:</p>
+<p><span class="math display">\[
+\begin{aligned}
+a_k^{S,(b)} &amp;= \frac{a_k^{(b)} + \tau - 1}{\tau} \\
+\textit{where } \tau &amp;\geq 1 - a_k^{(b)} \geq 1 \\
+&amp;\textit{for all }k \textit{ in } \left\{ 1,\ldots,n \right\} \\
+&amp;\textit{and all }b \textit{ in } \left\{1, \ldots, B\right\} \\
+\end{aligned}
+\]</span></p>
+<p>The value of <span class="math inline">\(\tau\)</span> can be set
+based on the realized adjustment factor matrix <span class="math inline">\(\mathbf{A}\)</span> or by choosing <span class="math inline">\(\tau\)</span> prior to generating the adjustment
+factor matrix <span class="math inline">\(\mathbf{A}\)</span> so that
+<span class="math inline">\(\tau\)</span> is likely to be large enough
+to prevent negative bootstrap weights.</p>
+<p>If the adjustment factors are rescaled in this manner, it is
+important to adjust the scale factor used in estimating the variance
+with the bootstrap replicates, which becomes <span class="math inline">\(\frac{\tau^2}{B}\)</span> instead of <span class="math inline">\(\frac{1}{B}\)</span>.</p>
+<p><span class="math display">\[
+\begin{aligned}
+\textbf{Prior to rescaling: } v_B\left(\hat{T}_y\right) &amp;=
+\frac{1}{B}\sum_{b=1}^B\left(\hat{T}_y^{*(b)}-\hat{T}_y\right)^2 \\
+\textbf{After rescaling: } v_B\left(\hat{T}_y\right) &amp;=
+\frac{\tau^2}{B}\sum_{b=1}^B\left(\hat{T}_y^{S*(b)}-\hat{T}_y\right)^2
+\\
+\end{aligned}
+\]</span></p>
+<p>When sharing a dataset that uses rescaled weights from a generalized
+survey bootstrap, the documentation for the dataset should instruct the
+user to use replication scale factor <span class="math inline">\(\frac{\tau^2}{B}\)</span> rather than <span class="math inline">\(\frac{1}{B}\)</span> when estimating sampling
+variances.</p>
+</div>
+</div>
+<div id="implementation-1" class="section level3">
+<h3>Implementation</h3>
+<p>There are two ways to implement the generalized survey bootstrap.</p>
+<div id="option-1-convert-an-existing-design-to-a-generalized-bootstrap-design" class="section level5">
+<h5>Option 1: Convert an existing design to a generalized bootstrap
+design</h5>
+<p>The simplest method is to convert an existing survey design object to
+a generalized bootstrap design.</p>
+<p>With this approach, we create a survey design object using the
+<code>svydesign()</code> function. This allows us to represent
+information about stratification and clustering (potentially at multiple
+stages), as well as information about finite population corrections.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load example data from stratified systematic sample</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&#39;library_stsys_sample&#39;</span>, <span class="at">package =</span> <span class="st">&#39;svrep&#39;</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># First, ensure data are sorted in same order as was used in sampling</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>library_stsys_sample <span class="ot">&lt;-</span> library_stsys_sample[</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">order</span>(library_stsys_sample<span class="sc">$</span>SAMPLING_SORT_ORDER),</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a survey design object</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>design_obj <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> library_stsys_sample,</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">strata =</span> <span class="sc">~</span> SAMPLING_STRATUM,</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">ids =</span> <span class="sc">~</span> <span class="dv">1</span>,</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">fpc =</span> <span class="sc">~</span> STRATUM_POP_SIZE</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<p>Next, we convert the survey design object to a replicate design using
+the function <code>as_gen_boot_design()</code>. The function argument
+<code>variance_estimator</code> allows us to specify the name of a
+variance estimator to use as the basis for creating replicate
+weights.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert to generalized bootstrap replicate design</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>gen_boot_design_sd2 <span class="ot">&lt;-</span> <span class="fu">as_gen_boot_design</span>(</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">design =</span> design_obj,</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">variance_estimator =</span> <span class="st">&quot;SD2&quot;</span>,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">replicates =</span> <span class="dv">2000</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; For `variance_estimator=&#39;SD2&#39;, assumes rows of data are sorted in the same order used in sampling.</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimate sampling variances</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="fu">svymean</span>(<span class="at">x =</span> <span class="sc">~</span> TOTSTAFF, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">design =</span> gen_boot_design_sd2)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;            mean     SE</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; TOTSTAFF 19.756 4.2644</span></span></code></pre></div>
+<p>For a PPS design that uses the Horvitz-Thompson or Yates-Grundy
+estimator, we can create a generalized bootstrap estimator with the same
+expectation. In the example below, we create a PPS design with the
+‘survey’ package and convert it to a generalied bootstrap design.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load example data of a PPS survey of counties and states</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>   <span class="fu">data</span>(<span class="st">&#39;election&#39;</span>, <span class="at">package =</span> <span class="st">&#39;survey&#39;</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Create survey design object</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>   pps_design_ht <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>     <span class="at">data =</span> election_pps,</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>     <span class="at">id =</span> <span class="sc">~</span><span class="dv">1</span>, <span class="at">fpc =</span> <span class="sc">~</span>p,</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>     <span class="at">pps =</span> <span class="fu">ppsmat</span>(election_jointprob),</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>     <span class="at">variance =</span> <span class="st">&quot;HT&quot;</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>   )</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert to generalized bootstrap replicate design</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>gen_boot_design_ht <span class="ot">&lt;-</span> pps_design_ht <span class="sc">|&gt;</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_gen_boot_design</span>(<span class="at">variance_estimator =</span> <span class="st">&quot;Horvitz-Thompson&quot;</span>,</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>                     <span class="at">replicates =</span> <span class="dv">5000</span>, <span class="at">tau =</span> <span class="st">&quot;auto&quot;</span>)</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare sampling variances from bootstrap vs. Horvitz-Thompson estimator</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="fu">svytotal</span>(<span class="at">x =</span> <span class="sc">~</span> Bush <span class="sc">+</span> Kerry, <span class="at">design =</span> pps_design_ht)</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          total      SE</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Bush  64518472 2604404</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Kerry 51202102 2523712</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a><span class="fu">svytotal</span>(<span class="at">x =</span> <span class="sc">~</span> Bush <span class="sc">+</span> Kerry, <span class="at">design =</span> gen_boot_design_ht)</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          total      SE</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Bush  64518472 2627361</span></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Kerry 51202102 2499754</span></span></code></pre></div>
+<p>We can also use the generalized bootstrap for designs that use
+multistage, stratified simple random sampling without replacement.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr) <span class="co"># For data manipulation</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a multistage survey design</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  multistage_design <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> library_multistage_sample <span class="sc">|&gt;</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(<span class="at">Weight =</span> <span class="dv">1</span><span class="sc">/</span>SAMPLING_PROB),</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">ids =</span> <span class="sc">~</span> PSU_ID <span class="sc">+</span> SSU_ID,</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">fpc =</span> <span class="sc">~</span> PSU_POP_SIZE <span class="sc">+</span> SSU_POP_SIZE,</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">weights =</span> <span class="sc">~</span> Weight</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert to a generalized bootstrap design</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  multistage_boot_design <span class="ot">&lt;-</span> <span class="fu">as_gen_boot_design</span>(</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">design =</span> multistage_design,</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">variance_estimator =</span> <span class="st">&quot;Stratified Multistage SRS&quot;</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare variance estimates</span></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">svytotal</span>(<span class="at">x =</span> <span class="sc">~</span> TOTCIR, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">design =</span> multistage_design)</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             total        SE</span></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; TOTCIR 1634739229 251589313</span></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">svytotal</span>(<span class="at">x =</span> <span class="sc">~</span> TOTCIR, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">design =</span> multistage_boot_design)</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             total        SE</span></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; TOTCIR 1634739229 236364980</span></span></code></pre></div>
+<p>Unless specified otherwise, <code>as_gen_boot_design()</code>
+automatically selects a rescaling value <span class="math inline">\(\tau\)</span> to use for eliminating negative
+adjustment factors. The <code>scale</code> attribute of the resulting
+replicate survey design object is thus set to equal <span class="math inline">\(\tau^2/B\)</span>. The specific value of <span class="math inline">\(\tau\)</span> can be retrieved from the replicate
+design object, as follows.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># View overall scale factor</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>overall_scale_factor <span class="ot">&lt;-</span> gen_boot_design_ht<span class="sc">$</span>scale</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(overall_scale_factor)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0.00464648</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Check that the scale factor was calculated correctly</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>tau <span class="ot">&lt;-</span> gen_boot_design_ht<span class="sc">$</span>tau</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(tau)</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 4.82</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="fu">ncol</span>(gen_boot_design_ht<span class="sc">$</span>repweights)</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(B)</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 5000</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>( (tau<span class="sc">^</span><span class="dv">2</span>) <span class="sc">/</span> B )</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0.00464648</span></span></code></pre></div>
+</div>
+<div id="option-2-create-the-quadratic-form-matrix-and-then-use-it-to-create-bootstrap-weights" class="section level5">
+<h5>Option 2: Create the quadratic form matrix and then use it to create
+bootstrap weights</h5>
+<p>The generalized survey bootstrap can be implemented with a two-step
+process:</p>
+<ul>
+<li><strong>Step 1</strong>: Use <code>make_quad_form_matrix()</code> to
+represent the variance estimator as a quadratic form’s matrix.</li>
+</ul>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load an example dataset of a stratified systematic sample</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&#39;library_stsys_sample&#39;</span>, <span class="at">package =</span> <span class="st">&#39;svrep&#39;</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Represent the SD2 successive-difference estimator as a quadratic form,</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co"># and obtain the matrix of that quadratic form</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>sd2_quad_form <span class="ot">&lt;-</span> <span class="fu">make_quad_form_matrix</span>(</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">variance_estimator =</span> <span class="st">&#39;SD2&#39;</span>,</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">cluster_ids =</span> library_stsys_sample <span class="sc">|&gt;</span> <span class="fu">select</span>(FSCSKEY),</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">strata_ids =</span> library_stsys_sample <span class="sc">|&gt;</span> <span class="fu">select</span>(SAMPLING_STRATUM),</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">strata_pop_sizes =</span> library_stsys_sample <span class="sc">|&gt;</span> <span class="fu">select</span>(STRATUM_POP_SIZE),</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">sort_order =</span> library_stsys_sample <span class="sc">|&gt;</span> <span class="fu">pull</span>(<span class="st">&quot;SAMPLING_SORT_ORDER&quot;</span>)</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<ul>
+<li><strong>Step 2</strong>: Use <code>make_gen_boot_factors()</code> to
+generate replicate factors based on the target quadratic form. The
+function argument <code>tau</code> can be used to avoid negative
+adjustment factors using the previously-described method. The actual
+value of <code>tau</code> used can be extracted from the function’s
+output using the <code>attr()</code> function.</li>
+</ul>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>rep_adj_factors <span class="ot">&lt;-</span> <span class="fu">make_gen_boot_factors</span>(</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Sigma =</span> sd2_quad_form,</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">num_replicates =</span> <span class="dv">500</span>,</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">tau =</span> <span class="st">&quot;auto&quot;</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>tau <span class="ot">&lt;-</span> <span class="fu">attr</span>(rep_adj_factors, <span class="st">&#39;tau&#39;</span>)</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="fu">ncol</span>(rep_adj_factors)</span></code></pre></div>
+<p>Using the adjustment factors thus created, we can create a replicate
+survey design object by using the function <code>svrepdesign()</code>,
+with arguments <code>type = &quot;other&quot;</code> and specifying the
+<code>scale</code> argument to use the factor <span class="math inline">\(\tau^2/B\)</span>.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>gen_boot_design <span class="ot">&lt;-</span> <span class="fu">svrepdesign</span>(</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> library_stsys_sample <span class="sc">|&gt;</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">SAMPLING_WEIGHT =</span> <span class="dv">1</span><span class="sc">/</span>SAMPLING_PROB),</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">repweights =</span> rep_adj_factors,</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">weights =</span> <span class="sc">~</span> SAMPLING_WEIGHT,</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">combined.weights =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">&quot;other&quot;</span>,</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">scale =</span> tau<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span>B,</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">rscales =</span> <span class="fu">rep</span>(<span class="dv">1</span>, <span class="at">times =</span> B)</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<p>This allows us to estimate sampling variances, even for quite complex
+sampling designs.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>gen_boot_design <span class="sc">|&gt;</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">svymean</span>(<span class="at">x =</span> <span class="sc">~</span> TOTSTAFF,</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">deff =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             mean      SE DEff</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; TOTSTAFF 19.7565  4.2024 0.97</span></span></code></pre></div>
+</div>
+</div>
+</div>
+<div id="choosing-the-number-of-bootstrap-replicates" class="section level2">
+<h2>Choosing the Number of Bootstrap Replicates</h2>
+<p>The bootstrap suffers from unavoidable “simulation error” (also
+referred to as “Monte Carlo” error) caused by using a finite number of
+replicates to simulate the ideal bootstrap estimate we would obtain if
+we used an infinite number of replicates. In general, the simulation
+error can be reduced by using a larger number of bootstrap
+replicates.</p>
+<div id="general-strategy" class="section level3">
+<h3>General Strategy</h3>
+<p>While rule-of-thumb values for the number of replicates that should
+be used (some say 500, others say 1,000), it is advisable to instead use
+a principled strategy for choosing the number of replicates. One general
+strategy proposed by <span class="citation">Beaumont and Patak
+(2012)</span> is as follows:</p>
+<ul>
+<li><p><strong>Step 1</strong>: Determine the largest acceptable level
+of simulation error for key survey estimates. For example, one might
+determine that, on average, the bootstrap standard error estimate should
+be no more than <span class="math inline">\(\pm 5\%\)</span> different
+than the ideal bootstrap estimate.</p></li>
+<li><p><strong>Step 2</strong>: Estimate key statistics of interest
+using a large number of bootstrap replicates (such as 5,000) and save
+the estimates from each bootstrap replicate. This can be conveniently
+done using a function from the ‘survey’ package such as
+<code>svymean(..., return.replicates = TRUE)</code> or
+<code>withReplicates(..., return.replicates = TRUE)</code>.</p></li>
+<li><p><strong>Step 3</strong>: Estimate the minimum number of bootstrap
+replicates needed to reduce the level of simulation error to the target
+level. This can be done using the ‘svrep’ function
+<code>estimate_boot_reps_for_target_cv()</code>.</p></li>
+</ul>
+</div>
+<div id="measuring-and-estimating-simulation-error" class="section level3">
+<h3>Measuring and Estimating Simulation Error</h3>
+<p>Simulation error can be measured as a <strong>“simulation coefficient
+of variation” (CV)</strong>, which is the ratio of the standard error of
+a bootstrap estimator to the expectation of that bootstrap estimator,
+where the expectation and standard error are evaluated with respect to
+the bootstrapping process given the selected sample.</p>
+<p>For a statistic <span class="math inline">\(\hat{\theta}\)</span>,
+the simulation CV of the bootstrap variance estimator <span class="math inline">\(v_{B}(\hat{\theta})\)</span> based on <span class="math inline">\(B\)</span> replicate estimates <span class="math inline">\(\hat{\theta}^{\star}_1,\dots,\hat{\theta}^{\star}_B\)</span>
+is defined as follows:</p>
+<span class="math display">\[\begin{aligned}
+
+    CV_{\star}(v_{B}(\hat{\theta})) &amp;=
+\frac{\sqrt{var_{\star}(v_B(\hat{\theta}))}}{E_{\star}(v_B(\hat{\theta}))}
+= \frac{CV_{\star}(E_2)}{\sqrt{B}} \\
+    \textit{where:}&amp; \\
+    E_2 &amp;= (\hat{\theta}^{\star} - \hat{\theta})^2 \\
+    CV_{\star}(E_2) &amp;=
+\frac{\sqrt{var_{\star}(E_2)}}{E_{\star}(E_2)} \\
+    \textit{and }&amp; var_{\star} \text{ and } E_{\star} \textit{ are
+evaluated} \\
+    &amp; \textit{with respect to the bootstrapping process} \\
+    &amp; \textit{given the selected sample}
+\end{aligned}\]</span>
+<p>The simulation CV of a statistic, denoted <span class="math inline">\(CV_{\star}(v_{B}(\hat{\theta}))\)</span>, can be
+estimated for a given number of replicates <span class="math inline">\(B\)</span> by estimating <span class="math inline">\(CV_{\star}(E_2)\)</span> using observed values and
+dividing this by <span class="math inline">\(\sqrt{B}\)</span>. As a
+result, one can thereby estimate the number of bootstrap replicates
+needed to obtain a target simulation CV, which is a useful strategy for
+determining the number of bootstrap replicates to use for a survey.</p>
+<p>With the ‘svrep’ package, it is possible to estimate the number of
+bootstrap replicates required to obtain a target simulation CV for a
+statistic.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(survey)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&#39;api&#39;</span>, <span class="at">package =</span> <span class="st">&#39;survey&#39;</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Declare a bootstrap survey design object ----</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  boot_design <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> apistrat,</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">weights =</span> <span class="sc">~</span>pw,</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">id =</span> <span class="sc">~</span><span class="dv">1</span>,</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">strata =</span> <span class="sc">~</span>stype,</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">fpc =</span> <span class="sc">~</span>fpc</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>    svrep<span class="sc">::</span><span class="fu">as_bootstrap_design</span>(<span class="at">replicates =</span> <span class="dv">5000</span>)</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Produce estimates of interest, and save the estimate from each replicate ----</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>  estimated_means_and_proportions <span class="ot">&lt;-</span> <span class="fu">svymean</span>(<span class="at">x =</span> <span class="sc">~</span> api00 <span class="sc">+</span> api99 <span class="sc">+</span> stype,</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>                                             <span class="at">design =</span> boot_design,</span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>                                             <span class="at">return.replicates =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimate the number of replicates needed to obtain a target simulation CV ----</span></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">estimate_boot_reps_for_target_cv</span>(</span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">svrepstat =</span> estimated_means_and_proportions,</span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">target_cv =</span> <span class="fu">c</span>(<span class="fl">0.01</span>, <span class="fl">0.05</span>, <span class="fl">0.10</span>)</span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   TARGET_CV MAX_REPS api00 api99 stypeE stypeH stypeM</span></span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1      0.01    15068  6651  6652  15068  15068  15068</span></span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2      0.05      603   267   267    603    603    603</span></span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3      0.10      151    67    67    151    151    151</span></span></code></pre></div>
+<p>To estimate the simulation CV for the current number of replicates
+used, it is possible to use the function
+<code>estimate_boot_sim_cv()</code>.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">estimate_boot_sim_cv</span>(estimated_means_and_proportions)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   STATISTIC SIMULATION_CV N_REPLICATES</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1     api00    0.01153322         5000</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2     api99    0.01153350         5000</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3    stypeE    0.01735956         5000</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4    stypeH    0.01735950         5000</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5    stypeM    0.01735951         5000</span></span></code></pre></div>
+</div>
+</div>
+<div id="references" class="section level2 unnumbered">
+<h2 class="unnumbered">References</h2>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-ash2014" class="csl-entry">
+Ash, Stephen. 2014. <span>“Using Successive Difference Replication for
+Estimating Variances.”</span> <em>Survey Methodology, Statistics
+Canada</em> 40 (1): 47–59. <a href="https://www150.statcan.gc.ca/n1/pub/12-001-x/12-001-x2014001-eng.pdf">https://www150.statcan.gc.ca/n1/pub/12-001-x/12-001-x2014001-eng.pdf</a>.
+</div>
+<div id="ref-beaumont2022" class="csl-entry">
+Beaumont, Jean-François, and Nelson Émond. 2022. <span>“A Bootstrap
+Variance Estimation Method for Multistage Sampling and Two-Phase
+Sampling When Poisson Sampling Is Used at the Second Phase.”</span>
+<em>Stats</em> 5 (2): 339–57. <a href="https://doi.org/10.3390/stats5020019">https://doi.org/10.3390/stats5020019</a>.
+</div>
+<div id="ref-beaumont2012" class="csl-entry">
+Beaumont, Jean-François, and Zdenek Patak. 2012. <span>“On the
+Generalized Bootstrap for Sample Surveys with Special Attention to
+Poisson Sampling: <span><em>Generalized Bootstrap for Sample
+Surveys</em></span>.”</span> <em>International Statistical Review</em>
+80 (1): 127–48. <a href="https://doi.org/10.1111/j.1751-5823.2011.00166.x">https://doi.org/10.1111/j.1751-5823.2011.00166.x</a>.
+</div>
+<div id="ref-bertail1997" class="csl-entry">
+Bertail, and Combris. 1997. <span>“Bootstrap Généralisé d’un
+Sondage.”</span> <em>Annales d’Économie Et de Statistique</em>, no. 46:
+49. <a href="https://doi.org/10.2307/20076068">https://doi.org/10.2307/20076068</a>.
+</div>
+<div id="ref-dippo1984" class="csl-entry">
+Dippo, Cathryn, Robert Fay, and David Morganstein. 1984.
+<span>“Computing Variances from Complex Samples with Replicate
+Weights.”</span> In, 489–94. Alexandria, VA: American Statistical
+Association. <a href="http://www.asasrms.org/Proceedings/papers/1984_094.pdf">http://www.asasrms.org/Proceedings/papers/1984_094.pdf</a>.
+</div>
+<div id="ref-fay1984" class="csl-entry">
+Fay, Robert. 1984. <span>“Some Properties of Estimates of Variance Based
+on Replication Methods.”</span> In, 495–500. Alexandria, VA: American
+Statistical Association. <a href="http://www.asasrms.org/Proceedings/papers/1984_095.pdf">http://www.asasrms.org/Proceedings/papers/1984_095.pdf</a>.
+</div>
+<div id="ref-mashreghi2016" class="csl-entry">
+Mashreghi, Zeinab, David Haziza, and Christian Léger. 2016. <span>“A
+Survey of Bootstrap Methods in Finite Population Sampling.”</span>
+<em>Statistics Surveys</em> 10 (none). <a href="https://doi.org/10.1214/16-SS113">https://doi.org/10.1214/16-SS113</a>.
+</div>
+</div>
+</div>
+<div class="footnotes footnotes-end-of-document">
+<hr />
+<ol>
+<li id="fn1"><p>Non-Wald methods are typically only used in practice for
+confidence intervals for proportions. These non-Wald methods are
+normally based on the point estimate, the standard error, and a measure
+of effective sample size.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p>Preston’s method can handle both multistage samples and
+without-replacement sampling with large sample fractions, but it is not
+strictly applicable to designs with unequal probability sampling. The
+Rao-Wu method is a special case of the Rao-Wu-Yue-Beaumont method and
+only applies to designs where the first stage of sampling is with
+replacement or where the first-stage sample fraction is small enough to
+be ignored. The Canty-Davison method is only applicable to single-stage
+designs with simple random sampling (with or without replacement) within
+strata.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+</ol>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

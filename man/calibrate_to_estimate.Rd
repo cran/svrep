@@ -76,9 +76,10 @@ of the estimated control totals. Other replicate columns are simply calibrated t
 Because the set of replicate columns whose control totals are perturbed should be random,
 there are multiple ways to ensure that this matching is reproducible.
 The user can either call \link[base]{set.seed} before using the function,
-or supply a vector of randomly-selected column indices to the argument \code{perturbed_control_cols}.
+or supply a vector of randomly-selected column indices to the argument \code{col_selection}.
 }
 \examples{
+\dontrun{
 
 # Load example data for primary survey ----
 
@@ -131,7 +132,7 @@ or supply a vector of randomly-selected column indices to the argument \code{per
 
 # For reproducibility, specify which columns are randomly selected for Fuller method ----
 
-  column_selection <- calibrated_rep_design$perturbed_control_cols
+  column_selection <- calibrated_rep_design$col_selection
   print(column_selection)
 
   calibrated_rep_design <- calibrate_to_estimate(
@@ -141,6 +142,7 @@ or supply a vector of randomly-selected column indices to the argument \code{per
     cal_formula = ~ stype + enroll,
     col_selection = column_selection
   )
+}
 }
 \references{
 Fuller, W.A. (1998).
