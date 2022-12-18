@@ -1,7 +1,7 @@
-4444b46606a89e89b4ebbc4e4dce54e3 *DESCRIPTION
+188a7ad6b4e164f17e326d6dbc39d785 *DESCRIPTION
 88426ad279172ff05c99c3347af4c262 *NAMESPACE
-df72e541de8c7bee343b1c00095cc4c4 *NEWS.md
-76549ddd75f3661624dcf9a06d75f5cc *R/as_bootstrap_design.R
+02fea591bfa6fddfff90830a65a64aba *NEWS.md
+523c2353a498de70675bdb92462b8dc1 *R/as_bootstrap_design.R
 ceafd2b386829bb485fbd812f17ef696 *R/as_data_frame_with_weights.R
 ae82a23e493a63a29975467c8521a552 *R/bootstrap_helpers.R
 64f23151e4e8e03828cae136884cc089 *R/calibrate_to_estimate.R
@@ -9,7 +9,7 @@ ae82a23e493a63a29975467c8521a552 *R/bootstrap_helpers.R
 adf00711f5436d649616f0bc0f66a714 *R/generalized_bootstrap.R
 7b09caf0c68d37d518151842c27b5b5f *R/libraries_data.R
 c88006603d5d1d6fe145bcdc40030ff6 *R/lou_vax_data.R
-eea9e5a63ef622fd44dc389291061af5 *R/make_bootstrap_weights.R
+33631835d767402487b29e980d96435e *R/make_bootstrap_weights.R
 3eb1d3c3e5de2cfa995fff8b2057d5a7 *R/quadratic_forms.R
 d1b11b9176dbd47fee11e3561f3d7dff *R/redistribute_weights.R
 ef4cc4c2468f1bc9032f5d1e0613e806 *R/stack_replicate_designs.R
@@ -26,8 +26,8 @@ fa8b71f8d0432b4b3a2f3e2b8997dca5 *R/svyby_repwts.R
 9bb6cedd1a72f635d8a13333020829e4 *data/lou_vax_survey.rda
 4d3fb6dcc38feaf5f683a541c0de44a3 *data/lou_vax_survey_control_totals.rda
 9bcf37b1c04c70a8d15074151a75638e *inst/doc/bootstrap-replicates.R
-b9b26339aafd0628cc2d8fd99fdca40c *inst/doc/bootstrap-replicates.Rmd
-b2daac8473beed237c8eb9600f7a1335 *inst/doc/bootstrap-replicates.html
+ca65eb7617593e064460ebdc265a7328 *inst/doc/bootstrap-replicates.Rmd
+804269dddb0a8df9924b3cbfc07948c1 *inst/doc/bootstrap-replicates.html
 a28d080ca1c816fc3032a0efbf1a8446 *inst/doc/nonresponse-adjustments.R
 f2e9168fe6a7f415f77e1b3270f5e3bd *inst/doc/nonresponse-adjustments.Rmd
 6bdc478f0bea90fe3da523c45539d52e *inst/doc/nonresponse-adjustments.html
@@ -58,7 +58,7 @@ b188ac5de90ab8ea78479943c44b65f9 *man/make_srswor_matrix.Rd
 fb30b061778e903e4c9f70ea84c3b242 *man/svrep-package.Rd
 a6f5d2288faeefe7683ba4e290ea8914 *man/svyby_repwts.Rd
 9df50a7c3ba4cfe6a831b944f1a2e818 *tests/testthat.R
-642f9623d31d402b74861b91f4f2c646 *tests/testthat/test-as_bootstrap_design.R
+392712389e04d6716cab1aa28e9cc2e8 *tests/testthat/test-as_bootstrap_design.R
 a50678493e1c4edfe59f38237cb72dd0 *tests/testthat/test-as_data_frame_with_weights.R
 c8b8d3ea82f20f468ad44197fcda8176 *tests/testthat/test-bootstrap-helpers.R
 ce67a892e2a5e65a8748d239d3726c93 *tests/testthat/test-calibrate_to_estimate.R
@@ -70,7 +70,7 @@ fe7d15920721dc99a550736a8b70ae6e *tests/testthat/test-rwyb_bootstrap.R
 2b119cc541a03c1f0b3ad51e5198b45b *tests/testthat/test-stack_replicate_designs.R
 4291bd975764fd158817e61908dca673 *tests/testthat/test-summarize_rep_weights.R
 e0e92a556aebd95eb0f14206614661d4 *tests/testthat/test-svyby_repwts.R
-b9b26339aafd0628cc2d8fd99fdca40c *vignettes/bootstrap-replicates.Rmd
+ca65eb7617593e064460ebdc265a7328 *vignettes/bootstrap-replicates.Rmd
 f2e9168fe6a7f415f77e1b3270f5e3bd *vignettes/nonresponse-adjustments.Rmd
 01ca4a6380e129900a7d6edba12bb249 *vignettes/references.bib
 fa9b152f2716344e5fc824a4cdf97e18 *vignettes/sample-based-calibration.Rmd
