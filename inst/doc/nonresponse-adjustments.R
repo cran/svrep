@@ -4,13 +4,12 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 
-## ----setup, message=FALSE, warning=FALSE--------------------------------------
+## ---- message=FALSE, warning=FALSE--------------------------------------------
 library(dplyr) # For data manipulation
 library(survey) # For complex survey analysis
 library(srvyr) # For complex survey analysis with dplyr syntax
 library(svrep)
 
-## -----------------------------------------------------------------------------
 # Load and inspect the data
 data("lou_vax_survey", package = 'svrep')
 head(lou_vax_survey)

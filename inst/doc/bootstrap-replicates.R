@@ -74,18 +74,26 @@ make_quad_form_matrix(
     sort_order = c(1,2,3,4,5)
 )
 
-## -----------------------------------------------------------------------------
+## ---- eval=TRUE---------------------------------------------------------------
 # Load an example dataset of a stratified systematic sample
 data('library_stsys_sample', package = 'svrep')
 
-# Represent the SD2 successive-difference estimator as a quadratic form,
-# and obtain the matrix of that quadratic form
-sd2_quad_form <- make_quad_form_matrix(
-  variance_estimator = 'SD2',
-  cluster_ids = library_stsys_sample |> select(FSCSKEY),
-  strata_ids = library_stsys_sample |> select(SAMPLING_STRATUM),
-  strata_pop_sizes = library_stsys_sample |> select(STRATUM_POP_SIZE),
-  sort_order = library_stsys_sample |> pull("SAMPLING_SORT_ORDER")
+# First, sort the rows in the order used in sampling
+library_stsys_sample <- library_stsys_sample |>
+  dplyr::arrange(SAMPLING_SORT_ORDER)
+
+# Create a survey design object
+survey_design <- svydesign(
+  data = library_stsys_sample,
+  ids = ~ 1,
+  strata = ~ SAMPLING_STRATUM,
+  fpc = ~ STRATUM_POP_SIZE
+)
+
+# Obtain the quadratic form for the target estimator
+sd2_quad_form <- get_design_quad_form(
+  design = survey_design,
+  variance_estimator = "SD2"
 )
 
 class(sd2_quad_form)
@@ -93,7 +101,7 @@ dim(sd2_quad_form)
 
 ## -----------------------------------------------------------------------------
 # Obtain weighted values
-wtd_y <- as.matrix(library_stsys_sample[['TOTCIR']] /
+wtd_y <- as.matrix(library_stsys_sample[['LIBRARIA']] /
                      library_stsys_sample[['SAMPLING_PROB']])
 wtd_y[is.na(wtd_y)] <- 0
 
@@ -102,12 +110,11 @@ point_estimate <- sum(wtd_y)
 
 # Obtain the variance estimate using the quadratic form
 variance_estimate <- t(wtd_y) %*% sd2_quad_form %*% wtd_y
+std_error <- sqrt(variance_estimate[1,1])
 
 # Summarize results
-sprintf("Estimate: %s", point_estimate)
-sprintf("Standard Error: %s", sqrt(variance_estimate[1,1]))
-sprintf("Coefficient of Variation: %s",
-        round(sqrt(variance_estimate[1,1])/point_estimate, 2))
+sprintf("Estimate: %s", round(point_estimate))
+sprintf("Standard Error: %s", round(std_error))
 
 ## -----------------------------------------------------------------------------
 # Load example data from stratified systematic sample
@@ -215,8 +222,22 @@ rep_adj_factors <- make_gen_boot_factors(
   tau = "auto"
 )
 
+## -----------------------------------------------------------------------------
 tau <- attr(rep_adj_factors, 'tau')
 B <- ncol(rep_adj_factors)
+
+## -----------------------------------------------------------------------------
+# Retrieve value of 'scale'
+rep_adj_factors |>
+  attr('scale') 
+
+# Compare to manually-calculated value
+  (tau^2) / B
+
+# Retrieve value of 'rscales'
+rep_adj_factors |>
+  attr('rscales') |> 
+  head() # Only show first 5 values
 
 ## -----------------------------------------------------------------------------
 gen_boot_design <- svrepdesign(
@@ -226,8 +247,8 @@ gen_boot_design <- svrepdesign(
   weights = ~ SAMPLING_WEIGHT,
   combined.weights = FALSE,
   type = "other",
-  scale = tau^2/B,
-  rscales = rep(1, times = B)
+  scale = attr(rep_adj_factors, 'scale'),
+  rscales = attr(rep_adj_factors, 'rscales')
 )
 
 ## -----------------------------------------------------------------------------

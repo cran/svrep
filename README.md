@@ -5,6 +5,8 @@
 
 <!-- badges: start -->
 
+[![CRAN
+status](https://www.r-pkg.org/badges/version/svrep)](https://CRAN.R-project.org/package=svrep)
 [![Codecov test
 coverage](https://codecov.io/gh/bschneidr/svrep/branch/main/graph/badge.svg)](https://app.codecov.io/gh/bschneidr/svrep?branch=main)
 <!-- [![R-CMD-check](https://github.com/bschneidr/svrep/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/bschneidr/svrep/actions/workflows/R-CMD-check.yaml) -->
@@ -33,6 +35,21 @@ You can install the development version from
 # install.packages("devtools")
 devtools::install_github("bschneidr/svrep")
 ```
+
+## Citation
+
+When using the ‘svrep’ package, please make sure to cite it any
+resulting publications. This is appreciated by the package maintainer
+and helps to incentivize ongoing development, maintenance, and support.
+
+> Schneider B. (2023). “svrep: Tools for Creating, Updating, and
+> Analyzing Survey Replicate Weights”. R package version 5.0.
+
+When using the ‘svrep’ package, please also cite the ‘survey’ package
+and R itself, since they are essential to the use of ‘svrep’. Call
+`citation('svrep')`, `citation('survey')`, and `citation('base')` for
+more information and to generate BibTex entries for citing these
+packages as well as R.
 
 ## Example usage
 
