@@ -29,31 +29,37 @@ set.seed(2014)
     "`as_bootstrap_design()` works with types other than RWYB", {
       expect_equal(
         object = withr::with_seed(2014, {
-          as_bootstrap_design(dclus1, type = "Canty-Davison") |>
+          as_bootstrap_design(dclus1, type = "Canty-Davison",
+                              replicates = 10) |>
             weights(type = "analysis")
         }),
         expected = withr::with_seed(2014, {
-          as.svrepdesign(dclus1, type = "bootstrap") |>
+          as.svrepdesign(dclus1, type = "bootstrap",
+                         replicates = 10) |>
             weights(type = "analysis")
         })
       )
       expect_equal(
         object = withr::with_seed(2014, {
-          as_bootstrap_design(dclus1, type = "Rao-Wu") |>
+          as_bootstrap_design(dclus1, type = "Rao-Wu",
+                              replicates = 10) |>
             weights(type = "analysis")
         }),
         expected = withr::with_seed(2014, {
-          as.svrepdesign(dclus1, type = "subbootstrap") |>
+          as.svrepdesign(dclus1, type = "subbootstrap",
+                         replicates = 10) |>
             weights(type = "analysis")
         })
       )
       expect_equal(
         object = withr::with_seed(2014, {
-          as_bootstrap_design(dclus1, type = "Preston") |>
+          as_bootstrap_design(dclus1, type = "Preston",
+                              replicates = 10) |>
             weights(type = "analysis")
         }),
         expected = withr::with_seed(2014, {
-          as.svrepdesign(dclus1, type = "mrbbootstrap") |>
+          as.svrepdesign(dclus1, type = "mrbbootstrap",
+                         replicates = 10) |>
             weights(type = "analysis")
         })
       )
@@ -108,5 +114,18 @@ set.seed(2014)
       boot_2_pps <- as_bootstrap_design(design_2_pps, replicates = 10)
       expect_equal(object = weights(boot_1_pps, type = "analysis"),
                    expected = weights(boot_2_pps, type = "analysis"))
+    }
+  )
+
+# Works for survey design objects with special classes ----
+
+  test_that(
+    desc = "Returns `tbl_svy` if the input is a `tbl_svy` and 'srvyr' is loaded", {
+      library(srvyr)
+      expect_true(
+        dstrat |> as_survey() |>
+          as_bootstrap_design(replicates = 1) |>
+          inherits(what = "tbl_svy")
+      )
     }
   )

@@ -1,3 +1,15 @@
+# svrep 0.5.1
+
+* New Features:
+  * Added argument `exact_vcov = TRUE` to `as_gen_boot_design()` and `make_gen_boot_factors()`. This argument forces the generalized bootstrap variance-covariance estimates for totals to exactly match the target variance estimator. In other words, this eliminates bootstrap simulation error for variance estimates of totals. This is similar to how, for simple survey designs, the jackknife and BRR give variance estimates for totals that exactly match the Horvitz-Thompson estimates. Using `exact_vcov` requires that the number of replicates is strictly greater than the rank of the target variance estimator.
+
+  * Added new variance estimators ("Deville 1" and "Deville 2") available to use for the generalized bootstrap, which are particularly useful for single-stage PPSWOR designs or for multistage designs with one or more stages of PPSWOR sampling. See updated documentation for `as_gen_boot_design()` and `make_quad_form_matrix()`.
+
+  * If the 'srvyr' package is loaded, then functions from 'svrep' that return survey design objects will always return a `tbl_svy` if their input was a `tbl_svy`. This makes it easier to use functions such as `summarize()` or `mutate()`.
+
+* Bug Fixes:
+  * Fixed bug where `as_bootstrap_design()` wouldn't create more than 50 replicates for the Rao-Wu, Preston, or Canty-Davison types.
+
 # svrep 0.5.0
 
 * This release adds extensive new functionality for two-phase designs. The new vignette "Replication Methods for Two-phase Sampling" describes the new functionality as well as the underlying statistical methods.

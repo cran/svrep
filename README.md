@@ -38,12 +38,12 @@ devtools::install_github("bschneidr/svrep")
 
 ## Citation
 
-When using the ‘svrep’ package, please make sure to cite it any
+When using the ‘svrep’ package, please make sure to cite it in any
 resulting publications. This is appreciated by the package maintainer
 and helps to incentivize ongoing development, maintenance, and support.
 
 > Schneider B. (2023). “svrep: Tools for Creating, Updating, and
-> Analyzing Survey Replicate Weights”. R package version 5.0.
+> Analyzing Survey Replicate Weights”. R package version 0.5.1.
 
 When using the ‘svrep’ package, please also cite the ‘survey’ package
 and R itself, since they are essential to the use of ‘svrep’. Call
@@ -351,22 +351,22 @@ differs from the distribution of race/ethnicity in the ACS benchmarks.
 ``` r
 # Compare demographic estimates from the two data sources
 estimate_comparisons <- data.frame(
-  'Vax_Survey' = svymean(x = ~ RACE_ETHNICITY, design = acs_benchmark_survey) |> coef(),
-  'ACS_Benchmark' = svymean(x = ~ RACE_ETHNICITY, design = lou_vax_survey) |> coef()
+  'Vax_Survey' = svymean(x = ~ RACE_ETHNICITY, design = lou_vax_survey) |> coef(),
+  'ACS_Benchmark' = svymean(x = ~ RACE_ETHNICITY, design = acs_benchmark_survey) |> coef()
 )
 rownames(estimate_comparisons) <- gsub(x = rownames(estimate_comparisons),
                                        "RACE_ETHNICITY", "")
 print(estimate_comparisons)
 #>                                                         Vax_Survey
-#> Black or African American alone, not Hispanic or Latino 0.19949824
-#> Hispanic or Latino                                      0.04525039
-#> Other Race, not Hispanic or Latino                      0.04630955
-#> White alone, not Hispanic or Latino                     0.70894182
+#> Black or African American alone, not Hispanic or Latino 0.16932271
+#> Hispanic or Latino                                      0.03386454
+#> Other Race, not Hispanic or Latino                      0.05776892
+#> White alone, not Hispanic or Latino                     0.73904382
 #>                                                         ACS_Benchmark
-#> Black or African American alone, not Hispanic or Latino    0.16932271
-#> Hispanic or Latino                                         0.03386454
-#> Other Race, not Hispanic or Latino                         0.05776892
-#> White alone, not Hispanic or Latino                        0.73904382
+#> Black or African American alone, not Hispanic or Latino    0.19949824
+#> Hispanic or Latino                                         0.04525039
+#> Other Race, not Hispanic or Latino                         0.04630955
+#> White alone, not Hispanic or Latino                        0.70894182
 ```
 
 There are two options for calibrating the sample to the control totals

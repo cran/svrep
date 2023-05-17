@@ -27,6 +27,12 @@ Options include:
   based on estimating the variance of cluster totals within strata at each stage.}
   \item{\strong{"Ultimate Cluster"}: }{The usual variance estimator based on estimating
   the variance of first-stage cluster totals within first-stage strata.}
+  \item{\strong{"Deville-1"}: }{A variance estimator for unequal-probability
+  sampling without replacement, described in Matei and Tillé (2005)
+  as "Deville 1".}
+  \item{\strong{"Deville-2"}: }{A variance estimator for unequal-probability
+  sampling without replacement, described in Matei and Tillé (2005)
+  as "Deville 2".}
   \item{\strong{"SD1"}: }{The non-circular successive-differences variance estimator described by Ash (2014),
   sometimes used for variance estimation for systematic sampling.}
   \item{\strong{"SD2"}: }{The circular successive-differences variance estimator described by Ash (2014).
@@ -34,16 +40,15 @@ Options include:
   for variance estimation for systematic sampling.}
 }}
 
-\item{ensure_psd}{A logical value, defaulting to \code{FALSE}.
-If \code{ensure_psd = TRUE} and the quadratic form is
-not already positive semidefinite,
-then the function \code{\link[svrep]{get_nearest_psd_matrix}()}
-is used to approximate the quadratic form matrix by the
-nearest positive semidefinite matrix.
-This is necessary if the quadratic form is used as an input for
-replication methods such as the generalized bootstrap
-and is also useful if the quadratic form is to be used directly
-for estimating covariance matrices.}
+\item{ensure_psd}{If \code{TRUE} (the default), ensures
+that the result is a positive semidefinite matrix. This
+is necessary if the quadratic form is used as an input for
+replication methods such as the generalized bootstrap.
+For mathematical details, please see the documentation for the function \code{get_nearest_psd_matrix()}.
+The approximation method is discussed by Beaumont and Patak (2012)
+in the context of forming replicate weights for two-phase samples.
+The authors argue that this approximation should
+lead to only a small overestimation of variance.}
 }
 \value{
 A matrix representing the quadratic form of a specified variance estimator,
@@ -65,6 +70,10 @@ The \strong{Yates-Grundy} variance estimator:
 \deqn{
   v(\hat{Y}) = -\frac{1}{2}\sum_{i \in s}\sum_{j \in s} (1 - \frac{\pi_i \pi_j}{\pi_{ij}}) (\frac{y_i}{\pi_i} - \frac{y_j}{\pi_j})^2
 }
+The \strong{Poisson Horvitz-Thompson} variance estimator
+is simply the Horvitz-Thompson variance estimator, but
+where \eqn{\pi_{ij}=\pi_i \times \pi_j}, which is the case for Poisson sampling.
+\cr \cr
 The \strong{Stratified Multistage SRS} variance estimator is the recursive variance estimator
 proposed by Bellhouse (1985) and used in the 'survey' package's function \link[survey]{svyrecvar}.
 The estimator can be used for any number of sampling stages. For illustration, we describe its use
@@ -116,11 +125,44 @@ For later stages of sampling, the variance estimate from a stratum is multiplied
 of sampling fractions from earlier stages of sampling. For example, at a third stage of sampling,
 the variance estimate from a third-stage stratum is multiplied by \eqn{\frac{n_1}{N_1}\frac{n_2}{N_2}},
 which is the product of sampling fractions from the first-stage stratum and second-stage stratum.
+\cr \cr
+The \strong{"Deville-1"} and \strong{"Deville-2"} variance estimators
+are clearly described in Matei and Tillé (2005),
+and are intended for designs that use
+fixed-size, unequal-probability random sampling without replacement.
+These variance estimators have been shown to be effective
+for designs that use a fixed sample size with a high-entropy sampling method.
+This includes most PPSWOR sampling methods,
+but unequal-probability systematic sampling is an important exception.
+
+These variance estimators take the following form:
+\deqn{
+\hat{v}(\hat{Y}) = \sum_{i=1}^{n} c_i (\breve{y}_i - \frac{1}{\sum_{i=k}^{n}c_k}\sum_{k=1}^{n}c_k \breve{y}_k)^2
+}
+where \eqn{\breve{y}_i = y_i/\pi_i} is the weighted value of the the variable of interest,
+and \eqn{c_i} depend on the method used:
+\itemize{
+\item{\strong{"Deville-1"}: }{
+\deqn{c_i=\left(1-\pi_i\right) \frac{n}{n-1}}}
+\item{\strong{"Deville-2"}: }{
+\deqn{c_i = (1-\pi_i) \left[1 - \sum_{k=1}^{n} \left(\frac{1-\pi_k}{\sum_{k=1}^{n}(1-\pi_k)}\right)^2 \right]^{-1}}}
+}
+In the case of simple random sampling without replacement (SRSWOR),
+these estimators are both identical to the usual stratified multistage SRS estimator
+(which is itself a special case of the Horvitz-Thompson estimator).
+
+For multistage samples, "Deville-1" and "Deville-2" are applied to the clusters at each stage, separately by stratum.
+For later stages of sampling, the variance estimate from a stratum is multiplied by the product
+of sampling probabilities from earlier stages of sampling. For example, at a third stage of sampling,
+the variance estimate from a third-stage stratum is multiplied by \eqn{\pi_1 \times \pi_{(2 | 1)}},
+where \eqn{\pi_1} is the sampling probability of the first-stage unit
+and \eqn{\pi_{(2|1)}} is the sampling probability of the second-stage unit
+within the first-stage unit.
 }
 
 \section{Two-Phase Designs}{
 
-For a two-phase design, \code{variance_estimator} should be a list of variance estimators,
+For a two-phase design, \code{variance_estimator} should be a list of variance estimators' names,
 with two elements, such as \code{list('Ultimate Cluster', 'Poisson Horvitz-Thompson')}.
 In two-phase designs, only the following estimators may be used for the second phase:
 \itemize{
@@ -128,6 +170,8 @@ In two-phase designs, only the following estimators may be used for the second p
   \item "Stratified Multistage SRS"
   \item "Poisson Horvitz-Thompson"
 }
+For statistical details on the handling of two-phase designs,
+see the documentation for \link[svrep]{make_twophase_quad_form}.
 }
 
 \examples{
@@ -210,6 +254,9 @@ In two-phase designs, only the following estimators may be used for the second p
 \references{
 - Ash, S. (2014). "\emph{Using successive difference replication for estimating variances}."
 \strong{Survey Methodology}, Statistics Canada, 40(1), 47–59.
+\cr \cr
+- Beaumont, Jean-François, and Zdenek Patak. (2012). "\emph{On the Generalized Bootstrap for Sample Surveys with Special Attention to Poisson Sampling: Generalized Bootstrap for Sample Surveys.}"
+\strong{International Statistical Review} 80 (1): 127–48.
 \cr \cr
 - Bellhouse, D.R. (1985). "\emph{Computing Methods for Variance Estimation in Complex Surveys}."
 \strong{Journal of Official Statistics}, Vol.1, No.3.

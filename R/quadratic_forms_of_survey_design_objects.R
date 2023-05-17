@@ -21,97 +21,38 @@
 #'   based on estimating the variance of cluster totals within strata at each stage.}
 #'   \item{\strong{"Ultimate Cluster"}: }{The usual variance estimator based on estimating
 #'   the variance of first-stage cluster totals within first-stage strata.}
+#'   \item{\strong{"Deville-1"}: }{A variance estimator for unequal-probability
+#'   sampling without replacement, described in Matei and Tillé (2005)
+#'   as "Deville 1".}
+#'   \item{\strong{"Deville-2"}: }{A variance estimator for unequal-probability
+#'   sampling without replacement, described in Matei and Tillé (2005)
+#'   as "Deville 2".}
 #'   \item{\strong{"SD1"}: }{The non-circular successive-differences variance estimator described by Ash (2014),
 #'   sometimes used for variance estimation for systematic sampling.}
 #'   \item{\strong{"SD2"}: }{The circular successive-differences variance estimator described by Ash (2014).
 #'   This estimator is the basis of the "successive-differences replication" estimator commonly used
 #'   for variance estimation for systematic sampling.}
 #' }
+#' @param ensure_psd If \code{TRUE} (the default), ensures
+#' that the result is a positive semidefinite matrix. This
+#' is necessary if the quadratic form is used as an input for
+#' replication methods such as the generalized bootstrap.
+#' For mathematical details, please see the documentation for the function \code{get_nearest_psd_matrix()}.
+#' The approximation method is discussed by Beaumont and Patak (2012)
+#' in the context of forming replicate weights for two-phase samples.
+#' The authors argue that this approximation should
+#' lead to only a small overestimation of variance.
 #' @return A matrix representing the quadratic form of a specified variance estimator,
 #' based on extracting information about clustering, stratification,
 #' and selection probabilities from the survey design object.
-#' @section Variance Estimators:
-#' The \strong{Horvitz-Thompson} variance estimator:
-#' \deqn{
-#'   v(\hat{Y}) = \sum_{i \in s}\sum_{j \in s} (1 - \frac{\pi_i \pi_j}{\pi_{ij}}) \frac{y_i}{\pi_i} \frac{y_j}{\pi_j}
-#' }
-#' The \strong{Yates-Grundy} variance estimator:
-#' \deqn{
-#'   v(\hat{Y}) = -\frac{1}{2}\sum_{i \in s}\sum_{j \in s} (1 - \frac{\pi_i \pi_j}{\pi_{ij}}) (\frac{y_i}{\pi_i} - \frac{y_j}{\pi_j})^2
-#' }
-#' The \strong{Stratified Multistage SRS} variance estimator is the recursive variance estimator
-#' proposed by Bellhouse (1985) and used in the 'survey' package's function \link[survey]{svyrecvar}.
-#' The estimator can be used for any number of sampling stages. For illustration, we describe its use
-#' for two sampling stages.
-#' \deqn{
-#'   v(\hat{Y}) = \hat{V}_1 + \hat{V}_2
-#' }
-#' where
-#' \deqn{
-#'   \hat{V}_1 = \sum_{h=1}^{H} (1 - \frac{n_h}{N_h})\frac{n_h}{n_h - 1} \sum_{i=1}^{n_h} (y_{hi.} - \bar{y}_{hi.})^2
-#' }
-#' and
-#' \deqn{
-#'   \hat{V}_2 = \sum_{h=1}^{H} \frac{n_h}{N_h} \sum_{i=1}^{n_h}v_{hi}(y_{hi.})
-#' }
-#' where \eqn{n_h} is the number of sampled clusters in stratum \eqn{h},
-#' \eqn{N_h} is the number of population clusters in stratum \eqn{h},
-#' \eqn{y_{hi.}} is the weighted cluster total in cluster \eqn{i} of stratum \eqn{h},
-#' \eqn{\bar{y}_{hi.}} is the mean weighted cluster total of stratum \eqn{h},
-#' (\eqn{\bar{y}_{hi.} = \frac{1}{n_h}\sum_{i=1}^{n_h}y_{hi.}}), and
-#' \eqn{v_{hi}(y_{hi.})} is the estimated sampling variance of \eqn{y_{hi.}}.
-#' \cr \cr
-#' The \strong{Ultimate Cluster} variance estimator is simply the stratified multistage SRS
-#' variance estimator, but ignoring variances from later stages of sampling.
-#' \deqn{
-#'   v(\hat{Y}) = \hat{V}_1
-#' }
-#' This is the variance estimator used in the 'survey' package when the user specifies
-#' \code{option(survey.ultimate.cluster = TRUE)} or uses \code{svyrecvar(..., one.stage = TRUE)}.
-#' When the first-stage sampling fractions are small, analysts often omit the finite population corrections \eqn{(1-\frac{n_h}{N_h})}
-#' when using the ultimate cluster estimator.
-#' \cr \cr
-#' The \strong{SD1} and \strong{SD2} variance estimators are "successive difference"
-#' estimators sometimes used for systematic sampling designs.
-#' Ash (2014) describes each estimator as follows:
-#' \deqn{
-#'   \hat{v}_{S D 1}(\hat{Y}) = \left(1-\frac{n}{N}\right) \frac{n}{2(n-1)} \sum_{k=2}^n\left(\breve{y}_k-\breve{y}_{k-1}\right)^2
-#' }
-#' \deqn{
-#'   \hat{v}_{S D 2}(\hat{Y}) = \left(1-\frac{n}{N}\right) \frac{1}{2}\left[\sum_{k=2}^n\left(\breve{y}_k-\breve{y}_{k-1}\right)^2+\left(\breve{y}_n-\breve{y}_1\right)^2\right]
-#' }
-#' where \eqn{\breve{y}_k = y_k/\pi_k} is the weighted value of unit \eqn{k}
-#' with selection probability \eqn{\pi_k}. The SD1 estimator is recommended by Wolter (1984).
-#' The SD2 estimator is the basis of the successive difference replication estimator commonly
-#' used for systematic sampling designs. See Ash (2014) for details.
-#' \cr \cr
-#' For multistage samples, SD1 and SD2 are applied to the clusters at each stage, separately by stratum.
-#' For later stages of sampling, the variance estimate from a stratum is multiplied by the product
-#' of sampling fractions from earlier stages of sampling. For example, at a third stage of sampling,
-#' the variance estimate from a third-stage stratum is multiplied by \eqn{\frac{n_1}{N_1}\frac{n_2}{N_2}},
-#' which is the product of sampling fractions from the first-stage stratum and second-stage stratum.
-#' @section Two-Phase Designs:
-#' For a two-phase design, \code{variance_estimator} should be a list of variance estimators,
-#' with two elements, such as \code{list('Ultimate Cluster', 'Poisson Horvitz-Thompson')}.
-#' In two-phase designs, only the following estimators may be used for the second phase:
-#' \itemize{
-#'   \item "Ultimate Cluster"
-#'   \item "Stratified Multistage SRS"
-#'   \item "Poisson Horvitz-Thompson"
-#' }
-#' @param ensure_psd A logical value, defaulting to \code{FALSE}.
-#' If \code{ensure_psd = TRUE} and the quadratic form is
-#' not already positive semidefinite,
-#' then the function \code{\link[svrep]{get_nearest_psd_matrix}()}
-#' is used to approximate the quadratic form matrix by the
-#' nearest positive semidefinite matrix.
-#' This is necessary if the quadratic form is used as an input for
-#' replication methods such as the generalized bootstrap
-#' and is also useful if the quadratic form is to be used directly
-#' for estimating covariance matrices.
+#' @inheritSection make_quad_form_matrix Variance Estimators
+#' @inheritSection as_gen_boot_design Two-Phase Designs
 #' @references
 #' - Ash, S. (2014). "\emph{Using successive difference replication for estimating variances}."
 #' \strong{Survey Methodology}, Statistics Canada, 40(1), 47–59.
+#' \cr \cr
+#' - Beaumont, Jean-François, and Zdenek Patak. (2012). "\emph{On the Generalized Bootstrap for Sample Surveys with Special Attention to Poisson Sampling: Generalized Bootstrap for Sample Surveys.}"
+#' \strong{International Statistical Review} 80 (1): 127–48.
 #' \cr \cr
 #' - Bellhouse, D.R. (1985). "\emph{Computing Methods for Variance Estimation in Complex Surveys}."
 #' \strong{Journal of Official Statistics}, Vol.1, No.3.
@@ -208,7 +149,7 @@ get_design_quad_form.survey.design <- function(design, variance_estimator,
     "Yates-Grundy", "Horvitz-Thompson",
     "Poisson Horvitz-Thompson",
     "Ultimate Cluster", "Stratified Multistage SRS",
-    "SD1", "SD2"
+    "SD1", "SD2", "Deville 1", "Deville 2"
   )
 
   if (is.null(variance_estimator)) {
@@ -295,7 +236,7 @@ get_design_quad_form.twophase2 <- function(design, variance_estimator,
     "Yates-Grundy", "Horvitz-Thompson",
     "Poisson Horvitz-Thompson",
     "Ultimate Cluster", "Stratified Multistage SRS",
-    "SD1", "SD2"
+    "SD1", "SD2", "Deville-1", "Deville-2"
   )
   accepted_phase2_estimators <- c(
     "Ultimate Cluster", "Stratified Multistage SRS",

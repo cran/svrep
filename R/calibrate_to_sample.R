@@ -55,6 +55,20 @@
 #' The element \code{degf} will be set to match that of the primary survey
 #' to ensure that the degrees of freedom are not erroneously inflated by
 #' potential increases in the number of columns of replicate weights.
+#' @section Syntax for Common Types of Calibration:
+#' For ratio estimation with an auxiliary variable \code{X},
+#' use the following options: \cr
+#'   - \code{cal_formula = ~ -1 + X} \cr
+#'   - \code{variance = 1}, \cr
+#'   - \code{cal.fun = survey::cal.linear}
+#'
+#' For post-stratification, use the following option:
+#'
+#'   - \code{cal.fun = survey::cal.linear}
+#'
+#' For raking, use the following option:
+#'
+#'   - \code{cal.fun = survey::cal.raking}
 #' @references
 #' Opsomer, J.D. and A. Erciulescu (2021).
 #' "Replication variance estimation after sample-based calibration."
@@ -132,6 +146,8 @@ calibrate_to_sample <- function(primary_rep_design, control_rep_design,
   if (!inherits(control_rep_design, "svyrep.design")) {
     stop("`control_rep_design` must be a replicate survey design object, with class `svyrep.design`")
   }
+
+  is_tbl_svy <- inherits(primary_rep_design, 'tbl_svy')
 
   # Determine parameters describing replicate designs ----
   R_control <- ncol(control_rep_design$repweights)
@@ -382,6 +398,12 @@ calibrate_to_sample <- function(primary_rep_design, control_rep_design,
     fpctype = primary_rep_design$fpctype,
     mse = TRUE
   )
+
+  if (is_tbl_svy && ('package:srvyr' %in% search())) {
+    calibrated_rep_design <- srvyr::as_survey_rep(
+      calibrated_rep_design
+    )
+  }
 
   calibrated_rep_design$rho <- primary_rep_design$rho
 

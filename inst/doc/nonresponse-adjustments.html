@@ -198,7 +198,7 @@ Kentucky.</p>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 Nonrespondent   White alone, not Hispanic or… Fema… Less than high… &lt;NA&gt;      </span></span>
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5 Nonrespondent   White alone, not Hispanic or… Fema… High school or… &lt;NA&gt;      </span></span>
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6 Respondent      White alone, not Hispanic or… Fema… High school or… Vaccinated</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # … with 1 more variable: SAMPLING_WEIGHT &lt;dbl&gt;</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # ℹ 1 more variable: SAMPLING_WEIGHT &lt;dbl&gt;</span></span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(lou_vax_survey)</span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;RESPONSE_STATUS&quot; &quot;RACE_ETHNICITY&quot;  &quot;SEX&quot;             &quot;EDUC_ATTAINMENT&quot;</span></span>
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [5] &quot;VAX_STATUS&quot;      &quot;SAMPLING_WEIGHT&quot;</span></span></code></pre></div>
@@ -284,7 +284,7 @@ among nonrespondents} \\
 \\
 f_{NR_i} &amp;= \begin{cases}
      0 &amp; \textit{if case }i\textit{ is a nonrespondent} \\
-     1 + \frac{\sum_{i \in s_{nonresp}} w_i}{\sum_{i \in s_{resp}}}
+     1 + \frac{\sum_{i \in s_{nonresp}} w_i}{\sum_{i \in s_{resp}} w_i}
 &amp; \textit{if case }i\textit{ is a respondent}
            \end{cases}
 \end{aligned}\]</span>
