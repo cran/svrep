@@ -1,3 +1,31 @@
+# svrep 0.6.0
+
+* Added a function `as_random_group_jackknife_design()` to create random-group jackknife replicates.
+
+* **The creation of generalized bootstrap replicates for designs with many observations but few degrees of freedom (e.g., stratified cluster samples) is now much faster and more efficient.** This is based on using the 'Matrix' package--particularly its efficient representation of sparse matrices which arise for stratified designs--as well as using a compressed representation of designs that use cluster sampling.
+
+* Now using the 'Matrix' package to improve speed and memory usage for large quadratic forms. This is primarily helpful for making the generalized bootstrap computationally feasible for larger datasets.
+
+* Better documentation for the bootstrap methods covered by `as_bootstrap_design()`.
+
+* The following functions now work for database-backed survey design objects (i.e., objects with the class `DBIsvydesign`):
+
+  * `as_data_frame_with_weights()`
+  * `as_gen_boot_design()`
+  * `as_bootstrap_design()`
+  * `redistribute_weights()`
+  * `calibrate_to_sample()`
+  * `calibrate_to_estimate()`
+  
+* The function `as_data_frame_with_weights()` has gained an argument `vars_to_keep` which allows the user to indicate that they only want to keep a specific list of variables from the data. This can be useful, for example, if you only want to keep the weights and unique identifiers.
+
+* Minor updates and bug fixes:
+  * The function `as_bootstrap_design()` now throws an informative error message when you supply an invalid value for the `type` argument.
+  
+  * Bug Fix: The "Deville-1" and "Deville-2" estimators threw errors for strata where one or more units were selected with certainty (i.e., had sampling probabilities of 1). This has now been fixed.
+  
+  * Bug Fix: The function `as_gen_boot_design()` could sometimes fail to detect that the input design is a PPS design, which caused it to give the user an unnecessary error message.
+
 # svrep 0.5.1
 
 * New Features:

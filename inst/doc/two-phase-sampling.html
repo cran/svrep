@@ -347,18 +347,18 @@ of panelists.</p>
 <p>The particular dataset we’ll use comes from the Public Libraries
 Survey (PLS), an annual survey of public libraries in the U.S, with data
 from FY2020.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&#39;library_multistage_sample&#39;</span>, <span class="at">package =</span> <span class="st">&#39;svrep&#39;</span>)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Load first-phase sample</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  twophase_sample <span class="ot">&lt;-</span> library_multistage_sample</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Select second-phase sample</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(<span class="dv">2020</span>)</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  twophase_sample[[<span class="st">&#39;SECOND_PHASE_SELECTION&#39;</span>]] <span class="ot">&lt;-</span> sampling<span class="sc">::</span><span class="fu">srswor</span>(</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> <span class="dv">100</span>,</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">N =</span> <span class="fu">nrow</span>(twophase_sample)</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> <span class="fu">as.logical</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&#39;library_multistage_sample&#39;</span>, <span class="at">package =</span> <span class="st">&#39;svrep&#39;</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co"># Load first-phase sample</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>  twophase_sample <span class="ot">&lt;-</span> library_multistage_sample</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="co"># Select second-phase sample</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  <span class="fu">set.seed</span>(<span class="dv">2020</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>  </span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>  twophase_sample[[<span class="st">&#39;SECOND_PHASE_SELECTION&#39;</span>]] <span class="ot">&lt;-</span> sampling<span class="sc">::</span><span class="fu">srswor</span>(</span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>    <span class="at">n =</span> <span class="dv">100</span>,</span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>    <span class="at">N =</span> <span class="fu">nrow</span>(twophase_sample)</span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> <span class="fu">as.logical</span>()</span></code></pre></div>
 </div>
 <div id="describing-the-two-phase-survey-design" class="section level2">
 <h2>Describing the Two-phase Survey Design</h2>
@@ -368,22 +368,22 @@ clustering, probabilities, and population sizes. Note that we use a
 <code>list()</code> for most arguments, where the first element of the
 list describes the first phase of sampling, and the second element of
 the list describes the second phase of sampling.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Declare survey design</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  twophase_design <span class="ot">&lt;-</span> <span class="fu">twophase</span>(</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">method =</span> <span class="st">&quot;full&quot;</span>,</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> twophase_sample,</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Identify the subset of first-phase elements</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># which were selected into the second-phase sample</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">subset =</span> <span class="sc">~</span> SECOND_PHASE_SELECTION,</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Describe clusters, probabilities, and population sizes</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># at each phase of sampling</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">id =</span> <span class="fu">list</span>(<span class="sc">~</span> PSU_ID <span class="sc">+</span> SSU_ID,</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>              <span class="sc">~</span> <span class="dv">1</span>),</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">probs =</span> <span class="fu">list</span>(<span class="sc">~</span> PSU_SAMPLING_PROB <span class="sc">+</span> SSU_SAMPLING_PROB,</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>                 <span class="cn">NULL</span>),</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">fpc =</span> <span class="fu">list</span>(<span class="sc">~</span> PSU_POP_SIZE <span class="sc">+</span> SSU_POP_SIZE,</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>               <span class="cn">NULL</span>)</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Declare survey design</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  twophase_design <span class="ot">&lt;-</span> <span class="fu">twophase</span>(</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>    <span class="at">method =</span> <span class="st">&quot;full&quot;</span>,</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>    <span class="at">data =</span> twophase_sample,</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>    <span class="co"># Identify the subset of first-phase elements</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>    <span class="co"># which were selected into the second-phase sample</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>    <span class="at">subset =</span> <span class="sc">~</span> SECOND_PHASE_SELECTION,</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>    <span class="co"># Describe clusters, probabilities, and population sizes</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>    <span class="co"># at each phase of sampling</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>    <span class="at">id =</span> <span class="fu">list</span>(<span class="sc">~</span> PSU_ID <span class="sc">+</span> SSU_ID,</span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>              <span class="sc">~</span> <span class="dv">1</span>),</span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>    <span class="at">probs =</span> <span class="fu">list</span>(<span class="sc">~</span> PSU_SAMPLING_PROB <span class="sc">+</span> SSU_SAMPLING_PROB,</span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>                 <span class="cn">NULL</span>),</span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>    <span class="at">fpc =</span> <span class="fu">list</span>(<span class="sc">~</span> PSU_POP_SIZE <span class="sc">+</span> SSU_POP_SIZE,</span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>               <span class="cn">NULL</span>)</span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>  )</span></code></pre></div>
 </div>
 <div id="creating-generalized-bootstrap-replicates" class="section level2">
 <h2>Creating Generalized Bootstrap Replicates</h2>
@@ -393,43 +393,43 @@ bootstrap replicate weights. This requires us to specify the desired
 number of replicates and the target variance estimator for each phase of
 sampling. Note that different target variance estimators may be used for
 each phase, since each phase might have a very different design.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Obtain a generalized bootstrap replicates</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># based on </span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">#   - The phase 1 estimator is the usual variance estimator</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">#     for stratified multistage simple random sampling</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#   - The phase 2 estimator is the usual variance estimator</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">#     for single-stage simple random sampling</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>twophase_boot_design <span class="ot">&lt;-</span> <span class="fu">as_gen_boot_design</span>(</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">design =</span> twophase_design,</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">variance_estimator =</span> <span class="fu">list</span>(</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Phase 1&quot;</span> <span class="ot">=</span> <span class="st">&quot;Stratified Multistage SRS&quot;</span>,</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Phase 2&quot;</span> <span class="ot">=</span> <span class="st">&quot;Ultimate Cluster&quot;</span></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">replicates =</span> <span class="dv">1000</span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># Obtain a generalized bootstrap replicates</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co"># based on </span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#   - The phase 1 estimator is the usual variance estimator</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#     for stratified multistage simple random sampling</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#   - The phase 2 estimator is the usual variance estimator</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co">#     for single-stage simple random sampling</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>twophase_boot_design <span class="ot">&lt;-</span> <span class="fu">as_gen_boot_design</span>(</span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>  <span class="at">design =</span> twophase_design,</span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>  <span class="at">variance_estimator =</span> <span class="fu">list</span>(</span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>    <span class="st">&quot;Phase 1&quot;</span> <span class="ot">=</span> <span class="st">&quot;Stratified Multistage SRS&quot;</span>,</span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>    <span class="st">&quot;Phase 2&quot;</span> <span class="ot">=</span> <span class="st">&quot;Ultimate Cluster&quot;</span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>  ),</span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>  <span class="at">replicates =</span> <span class="dv">1000</span></span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a>)</span></code></pre></div>
 <p>The result is a replicate survey design object which can be used for
 estimation with the usual functions from the ‘survey’ and ‘srvyr’
 packages.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>twophase_boot_design <span class="sc">|&gt;</span> <span class="fu">svymean</span>(<span class="at">x =</span> <span class="sc">~</span> LIBRARIA, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;            mean     SE</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; LIBRARIA 7.6044 1.8419</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>twophase_boot_design <span class="sc">|&gt;</span> <span class="fu">svymean</span>(<span class="at">x =</span> <span class="sc">~</span> LIBRARIA, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt;            mean     SE</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt; LIBRARIA 7.6044 1.8419</span></span></code></pre></div>
 <p>When using <code>as_gen_boot_design()</code> for two-phase designs,
 it’s useful to know that you will often see a warning message about
 needing to approximate the first-phase variance estimator’s quadratic
 form.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>twophase_boot_design <span class="ot">&lt;-</span> <span class="fu">as_gen_boot_design</span>(</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">design =</span> twophase_design,</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">variance_estimator =</span> <span class="fu">list</span>(</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Phase 1&quot;</span> <span class="ot">=</span> <span class="st">&quot;Stratified Multistage SRS&quot;</span>,</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Phase 2&quot;</span> <span class="ot">=</span> <span class="st">&quot;Ultimate Cluster&quot;</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in as_gen_boot_design.twophase2(design = twophase_design,</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; variance_estimator = list(`Phase 1` = &quot;Stratified Multistage SRS&quot;, : The sample</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; quadratic form matrix for this design and variance estimator is not positive</span></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; semidefinite. It will be approximated by the nearest positive semidefinite</span></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; matrix.</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>twophase_boot_design <span class="ot">&lt;-</span> <span class="fu">as_gen_boot_design</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  <span class="at">design =</span> twophase_design,</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="at">variance_estimator =</span> <span class="fu">list</span>(</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>    <span class="st">&quot;Phase 1&quot;</span> <span class="ot">=</span> <span class="st">&quot;Stratified Multistage SRS&quot;</span>,</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>    <span class="st">&quot;Phase 2&quot;</span> <span class="ot">=</span> <span class="st">&quot;Ultimate Cluster&quot;</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>  )</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>)</span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; Warning in as_gen_boot_design.twophase2(design = twophase_design,</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt; variance_estimator = list(`Phase 1` = &quot;Stratified Multistage SRS&quot;, : The sample</span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt; quadratic form matrix for this design and variance estimator is not positive</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt; semidefinite. It will be approximated by the nearest positive semidefinite</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co">#&gt; matrix.</span></span></code></pre></div>
 <p>As you can see from the output above, the function emitted a warning
 message. The generalized bootstrap works by mimicking a variance
 estimator but requires that variance estimator to be represented as a
@@ -478,56 +478,56 @@ values</strong></p>
 <p>First, we need to ensure that the variables we want to use for
 calibration do not have any missing values in either the first-phase or
 second-phase sample. Some imputation might be necessary.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Impute missing values (if necessary)</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>twophase_sample <span class="ot">&lt;-</span> twophase_sample <span class="sc">|&gt;</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">TOTCIR =</span> <span class="fu">ifelse</span>(</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>      <span class="fu">is.na</span>(TOTCIR),</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>      stats<span class="sc">::</span><span class="fu">weighted.mean</span>(TOTCIR, <span class="at">na.rm =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>                           <span class="at">w =</span> <span class="dv">1</span><span class="sc">/</span>SAMPLING_PROB),</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>      TOTCIR</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">TOTSTAFF =</span> <span class="fu">ifelse</span>(</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>      <span class="fu">is.na</span>(TOTSTAFF),</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>      stats<span class="sc">::</span><span class="fu">weighted.mean</span>(TOTSTAFF, <span class="at">na.rm =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>                           <span class="at">w =</span> <span class="dv">1</span><span class="sc">/</span>SAMPLING_PROB),</span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>      TOTSTAFF</span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># Impute missing values (if necessary)</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>twophase_sample <span class="ot">&lt;-</span> twophase_sample <span class="sc">|&gt;</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>    <span class="at">TOTCIR =</span> <span class="fu">ifelse</span>(</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>      <span class="fu">is.na</span>(TOTCIR),</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>      stats<span class="sc">::</span><span class="fu">weighted.mean</span>(TOTCIR, <span class="at">na.rm =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>                           <span class="at">w =</span> <span class="dv">1</span><span class="sc">/</span>SAMPLING_PROB),</span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>      TOTCIR</span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>    ),</span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>    <span class="at">TOTSTAFF =</span> <span class="fu">ifelse</span>(</span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>      <span class="fu">is.na</span>(TOTSTAFF),</span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>      stats<span class="sc">::</span><span class="fu">weighted.mean</span>(TOTSTAFF, <span class="at">na.rm =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a>                           <span class="at">w =</span> <span class="dv">1</span><span class="sc">/</span>SAMPLING_PROB),</span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a>      TOTSTAFF</span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a>    )</span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a>  )</span></code></pre></div>
 <p><strong>(If you haven’t already) Create replicate weights for the
 second-phase sample</strong></p>
 <p>Before calibration, we need to create replicate weights for the
 second-phase sample that appropriately reflect the sampling variance of
 the entire two-phase design. We did that already in this document, but
 we’ll repeat that code again below.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Describe the two-phase survey design</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  twophase_design <span class="ot">&lt;-</span> <span class="fu">twophase</span>(</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">method =</span> <span class="st">&quot;full&quot;</span>,</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> twophase_sample,</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Identify the subset of first-phase elements</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># which were selected into the second-phase sample</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">subset =</span> <span class="sc">~</span> SECOND_PHASE_SELECTION,</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Describe clusters, probabilities, and population sizes</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># at each phase of sampling</span></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">id =</span> <span class="fu">list</span>(<span class="sc">~</span> PSU_ID <span class="sc">+</span> SSU_ID,</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>              <span class="sc">~</span> <span class="dv">1</span>),</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">probs =</span> <span class="fu">list</span>(<span class="sc">~</span> PSU_SAMPLING_PROB <span class="sc">+</span> SSU_SAMPLING_PROB,</span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>                 <span class="cn">NULL</span>),</span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">fpc =</span> <span class="fu">list</span>(<span class="sc">~</span> PSU_POP_SIZE <span class="sc">+</span> SSU_POP_SIZE,</span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>               <span class="cn">NULL</span>)</span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Create replicate weights for the second-phase sample</span></span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="co"># (meant to reflect variance of the entire two-phase design)</span></span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>  twophase_boot_design <span class="ot">&lt;-</span> <span class="fu">as_gen_boot_design</span>(</span>
-<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">design =</span> twophase_design,</span>
-<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">variance_estimator =</span> <span class="fu">list</span>(</span>
-<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;Phase 1&quot;</span> <span class="ot">=</span> <span class="st">&quot;Stratified Multistage SRS&quot;</span>,</span>
-<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;Phase 2&quot;</span> <span class="ot">=</span> <span class="st">&quot;Ultimate Cluster&quot;</span></span>
-<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">replicates =</span> <span class="dv">1000</span>,</span>
-<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">mse =</span> <span class="cn">TRUE</span></span>
-<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Describe the two-phase survey design</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  twophase_design <span class="ot">&lt;-</span> <span class="fu">twophase</span>(</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>    <span class="at">method =</span> <span class="st">&quot;full&quot;</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>    <span class="at">data =</span> twophase_sample,</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>    <span class="co"># Identify the subset of first-phase elements</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>    <span class="co"># which were selected into the second-phase sample</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>    <span class="at">subset =</span> <span class="sc">~</span> SECOND_PHASE_SELECTION,</span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>    <span class="co"># Describe clusters, probabilities, and population sizes</span></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>    <span class="co"># at each phase of sampling</span></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>    <span class="at">id =</span> <span class="fu">list</span>(<span class="sc">~</span> PSU_ID <span class="sc">+</span> SSU_ID,</span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>              <span class="sc">~</span> <span class="dv">1</span>),</span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>    <span class="at">probs =</span> <span class="fu">list</span>(<span class="sc">~</span> PSU_SAMPLING_PROB <span class="sc">+</span> SSU_SAMPLING_PROB,</span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a>                 <span class="cn">NULL</span>),</span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a>    <span class="at">fpc =</span> <span class="fu">list</span>(<span class="sc">~</span> PSU_POP_SIZE <span class="sc">+</span> SSU_POP_SIZE,</span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a>               <span class="cn">NULL</span>)</span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a>  )</span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a></span>
+<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a><span class="co"># Create replicate weights for the second-phase sample</span></span>
+<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a><span class="co"># (meant to reflect variance of the entire two-phase design)</span></span>
+<span id="cb7-20"><a href="#cb7-20" tabindex="-1"></a>  twophase_boot_design <span class="ot">&lt;-</span> <span class="fu">as_gen_boot_design</span>(</span>
+<span id="cb7-21"><a href="#cb7-21" tabindex="-1"></a>    <span class="at">design =</span> twophase_design,</span>
+<span id="cb7-22"><a href="#cb7-22" tabindex="-1"></a>    <span class="at">variance_estimator =</span> <span class="fu">list</span>(</span>
+<span id="cb7-23"><a href="#cb7-23" tabindex="-1"></a>      <span class="st">&quot;Phase 1&quot;</span> <span class="ot">=</span> <span class="st">&quot;Stratified Multistage SRS&quot;</span>,</span>
+<span id="cb7-24"><a href="#cb7-24" tabindex="-1"></a>      <span class="st">&quot;Phase 2&quot;</span> <span class="ot">=</span> <span class="st">&quot;Ultimate Cluster&quot;</span></span>
+<span id="cb7-25"><a href="#cb7-25" tabindex="-1"></a>    ),</span>
+<span id="cb7-26"><a href="#cb7-26" tabindex="-1"></a>    <span class="at">replicates =</span> <span class="dv">1000</span>,</span>
+<span id="cb7-27"><a href="#cb7-27" tabindex="-1"></a>    <span class="at">mse =</span> <span class="cn">TRUE</span></span>
+<span id="cb7-28"><a href="#cb7-28" tabindex="-1"></a>  )</span></code></pre></div>
 </div>
 <div id="option-1-calibrate-to-a-set-of-estimates-and-their-variance-covariance-matrix" class="section level3">
 <h3>Option 1: Calibrate to a set of estimates and their
@@ -539,92 +539,92 @@ reflects the variance of the first-phase estimated totals, we also need
 to estimate the variance of the first-phase totals.</p>
 <p>There are many ways to estimate the first-phase variance, but for
 convenience we’ll use the generalized bootstrap.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract a survey design object representing the first phase sample</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  first_phase_design <span class="ot">&lt;-</span> twophase_design<span class="sc">$</span>phase1<span class="sc">$</span>full</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Create replicate weights for the first-phase sample</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  first_phase_gen_boot <span class="ot">&lt;-</span> <span class="fu">as_gen_boot_design</span>(</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">design =</span> first_phase_design,</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">variance_estimator =</span> <span class="st">&quot;Stratified Multistage SRS&quot;</span>,</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">replicates =</span> <span class="dv">1000</span></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimate first-phase totals and their sampling-covariance</span></span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  first_phase_estimates <span class="ot">&lt;-</span> <span class="fu">svytotal</span>(</span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="sc">~</span> TOTCIR <span class="sc">+</span> TOTSTAFF,</span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">design =</span> first_phase_gen_boot</span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>  first_phase_totals <span class="ot">&lt;-</span> <span class="fu">coef</span>(first_phase_estimates)</span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>  first_phase_vcov <span class="ot">&lt;-</span> <span class="fu">vcov</span>(first_phase_estimates)</span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(first_phase_totals)</span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       TOTCIR     TOTSTAFF </span></span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1648795905.4     152846.6</span></span>
-<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(first_phase_vcov)</span>
-<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                TOTCIR     TOTSTAFF</span></span>
-<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; TOTCIR   6.630577e+16 5.859021e+12</span></span>
-<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; TOTSTAFF 5.859021e+12 5.752341e+08</span></span>
-<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; attr(,&quot;means&quot;)</span></span>
-<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 1651050892.6     153034.4</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># Extract a survey design object representing the first phase sample</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  first_phase_design <span class="ot">&lt;-</span> twophase_design<span class="sc">$</span>phase1<span class="sc">$</span>full</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co"># Create replicate weights for the first-phase sample</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>  first_phase_gen_boot <span class="ot">&lt;-</span> <span class="fu">as_gen_boot_design</span>(</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>    <span class="at">design =</span> first_phase_design,</span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>    <span class="at">variance_estimator =</span> <span class="st">&quot;Stratified Multistage SRS&quot;</span>,</span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>    <span class="at">replicates =</span> <span class="dv">1000</span></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>  )</span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>  </span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co"># Estimate first-phase totals and their sampling-covariance</span></span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a>  first_phase_estimates <span class="ot">&lt;-</span> <span class="fu">svytotal</span>(</span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a>    <span class="at">x =</span> <span class="sc">~</span> TOTCIR <span class="sc">+</span> TOTSTAFF,</span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a>    <span class="at">design =</span> first_phase_gen_boot</span>
+<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a>  )</span>
+<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a>  </span>
+<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a>  first_phase_totals <span class="ot">&lt;-</span> <span class="fu">coef</span>(first_phase_estimates)</span>
+<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a>  first_phase_vcov <span class="ot">&lt;-</span> <span class="fu">vcov</span>(first_phase_estimates)</span>
+<span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a>  </span>
+<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a>  <span class="fu">print</span>(first_phase_totals)</span>
+<span id="cb8-21"><a href="#cb8-21" tabindex="-1"></a><span class="co">#&gt;       TOTCIR     TOTSTAFF </span></span>
+<span id="cb8-22"><a href="#cb8-22" tabindex="-1"></a><span class="co">#&gt; 1648795905.4     152846.6</span></span>
+<span id="cb8-23"><a href="#cb8-23" tabindex="-1"></a>  <span class="fu">print</span>(first_phase_vcov)</span>
+<span id="cb8-24"><a href="#cb8-24" tabindex="-1"></a><span class="co">#&gt;                TOTCIR     TOTSTAFF</span></span>
+<span id="cb8-25"><a href="#cb8-25" tabindex="-1"></a><span class="co">#&gt; TOTCIR   6.630577e+16 5.859021e+12</span></span>
+<span id="cb8-26"><a href="#cb8-26" tabindex="-1"></a><span class="co">#&gt; TOTSTAFF 5.859021e+12 5.752341e+08</span></span>
+<span id="cb8-27"><a href="#cb8-27" tabindex="-1"></a><span class="co">#&gt; attr(,&quot;means&quot;)</span></span>
+<span id="cb8-28"><a href="#cb8-28" tabindex="-1"></a><span class="co">#&gt; [1] 1651050892.6     153034.4</span></span></code></pre></div>
 <p>After we’ve estimated the first-phase totals, we can use the function
 <code>calibrate_to_estimate()</code> to calibrate the two-phase survey
 design object to the first-phase totals. This function is discussed in
 more detail in the vignette titled “Sample-based Calibration”, and the
 underlying method is described in <span class="citation">Fuller
 (1998)</span>.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>calibrated_twophase_design <span class="ot">&lt;-</span> <span class="fu">calibrate_to_estimate</span>(</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">rep_design =</span> twophase_boot_design,</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Specify the variables in the data to use for calibration</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">cal_formula =</span> <span class="sc">~</span> TOTCIR <span class="sc">+</span> TOTSTAFF,</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Supply the first-phase estimates and their variance</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimate =</span> first_phase_totals,</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">vcov_estimate =</span> first_phase_vcov,</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Selection of replicate columns whose control totals will be perturbed will be done at random.</span></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; For tips on reproducible selection, see `help(&#39;calibrate_to_estimate&#39;)`</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>calibrated_twophase_design <span class="ot">&lt;-</span> <span class="fu">calibrate_to_estimate</span>(</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>  <span class="at">rep_design =</span> twophase_boot_design,</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  <span class="co"># Specify the variables in the data to use for calibration</span></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  <span class="at">cal_formula =</span> <span class="sc">~</span> TOTCIR <span class="sc">+</span> TOTSTAFF,</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>  <span class="co"># Supply the first-phase estimates and their variance</span></span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>  <span class="at">estimate =</span> first_phase_totals,</span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>  <span class="at">vcov_estimate =</span> first_phase_vcov,</span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>)</span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="co">#&gt; Selection of replicate columns whose control totals will be perturbed will be done at random.</span></span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="co">#&gt; For tips on reproducible selection, see `help(&#39;calibrate_to_estimate&#39;)`</span></span></code></pre></div>
 <p>Let’s examine the results from calibration. First, we’ll check that
 the calibrated second-phase estimates match the first-phase
 estimates.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Display second-phase estimates for calibration variables</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">svytotal</span>(</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> <span class="sc">~</span> TOTCIR <span class="sc">+</span> TOTSTAFF,</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">design =</span> calibrated_twophase_design</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;               total        SE</span></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; TOTCIR   1648795905 257499063</span></span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; TOTSTAFF     152847     23984</span></span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the original first-phase estimates (which are identical!)</span></span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(first_phase_estimates)</span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;               total        SE</span></span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; TOTCIR   1648795905 257499063</span></span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; TOTSTAFF     152847     23984</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="co"># Display second-phase estimates for calibration variables</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="fu">svytotal</span>(</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>  <span class="at">x =</span> <span class="sc">~</span> TOTCIR <span class="sc">+</span> TOTSTAFF,</span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>  <span class="at">design =</span> calibrated_twophase_design</span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>)</span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co">#&gt;               total        SE</span></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="co">#&gt; TOTCIR   1648795905 257499063</span></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="co">#&gt; TOTSTAFF     152847     23984</span></span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="co"># Display the original first-phase estimates (which are identical!)</span></span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="fu">print</span>(first_phase_estimates)</span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a><span class="co">#&gt;               total        SE</span></span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a><span class="co">#&gt; TOTCIR   1648795905 257499063</span></span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a><span class="co">#&gt; TOTSTAFF     152847     23984</span></span></code></pre></div>
 <p>Next, we’ll inspect an estimate for a variable that wasn’t used in
 calibration.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Inspect calibrated second-phase estimate</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">svytotal</span>(</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> <span class="sc">~</span> LIBRARIA, <span class="at">na.rm =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">design =</span> calibrated_twophase_design</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          total    SE</span></span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; LIBRARIA 57355 11982</span></span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare to uncalibrated second-phase estimate</span></span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="fu">svytotal</span>(</span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> <span class="sc">~</span> LIBRARIA, <span class="at">na.rm =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">design =</span> twophase_boot_design</span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          total    SE</span></span>
-<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; LIBRARIA 54368 12158</span></span>
-<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare to first-phase estimate</span></span>
-<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a><span class="fu">svytotal</span>(</span>
-<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> <span class="sc">~</span> LIBRARIA, <span class="at">na.rm =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">design =</span> first_phase_gen_boot</span>
-<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          total     SE</span></span>
-<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; LIBRARIA 55696 9152.5</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="co"># Inspect calibrated second-phase estimate</span></span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="fu">svytotal</span>(</span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>  <span class="at">x =</span> <span class="sc">~</span> LIBRARIA, <span class="at">na.rm =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>  <span class="at">design =</span> calibrated_twophase_design</span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>)</span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a><span class="co">#&gt;          total    SE</span></span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a><span class="co">#&gt; LIBRARIA 57355 11982</span></span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a></span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a><span class="co"># Compare to uncalibrated second-phase estimate</span></span>
+<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a><span class="fu">svytotal</span>(</span>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a>  <span class="at">x =</span> <span class="sc">~</span> LIBRARIA, <span class="at">na.rm =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a>  <span class="at">design =</span> twophase_boot_design</span>
+<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a>)</span>
+<span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a><span class="co">#&gt;          total    SE</span></span>
+<span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a><span class="co">#&gt; LIBRARIA 54368 12158</span></span>
+<span id="cb11-16"><a href="#cb11-16" tabindex="-1"></a></span>
+<span id="cb11-17"><a href="#cb11-17" tabindex="-1"></a><span class="co"># Compare to first-phase estimate</span></span>
+<span id="cb11-18"><a href="#cb11-18" tabindex="-1"></a><span class="fu">svytotal</span>(</span>
+<span id="cb11-19"><a href="#cb11-19" tabindex="-1"></a>  <span class="at">x =</span> <span class="sc">~</span> LIBRARIA, <span class="at">na.rm =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb11-20"><a href="#cb11-20" tabindex="-1"></a>  <span class="at">design =</span> first_phase_gen_boot</span>
+<span id="cb11-21"><a href="#cb11-21" tabindex="-1"></a>)</span>
+<span id="cb11-22"><a href="#cb11-22" tabindex="-1"></a><span class="co">#&gt;          total     SE</span></span>
+<span id="cb11-23"><a href="#cb11-23" tabindex="-1"></a><span class="co">#&gt; LIBRARIA 55696 9152.5</span></span></code></pre></div>
 </div>
 <div id="option-2-calibrate-to-independently-generated-first-phase-replicates" class="section level3">
 <h3>Option 2: Calibrate to independently-generated first-phase
@@ -638,15 +638,15 @@ replicate to one of the first-phase replicate totals.</p>
 <p>To do this, we first create replicate weights for the first-phase
 design using the generalized bootstrap (or any other replication
 method).</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract a survey design object representing the first phase sample</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  first_phase_design <span class="ot">&lt;-</span> twophase_design<span class="sc">$</span>phase1<span class="sc">$</span>full</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Create replicate weights for the first-phase sample</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  first_phase_gen_boot <span class="ot">&lt;-</span> <span class="fu">as_gen_boot_design</span>(</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">design =</span> first_phase_design,</span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">variance_estimator =</span> <span class="st">&quot;Stratified Multistage SRS&quot;</span>,</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">replicates =</span> <span class="dv">1000</span></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="co"># Extract a survey design object representing the first phase sample</span></span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>  first_phase_design <span class="ot">&lt;-</span> twophase_design<span class="sc">$</span>phase1<span class="sc">$</span>full</span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="co"># Create replicate weights for the first-phase sample</span></span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>  first_phase_gen_boot <span class="ot">&lt;-</span> <span class="fu">as_gen_boot_design</span>(</span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a>    <span class="at">design =</span> first_phase_design,</span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a>    <span class="at">variance_estimator =</span> <span class="st">&quot;Stratified Multistage SRS&quot;</span>,</span>
+<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a>    <span class="at">replicates =</span> <span class="dv">1000</span></span>
+<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a>  )</span></code></pre></div>
 <p>After we’ve created the first-phase replicates, we can use the
 function <code>calibrate_to_sample()</code> to calibrate the two-phase
 survey design object to replicate estimates created using the
@@ -654,75 +654,75 @@ first-phase replicate design. This function is discussed in more detail
 in the vignette titled “Sample-based Calibration”. See Section 4.3.1 of
 this vignette for the underlying theory, which is based on <span class="citation">Fuller (1998)</span> and <span class="citation">Opsomer
 and Erciulescu (2021)</span>.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a></p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>calibrated_twophase_design <span class="ot">&lt;-</span> <span class="fu">calibrate_to_sample</span>(</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">primary_rep_design =</span> twophase_boot_design,</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Supply the first-phase replicate design</span></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">control_rep_design =</span> first_phase_gen_boot,</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Specify the variables in the data to use for calibration</span></span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">cal_formula =</span> <span class="sc">~</span> TOTCIR <span class="sc">+</span> TOTSTAFF</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Matching between primary and control replicates will be done at random.</span></span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; For tips on reproducible matching, see `help(&#39;calibrate_to_sample&#39;)`</span></span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>calibrated_twophase_design <span class="ot">&lt;-</span> <span class="fu">calibrate_to_sample</span>(</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>  <span class="at">primary_rep_design =</span> twophase_boot_design,</span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>  <span class="co"># Supply the first-phase replicate design</span></span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a>  <span class="at">control_rep_design =</span> first_phase_gen_boot,</span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a>  <span class="co"># Specify the variables in the data to use for calibration</span></span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a>  <span class="at">cal_formula =</span> <span class="sc">~</span> TOTCIR <span class="sc">+</span> TOTSTAFF</span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a>)</span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a><span class="co">#&gt; Matching between primary and control replicates will be done at random.</span></span>
+<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a><span class="co">#&gt; For tips on reproducible matching, see `help(&#39;calibrate_to_sample&#39;)`</span></span></code></pre></div>
 <p>Let’s examine the results from calibration. First, we’ll check that
 the calibrated second-phase estimates match the first-phase
 estimates.</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Display second-phase estimates for calibration variables</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>calibrated_ests <span class="ot">&lt;-</span> <span class="fu">svytotal</span>(</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> <span class="sc">~</span> TOTCIR <span class="sc">+</span> TOTSTAFF,</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">design =</span> calibrated_twophase_design</span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(calibrated_ests)</span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;               total        SE</span></span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; TOTCIR   1648795905 252245714</span></span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; TOTSTAFF     152847     23856</span></span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the original first-phase estimates (which are identical!)</span></span>
-<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>first_phase_ests <span class="ot">&lt;-</span> <span class="fu">svytotal</span>(</span>
-<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> <span class="sc">~</span> TOTCIR <span class="sc">+</span> TOTSTAFF,</span>
-<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">design =</span> first_phase_gen_boot</span>
-<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(first_phase_ests)</span>
-<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;               total        SE</span></span>
-<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; TOTCIR   1648795905 252243472</span></span>
-<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; TOTSTAFF     152847     23854</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="co"># Display second-phase estimates for calibration variables</span></span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>calibrated_ests <span class="ot">&lt;-</span> <span class="fu">svytotal</span>(</span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>  <span class="at">x =</span> <span class="sc">~</span> TOTCIR <span class="sc">+</span> TOTSTAFF,</span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a>  <span class="at">design =</span> calibrated_twophase_design</span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a>)</span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a><span class="fu">print</span>(calibrated_ests)</span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a><span class="co">#&gt;               total        SE</span></span>
+<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a><span class="co">#&gt; TOTCIR   1648795905 252245714</span></span>
+<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a><span class="co">#&gt; TOTSTAFF     152847     23856</span></span>
+<span id="cb14-11"><a href="#cb14-11" tabindex="-1"></a></span>
+<span id="cb14-12"><a href="#cb14-12" tabindex="-1"></a><span class="co"># Display the original first-phase estimates (which are identical!)</span></span>
+<span id="cb14-13"><a href="#cb14-13" tabindex="-1"></a>first_phase_ests <span class="ot">&lt;-</span> <span class="fu">svytotal</span>(</span>
+<span id="cb14-14"><a href="#cb14-14" tabindex="-1"></a>  <span class="at">x =</span> <span class="sc">~</span> TOTCIR <span class="sc">+</span> TOTSTAFF,</span>
+<span id="cb14-15"><a href="#cb14-15" tabindex="-1"></a>  <span class="at">design =</span> first_phase_gen_boot</span>
+<span id="cb14-16"><a href="#cb14-16" tabindex="-1"></a>)</span>
+<span id="cb14-17"><a href="#cb14-17" tabindex="-1"></a></span>
+<span id="cb14-18"><a href="#cb14-18" tabindex="-1"></a><span class="fu">print</span>(first_phase_ests)</span>
+<span id="cb14-19"><a href="#cb14-19" tabindex="-1"></a><span class="co">#&gt;               total        SE</span></span>
+<span id="cb14-20"><a href="#cb14-20" tabindex="-1"></a><span class="co">#&gt; TOTCIR   1648795905 252243472</span></span>
+<span id="cb14-21"><a href="#cb14-21" tabindex="-1"></a><span class="co">#&gt; TOTSTAFF     152847     23854</span></span></code></pre></div>
 <p>As expected, the variance estimate for the calibrated second-phase
 estimate is the same as the variance estimate for the first-phase
 estimate, allowing a small tolerance for numeric differences.</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>ratio_of_variances <span class="ot">&lt;-</span> <span class="fu">vcov</span>(calibrated_ests)<span class="sc">/</span><span class="fu">vcov</span>(first_phase_ests)</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>ratio_of_variances</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;            TOTCIR TOTSTAFF</span></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; TOTCIR   1.000018 1.000058</span></span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; TOTSTAFF 1.000058 1.000171</span></span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; attr(,&quot;means&quot;)</span></span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       TOTCIR     TOTSTAFF </span></span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1648795905.4     152846.6</span></span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a>ratio_of_variances <span class="ot">&lt;-</span> <span class="fu">vcov</span>(calibrated_ests)<span class="sc">/</span><span class="fu">vcov</span>(first_phase_ests)</span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a>ratio_of_variances</span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a><span class="co">#&gt;            TOTCIR TOTSTAFF</span></span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="co">#&gt; TOTCIR   1.000018 1.000058</span></span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="co">#&gt; TOTSTAFF 1.000058 1.000171</span></span>
+<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a><span class="co">#&gt; attr(,&quot;means&quot;)</span></span>
+<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a><span class="co">#&gt;       TOTCIR     TOTSTAFF </span></span>
+<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a><span class="co">#&gt; 1648795905.4     152846.6</span></span></code></pre></div>
 <p>Next, we’ll inspect an estimate for a variable that wasn’t used in
 calibration.</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Inspect calibrated second-phase estimate</span></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">svytotal</span>(</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> <span class="sc">~</span> LIBRARIA, <span class="at">na.rm =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">design =</span> calibrated_twophase_design</span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          total    SE</span></span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; LIBRARIA 57355 12544</span></span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare to uncalibrated second-phase estimate</span></span>
-<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="fu">svytotal</span>(</span>
-<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> <span class="sc">~</span> LIBRARIA, <span class="at">na.rm =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">design =</span> twophase_boot_design</span>
-<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          total    SE</span></span>
-<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; LIBRARIA 54368 12158</span></span>
-<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare to first-phase estimate</span></span>
-<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a><span class="fu">svytotal</span>(</span>
-<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> <span class="sc">~</span> LIBRARIA, <span class="at">na.rm =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">design =</span> first_phase_gen_boot</span>
-<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          total     SE</span></span>
-<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; LIBRARIA 55696 9409.7</span></span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="co"># Inspect calibrated second-phase estimate</span></span>
+<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a><span class="fu">svytotal</span>(</span>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a>  <span class="at">x =</span> <span class="sc">~</span> LIBRARIA, <span class="at">na.rm =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a>  <span class="at">design =</span> calibrated_twophase_design</span>
+<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a>)</span>
+<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a><span class="co">#&gt;          total    SE</span></span>
+<span id="cb16-7"><a href="#cb16-7" tabindex="-1"></a><span class="co">#&gt; LIBRARIA 57355 12544</span></span>
+<span id="cb16-8"><a href="#cb16-8" tabindex="-1"></a></span>
+<span id="cb16-9"><a href="#cb16-9" tabindex="-1"></a><span class="co"># Compare to uncalibrated second-phase estimate</span></span>
+<span id="cb16-10"><a href="#cb16-10" tabindex="-1"></a><span class="fu">svytotal</span>(</span>
+<span id="cb16-11"><a href="#cb16-11" tabindex="-1"></a>  <span class="at">x =</span> <span class="sc">~</span> LIBRARIA, <span class="at">na.rm =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb16-12"><a href="#cb16-12" tabindex="-1"></a>  <span class="at">design =</span> twophase_boot_design</span>
+<span id="cb16-13"><a href="#cb16-13" tabindex="-1"></a>)</span>
+<span id="cb16-14"><a href="#cb16-14" tabindex="-1"></a><span class="co">#&gt;          total    SE</span></span>
+<span id="cb16-15"><a href="#cb16-15" tabindex="-1"></a><span class="co">#&gt; LIBRARIA 54368 12158</span></span>
+<span id="cb16-16"><a href="#cb16-16" tabindex="-1"></a></span>
+<span id="cb16-17"><a href="#cb16-17" tabindex="-1"></a><span class="co"># Compare to first-phase estimate</span></span>
+<span id="cb16-18"><a href="#cb16-18" tabindex="-1"></a><span class="fu">svytotal</span>(</span>
+<span id="cb16-19"><a href="#cb16-19" tabindex="-1"></a>  <span class="at">x =</span> <span class="sc">~</span> LIBRARIA, <span class="at">na.rm =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb16-20"><a href="#cb16-20" tabindex="-1"></a>  <span class="at">design =</span> first_phase_gen_boot</span>
+<span id="cb16-21"><a href="#cb16-21" tabindex="-1"></a>)</span>
+<span id="cb16-22"><a href="#cb16-22" tabindex="-1"></a><span class="co">#&gt;          total     SE</span></span>
+<span id="cb16-23"><a href="#cb16-23" tabindex="-1"></a><span class="co">#&gt; LIBRARIA 55696 9409.7</span></span></code></pre></div>
 </div>
 </div>
 <div id="ratio-estimation" class="section level2">
@@ -731,19 +731,19 @@ calibration.</p>
 samples is ratio estimation. Whether you use the function
 <code>calibrate_to_sample()</code> or
 <code>calibrate_to_estimate()</code>, the syntax is very similar.</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>ratio_calib_design <span class="ot">&lt;-</span> <span class="fu">calibrate_to_sample</span>(</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">primary_rep_design =</span> twophase_boot_design,</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Supply the first-phase replicate design</span></span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">control_rep_design =</span> first_phase_gen_boot,</span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Specify the GREG formula.</span></span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># For ratio estimation, we add `-1` to the formula </span></span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># (i.e., we remove the intercept from the working model)</span></span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># and specify only a single variable</span></span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">cal_formula =</span> <span class="sc">~</span> <span class="sc">-</span><span class="dv">1</span> <span class="sc">+</span> TOTSTAFF,</span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">variance =</span> <span class="dv">1</span></span>
-<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Matching between primary and control replicates will be done at random.</span></span>
-<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; For tips on reproducible matching, see `help(&#39;calibrate_to_sample&#39;)`</span></span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a>ratio_calib_design <span class="ot">&lt;-</span> <span class="fu">calibrate_to_sample</span>(</span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a>  <span class="at">primary_rep_design =</span> twophase_boot_design,</span>
+<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a>  <span class="co"># Supply the first-phase replicate design</span></span>
+<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a>  <span class="at">control_rep_design =</span> first_phase_gen_boot,</span>
+<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a>  <span class="co"># Specify the GREG formula.</span></span>
+<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a>  <span class="co"># For ratio estimation, we add `-1` to the formula </span></span>
+<span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a>  <span class="co"># (i.e., we remove the intercept from the working model)</span></span>
+<span id="cb17-8"><a href="#cb17-8" tabindex="-1"></a>  <span class="co"># and specify only a single variable</span></span>
+<span id="cb17-9"><a href="#cb17-9" tabindex="-1"></a>  <span class="at">cal_formula =</span> <span class="sc">~</span> <span class="sc">-</span><span class="dv">1</span> <span class="sc">+</span> TOTSTAFF,</span>
+<span id="cb17-10"><a href="#cb17-10" tabindex="-1"></a>  <span class="at">variance =</span> <span class="dv">1</span></span>
+<span id="cb17-11"><a href="#cb17-11" tabindex="-1"></a>)</span>
+<span id="cb17-12"><a href="#cb17-12" tabindex="-1"></a><span class="co">#&gt; Matching between primary and control replicates will be done at random.</span></span>
+<span id="cb17-13"><a href="#cb17-13" tabindex="-1"></a><span class="co">#&gt; For tips on reproducible matching, see `help(&#39;calibrate_to_sample&#39;)`</span></span></code></pre></div>
 <p>Note that for ratio estimation, the calibration formula includes
 <code>-1</code> to ensure that ratio estimation is used instead of
 regression estimation. This is similar to how, when fitting a regression
@@ -753,28 +753,28 @@ indicates that the working model used in calibration is homoskedastic,
 and so the same adjustment factor will be used for every case’s weights.
 This can be seen when we compare the adjusted weights to the unadjusted
 weights.</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>ratio_adjusted_weights <span class="ot">&lt;-</span> <span class="fu">weights</span>(ratio_calib_design, <span class="at">type =</span> <span class="st">&quot;sampling&quot;</span>)</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>unadjusted_weights <span class="ot">&lt;-</span> <span class="fu">weights</span>(twophase_boot_design, <span class="at">type =</span> <span class="st">&quot;sampling&quot;</span>)</span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>adjustment_factors <span class="ot">&lt;-</span> ratio_adjusted_weights<span class="sc">/</span>unadjusted_weights</span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(adjustment_factors)</span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;        1        3        5        7       10       13 </span></span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1.090189 1.090189 1.090189 1.090189 1.090189 1.090189</span></span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a>ratio_adjusted_weights <span class="ot">&lt;-</span> <span class="fu">weights</span>(ratio_calib_design, <span class="at">type =</span> <span class="st">&quot;sampling&quot;</span>)</span>
+<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a>unadjusted_weights <span class="ot">&lt;-</span> <span class="fu">weights</span>(twophase_boot_design, <span class="at">type =</span> <span class="st">&quot;sampling&quot;</span>)</span>
+<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a>adjustment_factors <span class="ot">&lt;-</span> ratio_adjusted_weights<span class="sc">/</span>unadjusted_weights</span>
+<span id="cb18-5"><a href="#cb18-5" tabindex="-1"></a><span class="fu">head</span>(adjustment_factors)</span>
+<span id="cb18-6"><a href="#cb18-6" tabindex="-1"></a><span class="co">#&gt;        1        3        5        7       10       13 </span></span>
+<span id="cb18-7"><a href="#cb18-7" tabindex="-1"></a><span class="co">#&gt; 1.090189 1.090189 1.090189 1.090189 1.090189 1.090189</span></span></code></pre></div>
 <p>Note that the adjustment factor for the weights is simply the ratio
 of the first-phase estimated total to the second-phase estimated
 total.</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>phase1_total <span class="ot">&lt;-</span> <span class="fu">svytotal</span>(</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> <span class="sc">~</span> TOTSTAFF,</span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  first_phase_design</span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> <span class="fu">coef</span>()</span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>phase2_total <span class="ot">&lt;-</span> <span class="fu">svytotal</span>(</span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> <span class="sc">~</span> TOTSTAFF,</span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  twophase_boot_design</span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> <span class="fu">coef</span>()</span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>phase1_total<span class="sc">/</span>phase2_total</span>
-<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; TOTSTAFF </span></span>
-<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1.090189</span></span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a>phase1_total <span class="ot">&lt;-</span> <span class="fu">svytotal</span>(</span>
+<span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a>  <span class="at">x =</span> <span class="sc">~</span> TOTSTAFF,</span>
+<span id="cb19-3"><a href="#cb19-3" tabindex="-1"></a>  first_phase_design</span>
+<span id="cb19-4"><a href="#cb19-4" tabindex="-1"></a>) <span class="sc">|&gt;</span> <span class="fu">coef</span>()</span>
+<span id="cb19-5"><a href="#cb19-5" tabindex="-1"></a>phase2_total <span class="ot">&lt;-</span> <span class="fu">svytotal</span>(</span>
+<span id="cb19-6"><a href="#cb19-6" tabindex="-1"></a>  <span class="at">x =</span> <span class="sc">~</span> TOTSTAFF,</span>
+<span id="cb19-7"><a href="#cb19-7" tabindex="-1"></a>  twophase_boot_design</span>
+<span id="cb19-8"><a href="#cb19-8" tabindex="-1"></a>) <span class="sc">|&gt;</span> <span class="fu">coef</span>()</span>
+<span id="cb19-9"><a href="#cb19-9" tabindex="-1"></a></span>
+<span id="cb19-10"><a href="#cb19-10" tabindex="-1"></a>phase1_total<span class="sc">/</span>phase2_total</span>
+<span id="cb19-11"><a href="#cb19-11" tabindex="-1"></a><span class="co">#&gt; TOTSTAFF </span></span>
+<span id="cb19-12"><a href="#cb19-12" tabindex="-1"></a><span class="co">#&gt; 1.090189</span></span></code></pre></div>
 </div>
 </div>
 <div id="design-based-estimators-for-two-phase-sampling" class="section level1">
@@ -1059,66 +1059,67 @@ inputs <span class="math inline">\(\Sigma_{a^{\prime}}\)</span>, <span class="ma
 Click to show/hide example of using
 <code>make_twophase_quad_form()</code>
 </summary>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2022</span>)</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="at">n =</span> <span class="dv">100</span>)</span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Select first phase sample, SRS without replacement</span></span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  phase_1_sample_indicators <span class="ot">&lt;-</span> sampling<span class="sc">::</span><span class="fu">srswor</span>(<span class="at">n =</span> <span class="dv">50</span>, <span class="at">N =</span> <span class="dv">100</span>) <span class="sc">|&gt;</span></span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as.logical</span>()</span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>  phase_1_sample <span class="ot">&lt;-</span> y[phase_1_sample_indicators]</span>
-<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Make variance estimator for first-phase variance component</span></span>
-<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>  Sigma_a <span class="ot">&lt;-</span> <span class="fu">make_quad_form_matrix</span>(</span>
-<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">variance_estimator =</span> <span class="st">&quot;Ultimate Cluster&quot;</span>,</span>
-<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">cluster_ids =</span> <span class="fu">as.matrix</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">50</span>),</span>
-<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">strata_ids =</span> <span class="fu">rep</span>(<span class="dv">1</span>, <span class="at">times =</span> <span class="dv">50</span>) <span class="sc">|&gt;</span> <span class="fu">as.matrix</span>(),</span>
-<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">strata_pop_sizes =</span> <span class="fu">rep</span>(<span class="dv">100</span>, <span class="at">times =</span> <span class="dv">50</span>) <span class="sc">|&gt;</span> <span class="fu">as.matrix</span>()</span>
-<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Select second stage sample, SRS without replacment</span></span>
-<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>  phase_2_sample_indicators <span class="ot">&lt;-</span> sampling<span class="sc">::</span><span class="fu">srswor</span>(<span class="at">n =</span> <span class="dv">5</span>, <span class="at">N =</span> <span class="dv">50</span>) <span class="sc">|&gt;</span></span>
-<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as.logical</span>()</span>
-<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>  phase_2_sample <span class="ot">&lt;-</span> phase_1_sample[phase_2_sample_indicators]</span>
-<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimate two-phase variance</span></span>
-<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a>  Sigma_a_prime <span class="ot">&lt;-</span> Sigma_a[phase_2_sample_indicators,</span>
-<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a>                           phase_2_sample_indicators]</span>
-<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a>  phase_2_joint_probs <span class="ot">&lt;-</span> <span class="fu">outer</span>(<span class="fu">rep</span>(<span class="dv">5</span><span class="sc">/</span><span class="dv">50</span>, <span class="at">times =</span> <span class="dv">5</span>),</span>
-<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a>                               <span class="fu">rep</span>(<span class="dv">4</span><span class="sc">/</span><span class="dv">49</span>, <span class="at">times =</span> <span class="dv">5</span>))</span>
-<span id="cb20-30"><a href="#cb20-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">diag</span>(phase_2_joint_probs) <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">5</span><span class="sc">/</span><span class="dv">50</span>, <span class="at">times =</span> <span class="dv">5</span>)</span>
-<span id="cb20-31"><a href="#cb20-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-32"><a href="#cb20-32" aria-hidden="true" tabindex="-1"></a>  Sigma_b <span class="ot">&lt;-</span> <span class="fu">make_quad_form_matrix</span>(</span>
-<span id="cb20-33"><a href="#cb20-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">variance_estimator =</span> <span class="st">&quot;Ultimate Cluster&quot;</span>,</span>
-<span id="cb20-34"><a href="#cb20-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">cluster_ids =</span> <span class="fu">as.matrix</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>),</span>
-<span id="cb20-35"><a href="#cb20-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">strata_ids =</span> <span class="fu">rep</span>(<span class="dv">1</span>, <span class="at">times =</span> <span class="dv">5</span>) <span class="sc">|&gt;</span> <span class="fu">as.matrix</span>(),</span>
-<span id="cb20-36"><a href="#cb20-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">strata_pop_sizes =</span> <span class="fu">rep</span>(<span class="dv">50</span>, <span class="at">times =</span> <span class="dv">5</span>) <span class="sc">|&gt;</span> <span class="fu">as.matrix</span>()</span>
-<span id="cb20-37"><a href="#cb20-37" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb20-38"><a href="#cb20-38" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb20-39"><a href="#cb20-39" aria-hidden="true" tabindex="-1"></a>  sigma_ab <span class="ot">&lt;-</span> <span class="fu">make_twophase_quad_form</span>(</span>
-<span id="cb20-40"><a href="#cb20-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">sigma_1 =</span> Sigma_a_prime,</span>
-<span id="cb20-41"><a href="#cb20-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">sigma_2 =</span> Sigma_b,</span>
-<span id="cb20-42"><a href="#cb20-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">phase_2_joint_probs =</span> phase_2_joint_probs</span>
-<span id="cb20-43"><a href="#cb20-43" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb20-44"><a href="#cb20-44" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb20-45"><a href="#cb20-45" aria-hidden="true" tabindex="-1"></a>  wts <span class="ot">&lt;-</span> <span class="fu">rep</span>(</span>
-<span id="cb20-46"><a href="#cb20-46" aria-hidden="true" tabindex="-1"></a>    (<span class="dv">50</span><span class="sc">/</span><span class="dv">100</span>)<span class="sc">^</span>(<span class="sc">-</span><span class="dv">1</span>) <span class="sc">*</span> (<span class="dv">5</span><span class="sc">/</span><span class="dv">50</span>)<span class="sc">^</span>(<span class="sc">-</span><span class="dv">1</span>),</span>
-<span id="cb20-47"><a href="#cb20-47" aria-hidden="true" tabindex="-1"></a>    <span class="at">times =</span> <span class="dv">5</span></span>
-<span id="cb20-48"><a href="#cb20-48" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb20-49"><a href="#cb20-49" aria-hidden="true" tabindex="-1"></a>  W_star <span class="ot">&lt;-</span> <span class="fu">diag</span>(wts)</span>
-<span id="cb20-50"><a href="#cb20-50" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb20-51"><a href="#cb20-51" aria-hidden="true" tabindex="-1"></a>  W_star_y <span class="ot">&lt;-</span> W_star <span class="sc">%*%</span> phase_2_sample</span>
-<span id="cb20-52"><a href="#cb20-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">t</span>(W_star_y) <span class="sc">%*%</span> sigma_ab <span class="sc">%*%</span> (W_star_y)</span>
-<span id="cb20-53"><a href="#cb20-53" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          [,1]</span></span>
-<span id="cb20-54"><a href="#cb20-54" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] 2182.221</span></span>
-<span id="cb20-55"><a href="#cb20-55" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb20-56"><a href="#cb20-56" aria-hidden="true" tabindex="-1"></a><span class="co"># Since both phases are SRS without replacement,</span></span>
-<span id="cb20-57"><a href="#cb20-57" aria-hidden="true" tabindex="-1"></a><span class="co"># variance estimate for a total should be similar to the following</span></span>
-<span id="cb20-58"><a href="#cb20-58" aria-hidden="true" tabindex="-1"></a>  <span class="dv">5</span> <span class="sc">*</span> <span class="fu">var</span>(W_star_y)</span>
-<span id="cb20-59"><a href="#cb20-59" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          [,1]</span></span>
-<span id="cb20-60"><a href="#cb20-60" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] 2297.075</span></span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2022</span>)</span>
+<span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="at">n =</span> <span class="dv">100</span>)</span>
+<span id="cb20-3"><a href="#cb20-3" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" tabindex="-1"></a><span class="co"># Select first phase sample, SRS without replacement</span></span>
+<span id="cb20-5"><a href="#cb20-5" tabindex="-1"></a>  phase_1_sample_indicators <span class="ot">&lt;-</span> sampling<span class="sc">::</span><span class="fu">srswor</span>(<span class="at">n =</span> <span class="dv">50</span>, <span class="at">N =</span> <span class="dv">100</span>) <span class="sc">|&gt;</span></span>
+<span id="cb20-6"><a href="#cb20-6" tabindex="-1"></a>    <span class="fu">as.logical</span>()</span>
+<span id="cb20-7"><a href="#cb20-7" tabindex="-1"></a>  </span>
+<span id="cb20-8"><a href="#cb20-8" tabindex="-1"></a>  phase_1_sample <span class="ot">&lt;-</span> y[phase_1_sample_indicators]</span>
+<span id="cb20-9"><a href="#cb20-9" tabindex="-1"></a>  </span>
+<span id="cb20-10"><a href="#cb20-10" tabindex="-1"></a><span class="co"># Make variance estimator for first-phase variance component</span></span>
+<span id="cb20-11"><a href="#cb20-11" tabindex="-1"></a>  Sigma_a <span class="ot">&lt;-</span> <span class="fu">make_quad_form_matrix</span>(</span>
+<span id="cb20-12"><a href="#cb20-12" tabindex="-1"></a>    <span class="at">variance_estimator =</span> <span class="st">&quot;Ultimate Cluster&quot;</span>,</span>
+<span id="cb20-13"><a href="#cb20-13" tabindex="-1"></a>    <span class="at">cluster_ids =</span> <span class="fu">as.matrix</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">50</span>),</span>
+<span id="cb20-14"><a href="#cb20-14" tabindex="-1"></a>    <span class="at">strata_ids =</span> <span class="fu">rep</span>(<span class="dv">1</span>, <span class="at">times =</span> <span class="dv">50</span>) <span class="sc">|&gt;</span> <span class="fu">as.matrix</span>(),</span>
+<span id="cb20-15"><a href="#cb20-15" tabindex="-1"></a>    <span class="at">strata_pop_sizes =</span> <span class="fu">rep</span>(<span class="dv">100</span>, <span class="at">times =</span> <span class="dv">50</span>) <span class="sc">|&gt;</span> <span class="fu">as.matrix</span>()</span>
+<span id="cb20-16"><a href="#cb20-16" tabindex="-1"></a>  )</span>
+<span id="cb20-17"><a href="#cb20-17" tabindex="-1"></a></span>
+<span id="cb20-18"><a href="#cb20-18" tabindex="-1"></a><span class="co"># Select second stage sample, SRS without replacment</span></span>
+<span id="cb20-19"><a href="#cb20-19" tabindex="-1"></a>  phase_2_sample_indicators <span class="ot">&lt;-</span> sampling<span class="sc">::</span><span class="fu">srswor</span>(<span class="at">n =</span> <span class="dv">5</span>, <span class="at">N =</span> <span class="dv">50</span>) <span class="sc">|&gt;</span></span>
+<span id="cb20-20"><a href="#cb20-20" tabindex="-1"></a>    <span class="fu">as.logical</span>()</span>
+<span id="cb20-21"><a href="#cb20-21" tabindex="-1"></a>  </span>
+<span id="cb20-22"><a href="#cb20-22" tabindex="-1"></a>  phase_2_sample <span class="ot">&lt;-</span> phase_1_sample[phase_2_sample_indicators]</span>
+<span id="cb20-23"><a href="#cb20-23" tabindex="-1"></a>  </span>
+<span id="cb20-24"><a href="#cb20-24" tabindex="-1"></a><span class="co"># Estimate two-phase variance</span></span>
+<span id="cb20-25"><a href="#cb20-25" tabindex="-1"></a>  Sigma_a_prime <span class="ot">&lt;-</span> Sigma_a[phase_2_sample_indicators,</span>
+<span id="cb20-26"><a href="#cb20-26" tabindex="-1"></a>                           phase_2_sample_indicators]</span>
+<span id="cb20-27"><a href="#cb20-27" tabindex="-1"></a>  </span>
+<span id="cb20-28"><a href="#cb20-28" tabindex="-1"></a>  phase_2_joint_probs <span class="ot">&lt;-</span> <span class="fu">outer</span>(<span class="fu">rep</span>(<span class="dv">5</span><span class="sc">/</span><span class="dv">50</span>, <span class="at">times =</span> <span class="dv">5</span>),</span>
+<span id="cb20-29"><a href="#cb20-29" tabindex="-1"></a>                               <span class="fu">rep</span>(<span class="dv">4</span><span class="sc">/</span><span class="dv">49</span>, <span class="at">times =</span> <span class="dv">5</span>))</span>
+<span id="cb20-30"><a href="#cb20-30" tabindex="-1"></a>  <span class="fu">diag</span>(phase_2_joint_probs) <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">5</span><span class="sc">/</span><span class="dv">50</span>, <span class="at">times =</span> <span class="dv">5</span>)</span>
+<span id="cb20-31"><a href="#cb20-31" tabindex="-1"></a></span>
+<span id="cb20-32"><a href="#cb20-32" tabindex="-1"></a>  Sigma_b <span class="ot">&lt;-</span> <span class="fu">make_quad_form_matrix</span>(</span>
+<span id="cb20-33"><a href="#cb20-33" tabindex="-1"></a>    <span class="at">variance_estimator =</span> <span class="st">&quot;Ultimate Cluster&quot;</span>,</span>
+<span id="cb20-34"><a href="#cb20-34" tabindex="-1"></a>    <span class="at">cluster_ids =</span> <span class="fu">as.matrix</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>),</span>
+<span id="cb20-35"><a href="#cb20-35" tabindex="-1"></a>    <span class="at">strata_ids =</span> <span class="fu">rep</span>(<span class="dv">1</span>, <span class="at">times =</span> <span class="dv">5</span>) <span class="sc">|&gt;</span> <span class="fu">as.matrix</span>(),</span>
+<span id="cb20-36"><a href="#cb20-36" tabindex="-1"></a>    <span class="at">strata_pop_sizes =</span> <span class="fu">rep</span>(<span class="dv">50</span>, <span class="at">times =</span> <span class="dv">5</span>) <span class="sc">|&gt;</span> <span class="fu">as.matrix</span>()</span>
+<span id="cb20-37"><a href="#cb20-37" tabindex="-1"></a>  )</span>
+<span id="cb20-38"><a href="#cb20-38" tabindex="-1"></a>  </span>
+<span id="cb20-39"><a href="#cb20-39" tabindex="-1"></a>  sigma_ab <span class="ot">&lt;-</span> <span class="fu">make_twophase_quad_form</span>(</span>
+<span id="cb20-40"><a href="#cb20-40" tabindex="-1"></a>    <span class="at">sigma_1 =</span> Sigma_a_prime,</span>
+<span id="cb20-41"><a href="#cb20-41" tabindex="-1"></a>    <span class="at">sigma_2 =</span> Sigma_b,</span>
+<span id="cb20-42"><a href="#cb20-42" tabindex="-1"></a>    <span class="at">phase_2_joint_probs =</span> phase_2_joint_probs</span>
+<span id="cb20-43"><a href="#cb20-43" tabindex="-1"></a>  )</span>
+<span id="cb20-44"><a href="#cb20-44" tabindex="-1"></a>  </span>
+<span id="cb20-45"><a href="#cb20-45" tabindex="-1"></a>  wts <span class="ot">&lt;-</span> <span class="fu">rep</span>(</span>
+<span id="cb20-46"><a href="#cb20-46" tabindex="-1"></a>    (<span class="dv">50</span><span class="sc">/</span><span class="dv">100</span>)<span class="sc">^</span>(<span class="sc">-</span><span class="dv">1</span>) <span class="sc">*</span> (<span class="dv">5</span><span class="sc">/</span><span class="dv">50</span>)<span class="sc">^</span>(<span class="sc">-</span><span class="dv">1</span>),</span>
+<span id="cb20-47"><a href="#cb20-47" tabindex="-1"></a>    <span class="at">times =</span> <span class="dv">5</span></span>
+<span id="cb20-48"><a href="#cb20-48" tabindex="-1"></a>  )</span>
+<span id="cb20-49"><a href="#cb20-49" tabindex="-1"></a>  W_star <span class="ot">&lt;-</span> <span class="fu">diag</span>(wts)</span>
+<span id="cb20-50"><a href="#cb20-50" tabindex="-1"></a>  </span>
+<span id="cb20-51"><a href="#cb20-51" tabindex="-1"></a>  W_star_y <span class="ot">&lt;-</span> W_star <span class="sc">%*%</span> phase_2_sample</span>
+<span id="cb20-52"><a href="#cb20-52" tabindex="-1"></a>  <span class="fu">t</span>(W_star_y) <span class="sc">%*%</span> sigma_ab <span class="sc">%*%</span> (W_star_y)</span>
+<span id="cb20-53"><a href="#cb20-53" tabindex="-1"></a><span class="co">#&gt; 1 x 1 Matrix of class &quot;dgeMatrix&quot;</span></span>
+<span id="cb20-54"><a href="#cb20-54" tabindex="-1"></a><span class="co">#&gt;          [,1]</span></span>
+<span id="cb20-55"><a href="#cb20-55" tabindex="-1"></a><span class="co">#&gt; [1,] 2182.221</span></span>
+<span id="cb20-56"><a href="#cb20-56" tabindex="-1"></a>  </span>
+<span id="cb20-57"><a href="#cb20-57" tabindex="-1"></a><span class="co"># Since both phases are SRS without replacement,</span></span>
+<span id="cb20-58"><a href="#cb20-58" tabindex="-1"></a><span class="co"># variance estimate for a total should be similar to the following</span></span>
+<span id="cb20-59"><a href="#cb20-59" tabindex="-1"></a>  <span class="dv">5</span> <span class="sc">*</span> <span class="fu">var</span>(W_star_y)</span>
+<span id="cb20-60"><a href="#cb20-60" tabindex="-1"></a><span class="co">#&gt;          [,1]</span></span>
+<span id="cb20-61"><a href="#cb20-61" tabindex="-1"></a><span class="co">#&gt; [1,] 2297.075</span></span></code></pre></div>
 </details>
 <p><br></p>
 <p>The matrix notation is useful for understanding replication methods
@@ -1327,41 +1328,41 @@ two functions is in how they form the vectors <span class="math inline">\(\bolds
 <p>The function <code>calibrate_to_estimate()</code> forms the vectors
 <span class="math inline">\(\boldsymbol{\delta}_{r}\)</span> using an
 eigen-decomposition of a specified variance-covariance matrix.</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Print first phase estimates and their variance-covariance</span></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(first_phase_totals)</span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       TOTCIR     TOTSTAFF </span></span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1648795905.4     152846.6</span></span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(first_phase_vcov)</span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                TOTCIR     TOTSTAFF</span></span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; TOTCIR   6.630577e+16 5.859021e+12</span></span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; TOTSTAFF 5.859021e+12 5.752341e+08</span></span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; attr(,&quot;means&quot;)</span></span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 1651050892.6     153034.4</span></span>
-<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Calibrate the two-phase replicate design</span></span>
-<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a><span class="co"># to the totals estimated from the first-phase sample</span></span>
-<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>calibrated_twophase_design <span class="ot">&lt;-</span> <span class="fu">calibrate_to_estimate</span>(</span>
-<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">rep_design =</span> twophase_boot_design,</span>
-<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Specify the variables in the data to use for calibration</span></span>
-<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">cal_formula =</span> <span class="sc">~</span> TOTCIR <span class="sc">+</span> TOTSTAFF,</span>
-<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Supply the first-phase estimates and their variance</span></span>
-<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimate =</span> first_phase_totals,</span>
-<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">vcov_estimate =</span> first_phase_vcov,</span>
-<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Selection of replicate columns whose control totals will be perturbed will be done at random.</span></span>
-<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; For tips on reproducible selection, see `help(&#39;calibrate_to_estimate&#39;)`</span></span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a><span class="co"># Print first phase estimates and their variance-covariance</span></span>
+<span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a><span class="fu">print</span>(first_phase_totals)</span>
+<span id="cb21-3"><a href="#cb21-3" tabindex="-1"></a><span class="co">#&gt;       TOTCIR     TOTSTAFF </span></span>
+<span id="cb21-4"><a href="#cb21-4" tabindex="-1"></a><span class="co">#&gt; 1648795905.4     152846.6</span></span>
+<span id="cb21-5"><a href="#cb21-5" tabindex="-1"></a><span class="fu">print</span>(first_phase_vcov)</span>
+<span id="cb21-6"><a href="#cb21-6" tabindex="-1"></a><span class="co">#&gt;                TOTCIR     TOTSTAFF</span></span>
+<span id="cb21-7"><a href="#cb21-7" tabindex="-1"></a><span class="co">#&gt; TOTCIR   6.630577e+16 5.859021e+12</span></span>
+<span id="cb21-8"><a href="#cb21-8" tabindex="-1"></a><span class="co">#&gt; TOTSTAFF 5.859021e+12 5.752341e+08</span></span>
+<span id="cb21-9"><a href="#cb21-9" tabindex="-1"></a><span class="co">#&gt; attr(,&quot;means&quot;)</span></span>
+<span id="cb21-10"><a href="#cb21-10" tabindex="-1"></a><span class="co">#&gt; [1] 1651050892.6     153034.4</span></span>
+<span id="cb21-11"><a href="#cb21-11" tabindex="-1"></a></span>
+<span id="cb21-12"><a href="#cb21-12" tabindex="-1"></a><span class="co"># Calibrate the two-phase replicate design</span></span>
+<span id="cb21-13"><a href="#cb21-13" tabindex="-1"></a><span class="co"># to the totals estimated from the first-phase sample</span></span>
+<span id="cb21-14"><a href="#cb21-14" tabindex="-1"></a>calibrated_twophase_design <span class="ot">&lt;-</span> <span class="fu">calibrate_to_estimate</span>(</span>
+<span id="cb21-15"><a href="#cb21-15" tabindex="-1"></a>  <span class="at">rep_design =</span> twophase_boot_design,</span>
+<span id="cb21-16"><a href="#cb21-16" tabindex="-1"></a>  <span class="co"># Specify the variables in the data to use for calibration</span></span>
+<span id="cb21-17"><a href="#cb21-17" tabindex="-1"></a>  <span class="at">cal_formula =</span> <span class="sc">~</span> TOTCIR <span class="sc">+</span> TOTSTAFF,</span>
+<span id="cb21-18"><a href="#cb21-18" tabindex="-1"></a>  <span class="co"># Supply the first-phase estimates and their variance</span></span>
+<span id="cb21-19"><a href="#cb21-19" tabindex="-1"></a>  <span class="at">estimate =</span> first_phase_totals,</span>
+<span id="cb21-20"><a href="#cb21-20" tabindex="-1"></a>  <span class="at">vcov_estimate =</span> first_phase_vcov,</span>
+<span id="cb21-21"><a href="#cb21-21" tabindex="-1"></a>)</span>
+<span id="cb21-22"><a href="#cb21-22" tabindex="-1"></a><span class="co">#&gt; Selection of replicate columns whose control totals will be perturbed will be done at random.</span></span>
+<span id="cb21-23"><a href="#cb21-23" tabindex="-1"></a><span class="co">#&gt; For tips on reproducible selection, see `help(&#39;calibrate_to_estimate&#39;)`</span></span></code></pre></div>
 <p>In contrast, the function <code>calibrate_to_sample()</code> forms
 the vectors <span class="math inline">\(\boldsymbol{\delta}_{r}\)</span>
 by using replicate estimates from the first-phase sample.</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>calibrated_twophase_design <span class="ot">&lt;-</span> <span class="fu">calibrate_to_sample</span>(</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">primary_rep_design =</span> twophase_boot_design,</span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Supply the first-phase replicate design</span></span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">control_rep_design =</span> first_phase_gen_boot,</span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Specify the variables in the data to use for calibration</span></span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">cal_formula =</span> <span class="sc">~</span> TOTCIR <span class="sc">+</span> TOTSTAFF</span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Matching between primary and control replicates will be done at random.</span></span>
-<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; For tips on reproducible matching, see `help(&#39;calibrate_to_sample&#39;)`</span></span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a>calibrated_twophase_design <span class="ot">&lt;-</span> <span class="fu">calibrate_to_sample</span>(</span>
+<span id="cb22-2"><a href="#cb22-2" tabindex="-1"></a>  <span class="at">primary_rep_design =</span> twophase_boot_design,</span>
+<span id="cb22-3"><a href="#cb22-3" tabindex="-1"></a>  <span class="co"># Supply the first-phase replicate design</span></span>
+<span id="cb22-4"><a href="#cb22-4" tabindex="-1"></a>  <span class="at">control_rep_design =</span> first_phase_gen_boot,</span>
+<span id="cb22-5"><a href="#cb22-5" tabindex="-1"></a>  <span class="co"># Specify the variables in the data to use for calibration</span></span>
+<span id="cb22-6"><a href="#cb22-6" tabindex="-1"></a>  <span class="at">cal_formula =</span> <span class="sc">~</span> TOTCIR <span class="sc">+</span> TOTSTAFF</span>
+<span id="cb22-7"><a href="#cb22-7" tabindex="-1"></a>)</span>
+<span id="cb22-8"><a href="#cb22-8" tabindex="-1"></a><span class="co">#&gt; Matching between primary and control replicates will be done at random.</span></span>
+<span id="cb22-9"><a href="#cb22-9" tabindex="-1"></a><span class="co">#&gt; For tips on reproducible matching, see `help(&#39;calibrate_to_sample&#39;)`</span></span></code></pre></div>
 </div>
 </div>
 </div>
@@ -1394,18 +1395,18 @@ generalized bootstrap replicate weights, it will warn you if the target
 variance estimator is not positive semidefinite and will let you know
 that it will therefore approximate the target variance estimator using
 the method described above.</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>gen_boot_design <span class="ot">&lt;-</span> <span class="fu">as_gen_boot_design</span>(</span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">design =</span> twophase_design,</span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">variance_estimator =</span> <span class="fu">list</span>(</span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;Phase 1&#39;</span> <span class="ot">=</span> <span class="st">&quot;Ultimate Cluster&quot;</span>,</span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;Phase 2&#39;</span> <span class="ot">=</span> <span class="st">&quot;Ultimate Cluster&quot;</span></span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in as_gen_boot_design.twophase2(design = twophase_design,</span></span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; variance_estimator = list(`Phase 1` = &quot;Ultimate Cluster&quot;, : The sample</span></span>
-<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; quadratic form matrix for this design and variance estimator is not positive</span></span>
-<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; semidefinite. It will be approximated by the nearest positive semidefinite</span></span>
-<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; matrix.</span></span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" tabindex="-1"></a>gen_boot_design <span class="ot">&lt;-</span> <span class="fu">as_gen_boot_design</span>(</span>
+<span id="cb23-2"><a href="#cb23-2" tabindex="-1"></a>  <span class="at">design =</span> twophase_design,</span>
+<span id="cb23-3"><a href="#cb23-3" tabindex="-1"></a>  <span class="at">variance_estimator =</span> <span class="fu">list</span>(</span>
+<span id="cb23-4"><a href="#cb23-4" tabindex="-1"></a>    <span class="st">&#39;Phase 1&#39;</span> <span class="ot">=</span> <span class="st">&quot;Ultimate Cluster&quot;</span>,</span>
+<span id="cb23-5"><a href="#cb23-5" tabindex="-1"></a>    <span class="st">&#39;Phase 2&#39;</span> <span class="ot">=</span> <span class="st">&quot;Ultimate Cluster&quot;</span></span>
+<span id="cb23-6"><a href="#cb23-6" tabindex="-1"></a>  )</span>
+<span id="cb23-7"><a href="#cb23-7" tabindex="-1"></a>)</span>
+<span id="cb23-8"><a href="#cb23-8" tabindex="-1"></a><span class="co">#&gt; Warning in as_gen_boot_design.twophase2(design = twophase_design,</span></span>
+<span id="cb23-9"><a href="#cb23-9" tabindex="-1"></a><span class="co">#&gt; variance_estimator = list(`Phase 1` = &quot;Ultimate Cluster&quot;, : The sample</span></span>
+<span id="cb23-10"><a href="#cb23-10" tabindex="-1"></a><span class="co">#&gt; quadratic form matrix for this design and variance estimator is not positive</span></span>
+<span id="cb23-11"><a href="#cb23-11" tabindex="-1"></a><span class="co">#&gt; semidefinite. It will be approximated by the nearest positive semidefinite</span></span>
+<span id="cb23-12"><a href="#cb23-12" tabindex="-1"></a><span class="co">#&gt; matrix.</span></span></code></pre></div>
 </div>
 <div id="helper-functions-for-ensuring-an-estimator-is-positive-semidefinite" class="section level2">
 <h2>Helper Functions for Ensuring an Estimator is Positive
@@ -1416,54 +1417,54 @@ might not be.</p>
 <p>The function <code>is_psd_matrix()</code> simply checks whether a
 matrix is positive semidefinite. It works by estimating the matrix’s
 eigenvalues and determining whether any of them are negative.</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>twophase_quad_form_matrix <span class="ot">&lt;-</span> <span class="fu">get_design_quad_form</span>(</span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">design =</span> twophase_design,</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">variance_estimator =</span> <span class="fu">list</span>(</span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;Phase 1&#39;</span> <span class="ot">=</span> <span class="st">&quot;Ultimate Cluster&quot;</span>,</span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;Phase 2&#39;</span> <span class="ot">=</span> <span class="st">&quot;Ultimate Cluster&quot;</span></span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>twophase_quad_form_matrix <span class="sc">|&gt;</span> <span class="fu">is_psd_matrix</span>()</span>
-<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] FALSE</span></span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" tabindex="-1"></a>twophase_quad_form_matrix <span class="ot">&lt;-</span> <span class="fu">get_design_quad_form</span>(</span>
+<span id="cb24-2"><a href="#cb24-2" tabindex="-1"></a>  <span class="at">design =</span> twophase_design,</span>
+<span id="cb24-3"><a href="#cb24-3" tabindex="-1"></a>  <span class="at">variance_estimator =</span> <span class="fu">list</span>(</span>
+<span id="cb24-4"><a href="#cb24-4" tabindex="-1"></a>    <span class="st">&#39;Phase 1&#39;</span> <span class="ot">=</span> <span class="st">&quot;Ultimate Cluster&quot;</span>,</span>
+<span id="cb24-5"><a href="#cb24-5" tabindex="-1"></a>    <span class="st">&#39;Phase 2&#39;</span> <span class="ot">=</span> <span class="st">&quot;Ultimate Cluster&quot;</span></span>
+<span id="cb24-6"><a href="#cb24-6" tabindex="-1"></a>  )</span>
+<span id="cb24-7"><a href="#cb24-7" tabindex="-1"></a>)</span>
+<span id="cb24-8"><a href="#cb24-8" tabindex="-1"></a></span>
+<span id="cb24-9"><a href="#cb24-9" tabindex="-1"></a>twophase_quad_form_matrix <span class="sc">|&gt;</span> <span class="fu">is_psd_matrix</span>()</span>
+<span id="cb24-10"><a href="#cb24-10" tabindex="-1"></a><span class="co">#&gt; [1] FALSE</span></span></code></pre></div>
 <p>If the matrix isn’t positive semidefinite (but is at least
 symmetric), then the function <code>get_nearest_psd_matrix()</code> will
 implement the approximation method described earlier.</p>
 <p>Approximating this quadratic form by one which <em>is</em> positive
 semidefinite leads to a very similar (but slightly larger) estimated
 standard error.</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>approx_quad_form <span class="ot">&lt;-</span> <span class="fu">get_nearest_psd_matrix</span>(twophase_quad_form_matrix)</span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" tabindex="-1"></a>approx_quad_form <span class="ot">&lt;-</span> <span class="fu">get_nearest_psd_matrix</span>(twophase_quad_form_matrix)</span></code></pre></div>
 <p>In the example two-phase design based on the library survey from
 earlier, we can see that this approximation results in a standard error
 estimate which is only slightly larger than the standard error estimate
 based on the quadratic form which wasn’t quite positive
 semidefinite.</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract weights and a single variable from the second-phase sample</span></span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="do">## </span><span class="al">NOTE</span><span class="do">: To get second-phase data,</span></span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="do">##       we use `my_design$phase1$sample$variables`.</span></span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="do">##       To get first-phase data,</span></span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="do">##       we use `my_design$phase1$full$variables</span></span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>wts <span class="ot">&lt;-</span> <span class="fu">weights</span>(twophase_design, <span class="at">type =</span> <span class="st">&quot;sampling&quot;</span>)</span>
-<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> twophase_design<span class="sc">$</span>phase1<span class="sc">$</span>sample<span class="sc">$</span>variables<span class="sc">$</span>TOTSTAFF</span>
-<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>wtd_y <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(wts <span class="sc">*</span> y)</span>
-<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimate standard errors</span></span>
-<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>std_error <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(</span>
-<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">t</span>(wtd_y) <span class="sc">%*%</span> twophase_quad_form_matrix <span class="sc">%*%</span> wtd_y</span>
-<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> <span class="fu">sqrt</span>()</span>
-<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>approx_std_error <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(</span>
-<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">t</span>(wtd_y) <span class="sc">%*%</span> approx_quad_form <span class="sc">%*%</span> wtd_y</span>
-<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> <span class="fu">sqrt</span>()</span>
-<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(approx_std_error)</span>
-<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 20498.68</span></span>
-<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(std_error)</span>
-<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 19765.59</span></span>
-<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a>approx_std_error <span class="sc">/</span> std_error</span>
-<span id="cb26-26"><a href="#cb26-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 1.037089</span></span></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" tabindex="-1"></a><span class="co"># Extract weights and a single variable from the second-phase sample</span></span>
+<span id="cb26-2"><a href="#cb26-2" tabindex="-1"></a><span class="do">## </span><span class="al">NOTE</span><span class="do">: To get second-phase data,</span></span>
+<span id="cb26-3"><a href="#cb26-3" tabindex="-1"></a><span class="do">##       we use `my_design$phase1$sample$variables`.</span></span>
+<span id="cb26-4"><a href="#cb26-4" tabindex="-1"></a><span class="do">##       To get first-phase data,</span></span>
+<span id="cb26-5"><a href="#cb26-5" tabindex="-1"></a><span class="do">##       we use `my_design$phase1$full$variables</span></span>
+<span id="cb26-6"><a href="#cb26-6" tabindex="-1"></a></span>
+<span id="cb26-7"><a href="#cb26-7" tabindex="-1"></a>wts <span class="ot">&lt;-</span> <span class="fu">weights</span>(twophase_design, <span class="at">type =</span> <span class="st">&quot;sampling&quot;</span>)</span>
+<span id="cb26-8"><a href="#cb26-8" tabindex="-1"></a>y <span class="ot">&lt;-</span> twophase_design<span class="sc">$</span>phase1<span class="sc">$</span>sample<span class="sc">$</span>variables<span class="sc">$</span>TOTSTAFF</span>
+<span id="cb26-9"><a href="#cb26-9" tabindex="-1"></a>wtd_y <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(wts <span class="sc">*</span> y)</span>
+<span id="cb26-10"><a href="#cb26-10" tabindex="-1"></a></span>
+<span id="cb26-11"><a href="#cb26-11" tabindex="-1"></a><span class="co"># Estimate standard errors</span></span>
+<span id="cb26-12"><a href="#cb26-12" tabindex="-1"></a>std_error <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(</span>
+<span id="cb26-13"><a href="#cb26-13" tabindex="-1"></a>  <span class="fu">t</span>(wtd_y) <span class="sc">%*%</span> twophase_quad_form_matrix <span class="sc">%*%</span> wtd_y</span>
+<span id="cb26-14"><a href="#cb26-14" tabindex="-1"></a>) <span class="sc">|&gt;</span> <span class="fu">sqrt</span>()</span>
+<span id="cb26-15"><a href="#cb26-15" tabindex="-1"></a></span>
+<span id="cb26-16"><a href="#cb26-16" tabindex="-1"></a>approx_std_error <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(</span>
+<span id="cb26-17"><a href="#cb26-17" tabindex="-1"></a>  <span class="fu">t</span>(wtd_y) <span class="sc">%*%</span> approx_quad_form <span class="sc">%*%</span> wtd_y</span>
+<span id="cb26-18"><a href="#cb26-18" tabindex="-1"></a>) <span class="sc">|&gt;</span> <span class="fu">sqrt</span>()</span>
+<span id="cb26-19"><a href="#cb26-19" tabindex="-1"></a></span>
+<span id="cb26-20"><a href="#cb26-20" tabindex="-1"></a><span class="fu">print</span>(approx_std_error)</span>
+<span id="cb26-21"><a href="#cb26-21" tabindex="-1"></a><span class="co">#&gt; [1] 20498.68</span></span>
+<span id="cb26-22"><a href="#cb26-22" tabindex="-1"></a><span class="fu">print</span>(std_error)</span>
+<span id="cb26-23"><a href="#cb26-23" tabindex="-1"></a><span class="co">#&gt; [1] 19765.59</span></span>
+<span id="cb26-24"><a href="#cb26-24" tabindex="-1"></a></span>
+<span id="cb26-25"><a href="#cb26-25" tabindex="-1"></a>approx_std_error <span class="sc">/</span> std_error</span>
+<span id="cb26-26"><a href="#cb26-26" tabindex="-1"></a><span class="co">#&gt; [1] 1.037089</span></span></code></pre></div>
 </div>
 </div>
 <div id="references" class="section level1 unnumbered">

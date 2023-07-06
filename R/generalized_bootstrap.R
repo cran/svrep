@@ -338,7 +338,7 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto", exact_vco
       mvtnorm::rmvnorm(n = num_replicates,
                        mean = rep(1, times = n),
                        sigma = Sigma,
-                       checkSymmetry = TRUE,
+                       checkSymmetry = FALSE,
                        method = "eigen")
     )
   }
@@ -403,7 +403,9 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto", exact_vco
 #' @param design A survey design object created using the 'survey' (or 'srvyr') package,
 #' with class \code{'survey.design'} or \code{'svyimputationList'}.
 #' @param variance_estimator The name of the variance estimator
-#' whose quadratic form matrix should be created. See the section "Variance Estimators" below.
+#' whose quadratic form matrix should be created.
+#' See \link[svrep]{variance-estimators} for a
+#' detailed description of each variance estimator.
 #' Options include:
 #' \itemize{
 #'   \item{\strong{"Yates-Grundy"}: }{The Yates-Grundy variance estimator based on
@@ -464,17 +466,23 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto", exact_vco
 #' If \code{FALSE}, compute variances from sums of squares around the mean estimate from the replicate weights.
 #' @return
 #' A replicate design object, with class \code{svyrep.design}, which can be used with the usual functions,
-#' such as \code{svymean()} or \code{svyglm()}. \cr
-#' Use \code{weights(..., type = 'analysis')} to extract the matrix of replicate weights. \cr
+#' such as \code{svymean()} or \code{svyglm()}.
+#'
+#' Use \code{weights(..., type = 'analysis')} to extract the matrix of replicate weights.
+#'
 #' Use \code{as_data_frame_with_weights()} to convert the design object to a data frame with columns
 #' for the full-sample and replicate weights.
 #' @export
 #' @seealso Use \code{\link[svrep]{estimate_boot_reps_for_target_cv}} to help choose the number of bootstrap replicates. \cr
+#'
 #' For greater customization of the method, \code{\link[svrep]{make_quad_form_matrix}} can be used to
 #' represent several common variance estimators as a quadratic form's matrix,
 #' which can then be used as an input to \code{\link[svrep]{make_gen_boot_factors}}.
 #' The function \code{\link[svrep]{rescale_reps}} is used to implement
 #' the rescaling of the bootstrap adjustment factors.
+#'
+#' See \link[svrep]{variance-estimators} for a
+#' description of each variance estimator.
 #' @section Statistical Details:
 #' Let \eqn{v( \hat{T_y})} be the textbook variance estimator for an estimated population total \eqn{\hat{T}_y} of some variable \eqn{y}.
 #' The base weight for case \eqn{i} in our sample is \eqn{w_i}, and we let \eqn{\breve{y}_i} denote the weighted value \eqn{w_iy_i}.
@@ -510,7 +518,6 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto", exact_vco
 #' While there are multiple ways to generate adjustment factors satisfying these conditions,
 #' the simplest general method is to simulate from a multivariate normal distribution: \eqn{\mathbf{a} \sim MVN(\mathbf{1}_n, \boldsymbol{\Sigma})}.
 #' This is the method used by this function.
-#'
 #' @section Details on Rescaling to Avoid Negative Adjustment Factors:
 #' Let \eqn{\mathbf{A} = \left[ \mathbf{a}^{(1)} \cdots \mathbf{a}^{(b)} \cdots \mathbf{a}^{(B)} \right]} denote the \eqn{(n \times B)} matrix of bootstrap adjustment factors.
 #' To eliminate negative adjustment factors, Beaumont and Patak (2012) propose forming a rescaled matrix of nonnegative replicate factors \eqn{\mathbf{A}^S} by rescaling each adjustment factor \eqn{a_k^{(b)}} as follows:
@@ -530,7 +537,7 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto", exact_vco
 #' }
 #' When sharing a dataset that uses rescaled weights from a generalized survey bootstrap, the documentation for the dataset should instruct the user to use replication scale factor \eqn{\frac{\tau^2}{B}} rather than \eqn{\frac{1}{B}} when estimating sampling variances.
 #'
-#' @inheritSection make_quad_form_matrix Variance Estimators
+
 #' @section Two-Phase Designs:
 #' For a two-phase design, \code{variance_estimator} should be a list of variance estimators' names,
 #' with two elements, such as \code{list('Ultimate Cluster', 'Poisson Horvitz-Thompson')}.
@@ -566,7 +573,6 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto", exact_vco
 #' “\emph{Evaluation of Variance Approximations and Estimators
 #' in Maximum Entropy Sampling with Unequal Probability and Fixed Sample Size.}”
 #' \strong{Journal of Official Statistics}, 21(4):543–70.
-#'
 #' @export
 #'
 #' @examples
@@ -660,10 +666,10 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto", exact_vco
 #'
 #' }
 as_gen_boot_design <- function(design, variance_estimator = NULL,
-                                replicates = 500, tau = "auto", exact_vcov = FALSE,
-                                psd_option = "warn",
-                                mse = getOption("survey.replicates.mse"),
-                                compress = TRUE) {
+                               replicates = 500, tau = "auto", exact_vcov = FALSE,
+                               psd_option = "warn",
+                               mse = getOption("survey.replicates.mse"),
+                               compress = TRUE) {
   UseMethod("as_gen_boot_design", design)
 }
 
@@ -711,7 +717,7 @@ as_gen_boot_design.twophase2 <- function(design, variance_estimator = NULL,
   rep_design <- survey::svrepdesign(
     variables = design$phase1$full$variables[design$subset,,drop=FALSE],
     weights = stats::weights(design, type = "sampling"),
-    repweights = adjustment_factors,
+    repweights = as.matrix(adjustment_factors),
     combined.weights = FALSE,
     compress = compress, mse = mse,
     scale = attr(adjustment_factors, 'scale'),
@@ -739,8 +745,35 @@ as_gen_boot_design.survey.design <- function(design, variance_estimator = NULL,
                                              mse = getOption("survey.replicates.mse"),
                                              compress = TRUE) {
 
-  Sigma <- get_design_quad_form(design, variance_estimator)
+  # Produce a (potentially) compressed survey design object
+  if ((!is.null(design$pps)) && (design$pps != FALSE)) {
+    compressed_design_structure <- list(
+      design_subset = design,
+      index = seq_len(nrow(design))
+    )
+  } else {
+    design_structure <- cbind(design$strata, design$cluster)
+    tmp <- apply(design_structure, 1, function(x) paste(x, collapse = "\r"))
+    unique_elements <- !duplicated(design_structure)
+    compressed_design_structure <- list(
+      design_subset = design |> (\(design_obj) {
+        # Reduce memory usage by dropping variables
+        design_obj$variables <- design_obj$variables[,0,drop=FALSE]
+        # Subset to only unique strata/cluster combos
+        design_obj[unique_elements,]
+      })(),
+      index = match(tmp, tmp[unique_elements])
+    )
+  }
 
+  # Get the quadratic form of the variance estimator,
+  # for the compressed design object
+  Sigma <- get_design_quad_form(
+    compressed_design_structure$design_subset,
+    variance_estimator
+  )
+
+  # Check that the matrix is positive semidefinite
   if (!is_psd_matrix(Sigma)) {
     problem_msg <- "The sample quadratic form matrix for this design and variance estimator is not positive semidefinite."
     if (psd_option == "warn") {
@@ -760,6 +793,7 @@ as_gen_boot_design.survey.design <- function(design, variance_estimator = NULL,
     }
   }
 
+  # Generate adjustment factors for the compressed design object
   adjustment_factors <- make_gen_boot_factors(
     Sigma = Sigma,
     num_replicates = replicates,
@@ -767,18 +801,34 @@ as_gen_boot_design.survey.design <- function(design, variance_estimator = NULL,
     exact_vcov = exact_vcov
   )
 
+  tau <- attr(adjustment_factors, 'tau')
+  scale <- attr(adjustment_factors, 'scale')
+  rscales <- attr(adjustment_factors, 'rscales')
+
+  # Uncompress the adjustment factors
+  adjustment_factors <- distribute_matrix_across_clusters(
+    cluster_level_matrix = adjustment_factors,
+    cluster_ids = compressed_design_structure$index,
+    rows = TRUE, cols = FALSE
+  )
+
+  attr(adjustment_factors, 'tau') <- tau
+  attr(adjustment_factors, 'scale') <- scale
+  attr(adjustment_factors, 'rscales') <- rscales
+
+  # Create the survey design object
   rep_design <- survey::svrepdesign(
     variables = design$variables,
     weights = stats::weights(design, type = "sampling"),
-    repweights = adjustment_factors,
+    repweights = as.matrix(adjustment_factors),
     combined.weights = FALSE,
     compress = compress, mse = mse,
-    scale = attr(adjustment_factors, 'scale'),
-    rscales = attr(adjustment_factors, 'rscales'),
+    scale = scale,
+    rscales = rscales,
     type = "other"
   )
 
-  rep_design$tau <- attr(adjustment_factors, 'tau')
+  rep_design$tau <- tau
 
   if (inherits(design, 'tbl_svy') && ('package:srvyr' %in% search())) {
     rep_design <- srvyr::as_survey_rep(
@@ -789,4 +839,137 @@ as_gen_boot_design.survey.design <- function(design, variance_estimator = NULL,
   rep_design$call <- sys.call(which = -1)
 
   return(rep_design)
+}
+
+#' @export
+as_gen_boot_design.DBIsvydesign <- function(design, variance_estimator = NULL,
+                                            replicates = 500, tau = "auto",
+                                            exact_vcov = FALSE, psd_option = "warn",
+                                            mse = getOption("survey.replicates.mse"),
+                                            compress = TRUE) {
+
+  # Produce a (potentially) compressed survey design object
+  if ((!is.null(design$pps)) && (design$pps != FALSE)) {
+    compressed_design_structure <- list(
+      design_subset = design,
+      index = seq_len(nrow(design))
+    )
+  } else {
+    design_structure <- cbind(design$strata, design$cluster)
+    tmp <- apply(design_structure, 1, function(x) paste(x, collapse = "\r"))
+    unique_elements <- !duplicated(design_structure)
+    compressed_design_structure <- list(
+      design_subset = design |> (\(design_obj) {
+        # Reduce memory usage by dropping variables
+        if (!is.null(design_obj$variables)) {
+          design_obj$variables <- design_obj$variables[unique_elements,0,drop=FALSE]
+        }
+        # Subset to only unique strata/cluster/weight/fpc combos
+        design_obj$strata <- design_obj$strata[unique_elements,, drop = FALSE]
+        design_obj$cluster <- design_obj$cluster[unique_elements,, drop = FALSE]
+        if (!is.null(design_obj$allprob)) {
+          design_obj$allprob <- design_obj$allprob[unique_elements,, drop = FALSE]
+        }
+        if (!is.null(design_obj$fpc$sampsize)) {
+          design_obj$fpc$sampsize <- design_obj$fpc$sampsize[unique_elements,, drop = FALSE]
+        }
+        if (!is.null(design_obj$fpc$popsize)) {
+          design_obj$fpc$popsize <- design_obj$fpc$popsize[unique_elements,, drop = FALSE]
+        }
+        design_obj$prob <- design_obj$prob[unique_elements]
+        return(design_obj)
+      })(),
+      index = match(tmp, tmp[unique_elements])
+    )
+  }
+
+  # Get the quadratic form of the variance estimator,
+  # for the compressed design object
+  Sigma <- get_design_quad_form(
+    compressed_design_structure$design_subset,
+    variance_estimator
+  )
+
+  # Check that the matrix is positive semidefinite
+  if (!is_psd_matrix(Sigma)) {
+    problem_msg <- "The sample quadratic form matrix for this design and variance estimator is not positive semidefinite."
+    if (psd_option == "warn") {
+
+      warning_msg <- paste0(
+        problem_msg,
+        " It will be approximated by the nearest positive semidefinite matrix."
+      )
+      warning(warning_msg)
+      Sigma <- get_nearest_psd_matrix(Sigma)
+
+    } else {
+      error_msg <- paste0(
+        problem_msg, " This can be handled using the `psd_option` argument."
+      )
+      stop(error_msg)
+    }
+  }
+
+  # Generate adjustment factors for the compressed design object
+  adjustment_factors <- make_gen_boot_factors(
+    Sigma = Sigma,
+    num_replicates = replicates,
+    tau = tau,
+    exact_vcov = exact_vcov
+  )
+
+  tau <- attr(adjustment_factors, 'tau')
+  scale <- attr(adjustment_factors, 'scale')
+  rscales <- attr(adjustment_factors, 'rscales')
+
+  # Uncompress the adjustment factors
+  adjustment_factors <- distribute_matrix_across_clusters(
+    cluster_level_matrix = adjustment_factors,
+    cluster_ids = compressed_design_structure$index,
+    rows = TRUE, cols = FALSE
+  )
+
+  attr(adjustment_factors, 'tau') <- tau
+  attr(adjustment_factors, 'scale') <- scale
+  attr(adjustment_factors, 'rscales') <- rscales
+
+  # Create the survey design object
+  rep_design <- survey::svrepdesign(
+    data = data.frame(DUMMY = seq_len(nrow(adjustment_factors))),
+    weights = stats::weights(design, type = "sampling"),
+    repweights = as.matrix(adjustment_factors),
+    combined.weights = FALSE,
+    compress = compress, mse = mse,
+    scale = scale,
+    rscales = rscales,
+    type = "other"
+  )
+  rep_design$tau <- tau
+
+  # Replace 'variables' with a database connection
+  # and make the object have the appropriate class
+  rep_design$variables <- NULL
+  if (design$db$dbtype == "ODBC") {
+    stop("'RODBC' no longer supported. Use the odbc package")
+  } else {
+    db <- DBI::dbDriver(design$db$dbtype)
+    dbconn <- DBI::dbConnect(db, design$db$dbname)
+  }
+  rep_design$db <- list(
+    dbname = design$db$dbname, tablename = design$db$tablename,
+    connection = dbconn,
+    dbtype = design$db$dbtype
+  )
+  class(rep_design) <- c("DBIrepdesign", "DBIsvydesign", class(rep_design))
+
+  if (inherits(design, 'tbl_svy') && ('package:srvyr' %in% search())) {
+    rep_design <- srvyr::as_survey_rep(
+      rep_design
+    )
+  }
+
+  rep_design$call <- sys.call(which = -1)
+
+  return(rep_design)
+
 }
