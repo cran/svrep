@@ -137,9 +137,9 @@ variance stratum \eqn{\tilde{h}} is defined as follows.
 \deqn{
  w_{i}^{(r)} =
  \begin{cases}
- w_{i} & \textit{if } i \textit{ not in variance stratum } \tilde{h} \\
- a_{\tilde{h} g} w_{i} & \textit{if } i \textit{ in } \tilde{h} \textit{ but not in random group } g \\
- 0 & \textit{if } i \textit{ in random group } g \textit{ of } \tilde{h}
+ w_{i} & \text{if } i \text{ not in variance stratum } \tilde{h} \\
+ a_{\tilde{h} g} w_{i} & \text{if } i \text{ in } \tilde{h} \text{ but not in random group } g \\
+ 0 & \text{if } i \text{ in random group } g \text{ of } \tilde{h} \\
  \end{cases}
 }
 The R function argument \code{adj_method} determines how
@@ -154,8 +154,8 @@ as well as \eqn{n_{\tilde{h}}}, the total number of PSUs in variance stratum \eq
 \deqn{
  a_{\tilde{h} g} =
  \begin{cases}
- \frac{G_{\tilde{h}}}{G_{\tilde{h}} - 1} & \textit{ if adj\_method = ``variance-units''} \\
- \frac{n_{\tilde{h}}}{n_{\tilde{h}} - n_{\tilde{h}g}} & \textit{ if adj\_method = ``variance-stratum-psus''} \\
+ \frac{G_{\tilde{h}}}{G_{\tilde{h}} - 1} & \textit{ if adj. method = variance-units} \\
+ \frac{n_{\tilde{h}}}{n_{\tilde{h}} - n_{\tilde{h}g}} & \textit{ if adj. method = variance-stratum-psus} \\
  \end{cases}
 }
 The scale factor \eqn{c_r} for replicate \eqn{r}
@@ -164,8 +164,8 @@ calculated according to the function argument \code{scale_method}.
 \deqn{
  c_{r} =
  \begin{cases}
- \frac{G_{\tilde{h}} - 1}{G_{\tilde{h}}} & \textit{ if scale\_method = ``variance-units''} \\
- \frac{n_{\tilde{h}} - n_{\tilde{h}g}}{n_{\tilde{h}}} & \textit{ if scale\_method = ``variance-stratum-psus''} \\
+ \frac{G_{\tilde{h}} - 1}{G_{\tilde{h}}} & \textit{ if scale method = variance-units} \\
+ \frac{n_{\tilde{h}} - n_{\tilde{h}g}}{n_{\tilde{h}}} & \textit{ if scale method = variance-stratum-psus} \\
  \end{cases}
 }
 

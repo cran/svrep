@@ -27,6 +27,8 @@
 #'   \item{\strong{"Deville-2"}: }{A variance estimator for unequal-probability
 #'   sampling without replacement, described in Matei and Tillé (2005)
 #'   as "Deville 2".}
+#'   \item{\strong{"Deville-Tille": }}{A variance estimator useful
+#'   for balanced sampling designs, proposed by Deville and Tillé (2005).}
 #'   \item{\strong{"SD1"}: }{The non-circular successive-differences variance estimator described by Ash (2014),
 #'   sometimes used for variance estimation for systematic sampling.}
 #'   \item{\strong{"SD2"}: }{The circular successive-differences variance estimator described by Ash (2014).
@@ -42,6 +44,9 @@
 #' in the context of forming replicate weights for two-phase samples.
 #' The authors argue that this approximation should
 #' lead to only a small overestimation of variance.
+#' @param aux_var_names Only required if \code{variance_estimator = "Deville-Tille"}.
+#' Should be a character vector of variable names for auxiliary variables
+#' to be used in the Breidt and Chauvet (2011) variance estimator.
 #' @return A matrix representing the quadratic form of a specified variance estimator,
 #' based on extracting information about clustering, stratification,
 #' and selection probabilities from the survey design object.
@@ -56,6 +61,9 @@
 #' \cr \cr
 #' - Bellhouse, D.R. (1985). "\emph{Computing Methods for Variance Estimation in Complex Surveys}."
 #' \strong{Journal of Official Statistics}, Vol.1, No.3.
+#' \cr \cr
+#' - Deville, J.‐C., and Tillé, Y. (2005). "\emph{Variance approximation under balanced sampling.}"
+#' \strong{Journal of Statistical Planning and Inference}, 128, 569–591.
 #' \cr \cr
 #' - Särndal, C.-E., Swensson, B., & Wretman, J. (1992). "\emph{Model Assisted Survey Sampling}." Springer New York.
 #' @examples
@@ -137,19 +145,21 @@
 #' @export
 
 get_design_quad_form <- function(design, variance_estimator,
-                                 ensure_psd = FALSE) {
+                                 ensure_psd = FALSE,
+                                 aux_var_names = NULL) {
   UseMethod("get_design_quad_form", design)
 }
 
 #' @export
 get_design_quad_form.survey.design <- function(design, variance_estimator,
-                                               ensure_psd = FALSE) {
+                                               ensure_psd = FALSE,
+                                               aux_var_names = NULL) {
 
   accepted_variance_estimators <- c(
     "Yates-Grundy", "Horvitz-Thompson",
     "Poisson Horvitz-Thompson",
     "Ultimate Cluster", "Stratified Multistage SRS",
-    "SD1", "SD2", "Deville-1", "Deville-2"
+    "SD1", "SD2", "Deville-1", "Deville-2", "Deville-Tille"
   )
 
   if (is.null(variance_estimator)) {
@@ -225,6 +235,31 @@ get_design_quad_form.survey.design <- function(design, variance_estimator,
       sort_order = NULL
     )
   }
+  if (variance_estimator %in% c("Deville-Tille")) {
+
+    if (is.null(aux_var_names)) {
+      stop("For `variance_estimator='Deville-Tille', must supply a vector of variable names to `aux_var_names`.")
+    }
+
+    if (!all(aux_var_names %in% colnames(design$variables))) {
+      stop("Some of `aux_var_names` do not show up as columns in the design object.")
+    }
+
+    aux_vars_matrix <- model.matrix(
+      object = reformulate(termlabels = aux_var_names, intercept = FALSE),
+      data = design$variables[,aux_var_names,drop=FALSE]
+    )
+
+    Sigma <- make_quad_form_matrix(
+      variance_estimator = variance_estimator,
+      cluster_ids = design$cluster,
+      strata_ids = design$strata,
+      probs = design$allprob,
+      aux_vars = aux_vars_matrix,
+      strata_pop_sizes = NULL,
+      sort_order = NULL
+    )
+  }
 
   if (ensure_psd && !is_psd_matrix(Sigma)) {
     informative_msg <- paste0(
@@ -240,14 +275,15 @@ get_design_quad_form.survey.design <- function(design, variance_estimator,
 
 #' @export
 get_design_quad_form.twophase2 <- function(design, variance_estimator,
-                                           ensure_psd = FALSE) {
+                                           ensure_psd = FALSE,
+                                           aux_var_names = NULL) {
 
   # Check that `variance_estimator` is correctly specified
   accepted_phase1_estimators <- c(
     "Yates-Grundy", "Horvitz-Thompson",
     "Poisson Horvitz-Thompson",
     "Ultimate Cluster", "Stratified Multistage SRS",
-    "SD1", "SD2", "Deville-1", "Deville-2"
+    "SD1", "SD2", "Deville-1", "Deville-2", "Deville-Tille"
   )
   accepted_phase2_estimators <- c(
     "Ultimate Cluster", "Stratified Multistage SRS",
@@ -279,7 +315,8 @@ get_design_quad_form.twophase2 <- function(design, variance_estimator,
   # and subset to only cases selected in the second phase sample
   Sigma_phase1 <- get_design_quad_form(
     design = design$phase1$full,
-    variance_estimator = variance_estimator[[1]]
+    variance_estimator = variance_estimator[[1]],
+    aux_var_names = aux_var_names
   )
   Sigma_phase1 <- Sigma_phase1[design$subset, design$subset]
 
@@ -287,7 +324,8 @@ get_design_quad_form.twophase2 <- function(design, variance_estimator,
   # (conditional on first phase sample)
   Sigma_phase2 <- get_design_quad_form(
     design = design$phase2,
-    variance_estimator = variance_estimator[[2]]
+    variance_estimator = variance_estimator[[2]],
+    aux_var_names = NULL
   )
 
   # Obtain phase 2 conditional joint inclusion probabilities
@@ -313,4 +351,89 @@ get_design_quad_form.twophase2 <- function(design, variance_estimator,
   }
 
   return(Sigma)
+}
+
+#' @title Produce a compressed representation of a survey design object
+#'
+#' @param design A survey design object
+#' @param vars_to_keep (Optional) A character vector
+#' of variables in the design to keep in the compressed design.
+#' By default, none of the variables are retained.
+#' @return A list with two elements. The \code{design_subset}
+#' element is a a design object with only the minimal rows
+#' needed to represent the survey design.
+#' The \code{index} element links each row of the original design
+#' to a row of \code{design_subset}, so that the design can be "uncompressed."
+#' @keywords internal
+compress_design <- function(design, vars_to_keep = NULL) {
+
+  UseMethod("compress_design", design)
+}
+
+compress_design.survey.design <- function(design, vars_to_keep = NULL) {
+
+  if (is.null(vars_to_keep)) {
+    vars_to_keep <- 0
+  }
+
+  if ((!is.null(design$pps)) && (design$pps != FALSE)) {
+    compressed_design_structure <- list(
+      design_subset = design,
+      index = seq_len(nrow(design))
+    )
+  } else {
+    design_structure <- cbind(design$strata, design$cluster)
+    tmp <- apply(design_structure, 1, function(x) paste(x, collapse = "\r"))
+    unique_elements <- !duplicated(design_structure)
+    compressed_design_structure <- list(
+      design_subset = design |> (\(design_obj) {
+        # Reduce memory usage by dropping variables
+        design_obj$variables <- design_obj$variables[,vars_to_keep,drop=FALSE]
+        # Subset to only unique strata/cluster combos
+        design_obj[unique_elements,]
+      })(),
+      index = match(tmp, tmp[unique_elements])
+    )
+  }
+
+  return(compressed_design_structure)
+}
+
+compress_design.DBIsvydesign <- function(design, vars_to_keep = NULL) {
+  # Produce a (potentially) compressed survey design object
+  if ((!is.null(design$pps)) && (design$pps != FALSE)) {
+    compressed_design_structure <- list(
+      design_subset = design,
+      index = seq_len(nrow(design))
+    )
+  } else {
+    design_structure <- cbind(design$strata, design$cluster)
+    tmp <- apply(design_structure, 1, function(x) paste(x, collapse = "\r"))
+    unique_elements <- !duplicated(design_structure)
+    compressed_design_structure <- list(
+      design_subset = design |> (\(design_obj) {
+        # Reduce memory usage by dropping variables
+        if (!is.null(design_obj$variables)) {
+          design_obj$variables <- design_obj$variables[unique_elements,vars_to_keep,drop=FALSE]
+        }
+        # Subset to only unique strata/cluster/weight/fpc combos
+        design_obj$strata <- design_obj$strata[unique_elements,, drop = FALSE]
+        design_obj$cluster <- design_obj$cluster[unique_elements,, drop = FALSE]
+        if (!is.null(design_obj$allprob)) {
+          design_obj$allprob <- design_obj$allprob[unique_elements,, drop = FALSE]
+        }
+        if (!is.null(design_obj$fpc$sampsize)) {
+          design_obj$fpc$sampsize <- design_obj$fpc$sampsize[unique_elements,, drop = FALSE]
+        }
+        if (!is.null(design_obj$fpc$popsize)) {
+          design_obj$fpc$popsize <- design_obj$fpc$popsize[unique_elements,, drop = FALSE]
+        }
+        design_obj$prob <- design_obj$prob[unique_elements]
+        return(design_obj)
+      })(),
+      index = match(tmp, tmp[unique_elements])
+    )
+  }
+
+  return(compressed_design_structure)
 }

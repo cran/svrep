@@ -31,7 +31,9 @@
 #' If the design object has \code{combined.weights=FALSE},
 #' then the replication factors are adjusted.
 #' If the design object has \code{combined.weights=TRUE},
-#' then the replicate weights are adjusted.
+#' then the replicate weights are adjusted. It is strongly
+#' recommended to only use the rescaling method for replication factors
+#' rather than the weights.
 #'
 #' For a replicate survey design object, the \code{scale} element
 #' of the design object will be updated appropriately,
@@ -57,6 +59,21 @@
 #' \deqn{
 #'  \textbf{After rescaling: } v_B\left(\hat{T}_y\right) = \frac{\tau^2}{B}\sum_{b=1}^B\left(\hat{T}_y^{S*(b)}-\hat{T}_y\right)^2
 #' }
+#' @references
+#' This method was suggested by Fay (1989) for the specific application
+#' of creating replicate factors using his generalized replication method.
+#' Beaumont and Patak (2012) provided an extended discussion on this rescaling
+#' method in the context of creating generalized bootstrap weights.
+#' The notation used in this documentation is taken from Beaumont and Patak (2012).
+#'
+#' - Beaumont, Jean-François, and Zdenek Patak. 2012.
+#' "On the Generalized Bootstrap for Sample Surveys with Special Attention to Poisson Sampling: Generalized Bootstrap for Sample Surveys."
+#' International Statistical Review 80 (1): 127–48.
+#' https://doi.org/10.1111/j.1751-5823.2011.00166.x.
+#' \cr \cr
+#' - Fay, Robert. 1989. "Theory And Application Of Replicate Weighting For Variance Calculations."
+#' In, 495–500. Alexandria, VA: American Statistical Association.
+#' http://www.asasrms.org/Proceedings/papers/1989_033.pdf
 #'
 #' @export
 #'
@@ -112,6 +129,12 @@ rescale_reps <- function(x, tau = "auto", min_wgt = 0.01, digits = 2) {
   if ((tau == "auto") && (min_wgt < 0 || min_wgt > 1)) {
     stop("When `tau='auto'`, the argument `min_wgt` must be at least 0 and less than 1.")
   }
+  if (!is.numeric(digits) || (digits < 1)) {
+    stop("`digits` must be an integer greater than or equal to 1.")
+  }
+  if ((min_wgt != 0) & (round(min_wgt, digits) == 0)) {
+    stop("round(min_wgt, digits) equals 0; increase either `min_wgt` or `digits`.")
+  }
 
   UseMethod("rescale_reps", x)
 }
@@ -123,7 +146,7 @@ rescale_reps.matrix <- function(x, tau = "auto", min_wgt = 0.01, digits = 2) {
     if (tau == "auto") {
       rescaling_constant <- min((1-rep_weights)/(min_wgt-1))
       rescaling_constant <- abs(rescaling_constant)
-      rescaling_constant <- ceiling(rescaling_constant * 100)/100
+      rescaling_constant <- ceiling(rescaling_constant * 10^(digits))/(10^(digits))
     } else {
       rescaling_constant <- tau
     }
@@ -425,12 +448,16 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto", exact_vco
 #'   \item{\strong{"Deville-2"}: }{A variance estimator for unequal-probability
 #'   sampling without replacement, described in Matei and Tillé (2005)
 #'   as "Deville 2".}
+#'   \item{\strong{"Deville-Tille": }}{A variance estimator useful
+#'   for balanced sampling designs, proposed by Deville and Tillé (2005).}
 #'   \item{\strong{"SD1"}: }{The non-circular successive-differences variance estimator described by Ash (2014),
 #'   sometimes used for variance estimation for systematic sampling.}
 #'   \item{\strong{"SD2"}: }{The circular successive-differences variance estimator described by Ash (2014).
 #'   This estimator is the basis of the "successive-differences replication" estimator commonly used
 #'   for variance estimation for systematic sampling.}
 #' }
+#' @param aux_var_names (Only used if \code{variance_estimator = "Deville-Tille")}.
+#' A vector of the names of auxiliary variables used in sampling.
 #' @param replicates Number of bootstrap replicates (should be as large as possible, given computer memory/storage limitations).
 #' A commonly-recommended default is 500.
 #' @param tau Either \code{"auto"}, or a single number. This is the rescaling constant
@@ -565,6 +592,9 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto", exact_vco
 #' \cr \cr
 #' - Bertail, and Combris. 1997. “Bootstrap Généralisé d’un Sondage.” Annales d’Économie Et de Statistique, no. 46: 49. https://doi.org/10.2307/20076068.
 #' \cr \cr
+#' - Deville, J.‐C., and Tillé, Y. (2005). "\emph{Variance approximation under balanced sampling.}"
+#' \strong{Journal of Statistical Planning and Inference}, 128, 569–591.
+#' \cr \cr
 #' - Dippo, Cathryn, Robert Fay, and David Morganstein. 1984. “Computing Variances from Complex Samples with Replicate Weights.” In, 489–94. Alexandria, VA: American Statistical Association. http://www.asasrms.org/Proceedings/papers/1984_094.pdf.
 #' \cr \cr
 #' - Fay, Robert. 1984. “Some Properties of Estimates of Variance Based on Replication Methods.” In, 495–500. Alexandria, VA: American Statistical Association. http://www.asasrms.org/Proceedings/papers/1984_095.pdf.
@@ -666,6 +696,7 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto", exact_vco
 #'
 #' }
 as_gen_boot_design <- function(design, variance_estimator = NULL,
+                               aux_var_names = NULL,
                                replicates = 500, tau = "auto", exact_vcov = FALSE,
                                psd_option = "warn",
                                mse = getOption("survey.replicates.mse"),
@@ -675,12 +706,13 @@ as_gen_boot_design <- function(design, variance_estimator = NULL,
 
 #' @export
 as_gen_boot_design.twophase2 <- function(design, variance_estimator = NULL,
+                                         aux_var_names = NULL,
                                          replicates = 500, tau = "auto",
                                          exact_vcov = FALSE, psd_option = "warn",
                                          mse = getOption("survey.replicates.mse"),
                                          compress = TRUE) {
 
-  Sigma <- get_design_quad_form(design, variance_estimator)
+  Sigma <- get_design_quad_form(design, variance_estimator, aux_var_names = aux_var_names)
 
   if (!is_psd_matrix(Sigma)) {
     problem_msg <- paste0(
@@ -740,37 +772,21 @@ as_gen_boot_design.twophase2 <- function(design, variance_estimator = NULL,
 
 #' @export
 as_gen_boot_design.survey.design <- function(design, variance_estimator = NULL,
+                                             aux_var_names = NULL,
                                              replicates = 500, tau = "auto", exact_vcov = FALSE,
                                              psd_option = 'warn',
                                              mse = getOption("survey.replicates.mse"),
                                              compress = TRUE) {
 
   # Produce a (potentially) compressed survey design object
-  if ((!is.null(design$pps)) && (design$pps != FALSE)) {
-    compressed_design_structure <- list(
-      design_subset = design,
-      index = seq_len(nrow(design))
-    )
-  } else {
-    design_structure <- cbind(design$strata, design$cluster)
-    tmp <- apply(design_structure, 1, function(x) paste(x, collapse = "\r"))
-    unique_elements <- !duplicated(design_structure)
-    compressed_design_structure <- list(
-      design_subset = design |> (\(design_obj) {
-        # Reduce memory usage by dropping variables
-        design_obj$variables <- design_obj$variables[,0,drop=FALSE]
-        # Subset to only unique strata/cluster combos
-        design_obj[unique_elements,]
-      })(),
-      index = match(tmp, tmp[unique_elements])
-    )
-  }
+  compressed_design_structure <- compress_design(design, vars_to_keep = aux_var_names)
 
   # Get the quadratic form of the variance estimator,
   # for the compressed design object
   Sigma <- get_design_quad_form(
     compressed_design_structure$design_subset,
-    variance_estimator
+    variance_estimator,
+    aux_var_names = aux_var_names
   )
 
   # Check that the matrix is positive semidefinite
@@ -843,51 +859,21 @@ as_gen_boot_design.survey.design <- function(design, variance_estimator = NULL,
 
 #' @export
 as_gen_boot_design.DBIsvydesign <- function(design, variance_estimator = NULL,
+                                            aux_var_names = NULL,
                                             replicates = 500, tau = "auto",
                                             exact_vcov = FALSE, psd_option = "warn",
                                             mse = getOption("survey.replicates.mse"),
                                             compress = TRUE) {
 
   # Produce a (potentially) compressed survey design object
-  if ((!is.null(design$pps)) && (design$pps != FALSE)) {
-    compressed_design_structure <- list(
-      design_subset = design,
-      index = seq_len(nrow(design))
-    )
-  } else {
-    design_structure <- cbind(design$strata, design$cluster)
-    tmp <- apply(design_structure, 1, function(x) paste(x, collapse = "\r"))
-    unique_elements <- !duplicated(design_structure)
-    compressed_design_structure <- list(
-      design_subset = design |> (\(design_obj) {
-        # Reduce memory usage by dropping variables
-        if (!is.null(design_obj$variables)) {
-          design_obj$variables <- design_obj$variables[unique_elements,0,drop=FALSE]
-        }
-        # Subset to only unique strata/cluster/weight/fpc combos
-        design_obj$strata <- design_obj$strata[unique_elements,, drop = FALSE]
-        design_obj$cluster <- design_obj$cluster[unique_elements,, drop = FALSE]
-        if (!is.null(design_obj$allprob)) {
-          design_obj$allprob <- design_obj$allprob[unique_elements,, drop = FALSE]
-        }
-        if (!is.null(design_obj$fpc$sampsize)) {
-          design_obj$fpc$sampsize <- design_obj$fpc$sampsize[unique_elements,, drop = FALSE]
-        }
-        if (!is.null(design_obj$fpc$popsize)) {
-          design_obj$fpc$popsize <- design_obj$fpc$popsize[unique_elements,, drop = FALSE]
-        }
-        design_obj$prob <- design_obj$prob[unique_elements]
-        return(design_obj)
-      })(),
-      index = match(tmp, tmp[unique_elements])
-    )
-  }
+  compressed_design_structure <- compress_design(design, vars_to_keep = aux_var_names)
 
   # Get the quadratic form of the variance estimator,
   # for the compressed design object
   Sigma <- get_design_quad_form(
     compressed_design_structure$design_subset,
-    variance_estimator
+    variance_estimator,
+    aux_var_names = aux_var_names
   )
 
   # Check that the matrix is positive semidefinite

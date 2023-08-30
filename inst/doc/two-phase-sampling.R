@@ -72,6 +72,16 @@ twophase_boot_design <- as_gen_boot_design(
 )
 
 ## -----------------------------------------------------------------------------
+twophase_genrep_design <- as_fays_gen_rep_design(
+  design = twophase_design,
+  variance_estimator = list(
+    "Phase 1" = "Stratified Multistage SRS",
+    "Phase 2" = "Ultimate Cluster"
+  ),
+  max_replicates = 500
+)
+
+## -----------------------------------------------------------------------------
 # Impute missing values (if necessary)
 twophase_sample <- twophase_sample |>
   mutate(
