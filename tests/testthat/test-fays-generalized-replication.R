@@ -37,6 +37,16 @@ data('election', package = 'survey')
 test_that(
   "Horvitz-Thompson: Same results from conversion vs. creating from scratch", {
 
+    # Averts ATLAS/MKL tests (not supported)
+    skip_if(grepl(x = La_library(), pattern = "atlas|mkl",
+                  ignore.case = TRUE))
+    skip_if(grepl(x = extSoftVersion()[['BLAS']], pattern = "atlas|mkl",
+                  ignore.case = TRUE))
+
+    # Disable test until the Matrix package adapts to change in R 4.3.2
+    # (`crossprod()` becomes primitive and S3 generic in R 4.3.2)
+    skip_if_not("crossprod" %in% ls(getNamespaceInfo("Matrix", "exports")))
+
     ## Create survey design object
     pps_design_ht <- svydesign(
       data = election_pps,
@@ -72,6 +82,16 @@ test_that(
 test_that(
   "Yates-Grundy: Same results from conversion vs. creating from scratch", {
 
+    # Averts ATLAS/MKL tests (not supported)
+    skip_if(grepl(x = La_library(), pattern = "atlas|mkl",
+                  ignore.case = TRUE))
+    skip_if(grepl(x = extSoftVersion()[['BLAS']], pattern = "atlas|mkl",
+                  ignore.case = TRUE))
+
+    # Disable test until the Matrix package adapts to change in R 4.3.2
+    # (`crossprod()` becomes primitive and S3 generic in R 4.3.2)
+    skip_if_not("crossprod" %in% ls(getNamespaceInfo("Matrix", "exports")))
+
     ## Create survey design object
     pps_design_yg <- svydesign(
       data = election_pps,
@@ -103,6 +123,12 @@ test_that(
 
 test_that(
   "Ultimate Cluster: Same results from conversion vs. creating from scratch", {
+
+    # Averts ATLAS/MKL tests (not supported)
+    skip_if(grepl(x = La_library(), pattern = "atlas|mkl",
+                  ignore.case = TRUE))
+    skip_if(grepl(x = extSoftVersion()[['BLAS']], pattern = "atlas|mkl",
+                  ignore.case = TRUE))
 
     ## Create survey design object
     multistage_survey_design <- svydesign(
@@ -137,6 +163,12 @@ test_that(
 
 test_that(
   "Multistage Stratified SRS: Same results from conversion vs. creating from scratch", {
+
+    # Averts ATLAS/MKL tests (not supported)
+    skip_if(grepl(x = La_library(), pattern = "atlas|mkl",
+                  ignore.case = TRUE))
+    skip_if(grepl(x = extSoftVersion()[['BLAS']], pattern = "atlas|mkl",
+                  ignore.case = TRUE))
 
     ## Create survey design object
     multistage_survey_design <- svydesign(
@@ -173,6 +205,12 @@ test_that(
 
 test_that(
   "SD1: Same results from conversion vs. creating from scratch", {
+
+    # Averts ATLAS/MKL tests (not supported)
+    skip_if(grepl(x = La_library(), pattern = "atlas|mkl",
+                  ignore.case = TRUE))
+    skip_if(grepl(x = extSoftVersion()[['BLAS']], pattern = "atlas|mkl",
+                  ignore.case = TRUE))
 
     ## Create survey design object
     multistage_survey_design <- svydesign(
@@ -211,6 +249,12 @@ test_that(
 test_that(
   "SD2: Same results from conversion vs. creating from scratch", {
 
+    # Averts ATLAS/MKL tests (not supported)
+    skip_if(grepl(x = La_library(), pattern = "atlas|mkl",
+                  ignore.case = TRUE))
+    skip_if(grepl(x = extSoftVersion()[['BLAS']], pattern = "atlas|mkl",
+                  ignore.case = TRUE))
+
     ## Create survey design object
     multistage_survey_design <- svydesign(
       data = svrep::library_multistage_sample |>
@@ -247,6 +291,12 @@ test_that(
 
 test_that(
   "Deville-Tille: Same results from conversion vs. creating from scratch", {
+
+    # Averts ATLAS/MKL tests (not supported)
+    skip_if(grepl(x = La_library(), pattern = "atlas|mkl",
+                  ignore.case = TRUE))
+    skip_if(grepl(x = extSoftVersion()[['BLAS']], pattern = "atlas|mkl",
+                  ignore.case = TRUE))
 
     data('api', package = 'survey')
 
@@ -290,6 +340,12 @@ test_that(
 
 test_that(
   "Two-phase Design: Same results from conversion vs. creating from scratch", {
+
+    # Averts ATLAS/MKL tests (not supported)
+    skip_if(grepl(x = La_library(), pattern = "atlas|mkl",
+                  ignore.case = TRUE))
+    skip_if(grepl(x = extSoftVersion()[['BLAS']], pattern = "atlas|mkl",
+                  ignore.case = TRUE))
 
     suppressMessages({
       expect_warning(
@@ -372,6 +428,10 @@ test_that(
 test_that(
   desc = "Using full number of necessary replicates gives exact variance estimate for totals", {
 
+    # Disable test until the Matrix package adapts to change in R 4.3.2
+    # (`crossprod()` becomes primitive and S3 generic in R 4.3.2)
+    skip_if_not("crossprod" %in% ls(getNamespaceInfo("Matrix", "exports")))
+
     set.seed(2023)
     pps_design_yg <- svydesign(
       data = election_pps,
@@ -401,6 +461,10 @@ test_that(
 
 test_that(
   desc = "Helpful message if `max_replicates` is too low.", {
+
+    # Disable test until the Matrix package adapts to change in R 4.3.2
+    # (`crossprod()` becomes primitive and S3 generic in R 4.3.2)
+    skip_if_not("crossprod" %in% ls(getNamespaceInfo("Matrix", "exports")))
 
     expect_message(
       regexp = "number of replicates needed",

@@ -29,19 +29,19 @@ set.seed(2022)
   svytotal(x = ~ y1, design = multistage_srswor_design)
   svytotal(x = ~ y1, design = bootstrap_rep_design)
 
-## -----------------------------------------------------------------------------
-# Load example dataset of U.S. counties and states with 2004 Presidential vote counts
-  data("election", package = 'survey')
-  pps_wor_design <- svydesign(data = election_pps,
-                              pps = HR(),
-                              fpc = ~ p, # Inclusion probabilities
-                              ids = ~ 1)
-  bootstrap_rep_design <- as_bootstrap_design(pps_wor_design,
-                                              type = "Rao-Wu-Yue-Beaumont",
-                                              replicates = 100)
-  
-  svytotal(x = ~ Bush + Kerry, design = pps_wor_design)
-  svytotal(x = ~ Bush + Kerry, design = bootstrap_rep_design)
+## ---- eval=FALSE--------------------------------------------------------------
+#  # Load example dataset of U.S. counties and states with 2004 Presidential vote counts
+#    data("election", package = 'survey')
+#    pps_wor_design <- svydesign(data = election_pps,
+#                                pps = HR(),
+#                                fpc = ~ p, # Inclusion probabilities
+#                                ids = ~ 1)
+#    bootstrap_rep_design <- as_bootstrap_design(pps_wor_design,
+#                                                type = "Rao-Wu-Yue-Beaumont",
+#                                                replicates = 100)
+#  
+#    svytotal(x = ~ Bush + Kerry, design = pps_wor_design)
+#    svytotal(x = ~ Bush + Kerry, design = bootstrap_rep_design)
 
 ## -----------------------------------------------------------------------------
 # Declare a multistage design
@@ -144,27 +144,27 @@ gen_boot_design_sd2 <- as_gen_boot_design(
 # Estimate sampling variances
 svymean(x = ~ TOTSTAFF, na.rm = TRUE, design = gen_boot_design_sd2)
 
-## -----------------------------------------------------------------------------
-# Load example data of a PPS survey of counties and states
-   data('election', package = 'survey')
-
-# Create survey design object
-   pps_design_ht <- svydesign(
-     data = election_pps,
-     id = ~1, fpc = ~p,
-     pps = ppsmat(election_jointprob),
-     variance = "HT"
-   )
-
-  
-# Convert to generalized bootstrap replicate design
-gen_boot_design_ht <- pps_design_ht |>
-  as_gen_boot_design(variance_estimator = "Horvitz-Thompson",
-                     replicates = 5000, tau = "auto")
-
-# Compare sampling variances from bootstrap vs. Horvitz-Thompson estimator
-svytotal(x = ~ Bush + Kerry, design = pps_design_ht)
-svytotal(x = ~ Bush + Kerry, design = gen_boot_design_ht)
+## ---- eval=FALSE--------------------------------------------------------------
+#  # Load example data of a PPS survey of counties and states
+#     data('election', package = 'survey')
+#  
+#  # Create survey design object
+#     pps_design_ht <- svydesign(
+#       data = election_pps,
+#       id = ~1, fpc = ~p,
+#       pps = ppsmat(election_jointprob),
+#       variance = "HT"
+#     )
+#  
+#  
+#  # Convert to generalized bootstrap replicate design
+#  gen_boot_design_ht <- pps_design_ht |>
+#    as_gen_boot_design(variance_estimator = "Horvitz-Thompson",
+#                       replicates = 5000, tau = "auto")
+#  
+#  # Compare sampling variances from bootstrap vs. Horvitz-Thompson estimator
+#  svytotal(x = ~ Bush + Kerry, design = pps_design_ht)
+#  svytotal(x = ~ Bush + Kerry, design = gen_boot_design_ht)
 
 ## -----------------------------------------------------------------------------
 library(dplyr) # For data manipulation
@@ -190,13 +190,13 @@ library(dplyr) # For data manipulation
 
 ## -----------------------------------------------------------------------------
 # View overall scale factor
-overall_scale_factor <- gen_boot_design_ht$scale
+overall_scale_factor <- multistage_boot_design$scale
 print(overall_scale_factor)
 
 # Check that the scale factor was calculated correctly
-tau <- gen_boot_design_ht$tau
+tau <- multistage_boot_design$tau
 print(tau)
-B <- ncol(gen_boot_design_ht$repweights)
+B <- ncol(multistage_boot_design$repweights)
 print(B)
 
 print( (tau^2) / B )

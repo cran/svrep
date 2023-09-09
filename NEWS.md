@@ -1,3 +1,19 @@
+# svrep 0.6.3
+
+* Bumped version number for CRAN submission. No significant user-facing changes: just updates to unit tests and rendering of examples/vignettes due to temporary CRAN check issues for the development version of R.
+
+# svrep 0.6.2
+
+* Bug Fixes:
+  
+  * In cases where the `variables` component of a survey design object is not a tibble, an unnecessary error message would appear when calling `as_data_frame_with_weights()` with only one name supplied to the `vars_to_keep` argument.
+
+* Changes specifically for CRAN check:
+
+  * Removed 12 unmarked UTF-8 strings causing a CRAN check note.
+  
+  * Removed the LaTeX 'cases' formatting from the documentation for `as_random_group_jackknife_design()`, since an old release on MacOS was throwing a LaTeX error when trying to build the manual. The formatting might be restored later when 'oldrel' on CRAN increases to 4.3.X.
+
 # svrep 0.6.1
 
 * Added support for Fay's generalized replication method, specifically the version proposed in Fay (1989): the key functions are `as_fays_gen_rep_design()` and `make_fays_gen_rep_factors()`, which are nearly identical to the generalized bootstrap functions `as_gen_boot_design()` and `make_gen_boot_factors()`.
