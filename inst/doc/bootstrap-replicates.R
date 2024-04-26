@@ -1,4 +1,4 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
@@ -29,7 +29,7 @@ set.seed(2022)
   svytotal(x = ~ y1, design = multistage_srswor_design)
   svytotal(x = ~ y1, design = bootstrap_rep_design)
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  # Load example dataset of U.S. counties and states with 2004 Presidential vote counts
 #    data("election", package = 'survey')
 #    pps_wor_design <- svydesign(data = election_pps,
@@ -74,7 +74,7 @@ make_quad_form_matrix(
     sort_order = c(1,2,3,4,5)
 )
 
-## ---- eval=TRUE---------------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 # Load an example dataset of a stratified systematic sample
 data('library_stsys_sample', package = 'svrep')
 
@@ -144,7 +144,7 @@ gen_boot_design_sd2 <- as_gen_boot_design(
 # Estimate sampling variances
 svymean(x = ~ TOTSTAFF, na.rm = TRUE, design = gen_boot_design_sd2)
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  # Load example data of a PPS survey of counties and states
 #     data('election', package = 'survey')
 #  

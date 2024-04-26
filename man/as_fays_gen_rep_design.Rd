@@ -12,7 +12,7 @@ as_fays_gen_rep_design(
   max_replicates = 500,
   balanced = TRUE,
   psd_option = "warn",
-  mse = getOption("survey.replicates.mse"),
+  mse = TRUE,
   compress = TRUE
 )
 }
@@ -26,30 +26,29 @@ See \link[svrep]{variance-estimators} for a
 detailed description of each variance estimator.
 Options include:
 \itemize{
-  \item{\strong{"Yates-Grundy"}: }{The Yates-Grundy variance estimator based on
-  first-order and second-order inclusion probabilities.}
-  \item{\strong{"Horvitz-Thompson"}: }{The Horvitz-Thompson variance estimator based on
-  first-order and second-order inclusion probabilities.}
-  \item{\strong{"Poisson Horvitz-Thompson"}: }{The Horvitz-Thompson variance estimator
-  based on assuming Poisson sampling, with first-order inclusion probabilities
-  inferred from the sampling probabilities of the survey design object.}
-  \item{\strong{"Stratified Multistage SRS"}: }{The usual stratified multistage variance estimator
-  based on estimating the variance of cluster totals within strata at each stage.}
-  \item{\strong{"Ultimate Cluster"}: }{The usual variance estimator based on estimating
-  the variance of first-stage cluster totals within first-stage strata.}
-  \item{\strong{"Deville-1"}: }{A variance estimator for unequal-probability
-  sampling without replacement, described in Matei and Tillé (2005)
-  as "Deville 1".}
-  \item{\strong{"Deville-2"}: }{A variance estimator for unequal-probability
-  sampling without replacement, described in Matei and Tillé (2005)
-  as "Deville 2".}
-  \item{\strong{"Deville-Tille": }}{A variance estimator useful
-  for balanced sampling designs, proposed by Deville and Tillé (2005).}
-  \item{\strong{"SD1"}: }{The non-circular successive-differences variance estimator described by Ash (2014),
-  sometimes used for variance estimation for systematic sampling.}
-  \item{\strong{"SD2"}: }{The circular successive-differences variance estimator described by Ash (2014).
-  This estimator is the basis of the "successive-differences replication" estimator commonly used
-  for variance estimation for systematic sampling.}
+  \item \strong{"Yates-Grundy"}: \cr The Yates-Grundy variance estimator based on
+    first-order and second-order inclusion probabilities.
+  \item \strong{"Horvitz-Thompson"}: \cr The Horvitz-Thompson variance estimator based on
+    first-order and second-order inclusion probabilities.
+  \item \strong{"Poisson Horvitz-Thompson"}: \cr The Horvitz-Thompson variance estimator
+    based on assuming Poisson sampling, with first-order inclusion probabilities
+    inferred from the sampling probabilities of the survey design object.
+  \item \strong{"Stratified Multistage SRS"}: \cr The usual stratified multistage variance estimator
+    based on estimating the variance of cluster totals within strata at each stage.
+  \item \strong{"Ultimate Cluster"}: \cr The usual variance estimator based on estimating
+    the variance of first-stage cluster totals within first-stage strata.
+  \item \strong{"Deville-1"}: \cr A variance estimator for unequal-probability
+    sampling without replacement, described in Matei and Tillé (2005)
+    as "Deville 1".
+  \item \strong{"Deville-2"}: \cr A variance estimator for unequal-probability
+    sampling without replacement, described in Matei and Tillé (2005) as "Deville 2".
+  \item \strong{"Deville-Tille": } \cr A variance estimator useful
+    for balanced sampling designs, proposed by Deville and Tillé (2005).
+  \item \strong{"SD1"}: \cr The non-circular successive-differences variance estimator described by Ash (2014),
+    sometimes used for variance estimation for systematic sampling.
+  \item\strong{"SD2"}:  \cr The circular successive-differences variance estimator described by Ash (2014).
+    This estimator is the basis of the "successive-differences replication" estimator commonly used
+    for variance estimation for systematic sampling.
 }}
 
 \item{aux_var_names}{(Only used if \code{variance_estimator = "Deville-Tille")}.
@@ -81,8 +80,10 @@ Beaumont and Patak (2012) argue that this overestimation is expected to be
 small in magnitude. See \code{\link[svrep]{get_nearest_psd_matrix}}
 for details of the approximation.}
 
-\item{mse}{If \code{TRUE}, compute variances from sums of squares around the point estimate from the full-sample weights,
-If \code{FALSE}, compute variances from sums of squares around the mean estimate from the replicate weights.}
+\item{mse}{If \code{TRUE} (the default), compute variances from sums of squares around the point estimate from the full-sample weights,
+If \code{FALSE}, compute variances from sums of squares around the mean estimate from the replicate weights.
+For Fay's generalized replication method, setting \code{mse = FALSE} can potentially
+lead to large underestimates of variance.}
 
 \item{compress}{This reduces the computer memory required to represent the replicate weights and has no
 impact on estimates.}

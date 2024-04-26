@@ -9,6 +9,7 @@ as_random_group_jackknife_design(
   replicates = 50,
   var_strat = NULL,
   var_strat_frac = NULL,
+  sort_var = NULL,
   adj_method = "variance-stratum-psus",
   scale_method = "variance-stratum-psus",
   group_var_name = ".random_group",
@@ -36,19 +37,23 @@ to use for finite population corrections in each
 value of \code{var_strat}. Can use either a single number
 or a variable in the data corresponding to \code{var_strat}.}
 
+\item{sort_var}{(Optional) Specifies the name of a variable
+in the data which should be used to sort the data before
+assigning random groups. If a variable is specified for
+\code{var_strat}, the sorting will happen within values of
+that variable.}
+
 \item{adj_method}{Specifies how to calculate the
 replicate weight adjustment factor.
 Available options for \code{adj_method} include:
 \itemize{
-  \item{"variance-stratum-psus" (the default)}{
+  \item \code{"variance-stratum-psus"} (the default) \cr
     The replicate weight adjustment for a unit
     is based on the number of PSUs in its variance stratum.
-  }
-  \item{"variance-units"}{
+  \item \code{"variance-units"} \cr
     The replicate weight adjustment for a unit
     is based on the number of variance units
     in its variance stratum.
-  }
 }
 See the section "Adjustment and Scale Methods" for details.}
 
@@ -56,16 +61,14 @@ See the section "Adjustment and Scale Methods" for details.}
 scale factor for each replicate.
 Available options for \code{scale_method} include:
 \itemize{
-  \item{"variance-stratum-psus"}{
+  \item \code{"variance-stratum-psus"} \cr
     The scale factor for a variance unit
     is based on its number of PSUs compared
     to the number of PSUs in its variance stratum.
-  }
-  \item{"variance-units"}{
+  \item \code{"variance-units"} \cr
     The scale factor for a variance unit is
     based on the number of variance units in
     its variance stratum.
-  }
 }
 See the section "Adjustment and Scale Methods" for details.}
 

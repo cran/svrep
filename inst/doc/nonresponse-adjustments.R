@@ -1,10 +1,10 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
 
-## ---- message=FALSE, warning=FALSE--------------------------------------------
+## ----message=FALSE, warning=FALSE---------------------------------------------
 library(dplyr) # For data manipulation
 library(survey) # For complex survey analysis
 library(srvyr) # For complex survey analysis with dplyr syntax
@@ -151,7 +151,7 @@ data_frame_with_nr_adjusted_weights <- nr_adjusted_survey |>
 # Preview first few column names
 colnames(data_frame_with_nr_adjusted_weights) |> head(12)
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  # Write the data to a CSV file
 #  write.csv(
 #    x = data_frame_with_nr_adjusted_weights,

@@ -1,10 +1,10 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  calibrate_to_estimate(
 #    rep_design = rep_design,
 #    estimate = vector_of_control_totals,
@@ -12,7 +12,7 @@ knitr::opts_chunk$set(
 #    cal_formula = ~ CALIBRATION_VARIABLE_1 + CALIBRATION_VARIABLE_2 + ...,
 #  )
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  calibrate_to_sample(
 #    primary_rep_design = primary_rep_design,
 #    control_rep_design = control_rep_design
@@ -38,7 +38,7 @@ lou_vax_survey_rep <- svydesign(
 ) |> 
   as.svrepdesign(type = "JK1", mse = TRUE)
 
-## ---- echo=FALSE--------------------------------------------------------------
+## ----echo=FALSE---------------------------------------------------------------
 lou_vax_survey_rep
 
 ## -----------------------------------------------------------------------------
@@ -57,7 +57,7 @@ rbind(
   'NR-adjusted' = summarize_rep_weights(nr_adjusted_design, type = 'overall')
 )[,c("nrows", "rank", "avg_wgt_sum", "sd_wgt_sums")]
 
-## ---- results='hide'----------------------------------------------------------
+## ----results='hide'-----------------------------------------------------------
 data("lou_pums_microdata")
 
 ## -----------------------------------------------------------------------------

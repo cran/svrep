@@ -30,31 +30,27 @@
 #' replicate weight adjustment factor.
 #' Available options for \code{adj_method} include:
 #' \itemize{
-#'   \item{"variance-stratum-psus" (the default)}{
+#'   \item \code{"variance-stratum-psus"} (the default) \cr
 #'     The replicate weight adjustment for a unit
 #'     is based on the number of PSUs in its variance stratum.
-#'   }
-#'   \item{"variance-units"}{
+#'   \item \code{"variance-units"} \cr
 #'     The replicate weight adjustment for a unit
 #'     is based on the number of variance units
 #'     in its variance stratum.
-#'   }
 #' }
 #' See the section "Adjustment and Scale Methods" for details.
 #' @param scale_method Specifies how to calculate the
 #' scale factor for each replicate.
 #' Available options for \code{scale_method} include:
 #' \itemize{
-#'   \item{"variance-stratum-psus"}{
+#'   \item \code{"variance-stratum-psus"} \cr
 #'     The scale factor for a variance unit
 #'     is based on its number of PSUs compared
 #'     to the number of PSUs in its variance stratum.
-#'   }
-#'   \item{"variance-units"}{
+#'   \item \code{"variance-units"} \cr
 #'     The scale factor for a variance unit is
 #'     based on the number of variance units in
 #'     its variance stratum.
-#'   }
 #' }
 #' See the section "Adjustment and Scale Methods" for details.
 #' @param var_strat Specifies the name of a variable
@@ -65,6 +61,11 @@
 #' to use for finite population corrections in each
 #' value of \code{var_strat}. Can use either a single number
 #' or a variable in the data corresponding to \code{var_strat}.
+#' @param sort_var (Optional) Specifies the name of a variable
+#' in the data which should be used to sort the data before
+#' assigning random groups. If a variable is specified for
+#' \code{var_strat}, the sorting will happen within values of
+#' that variable.
 #' @param group_var_name (Optional) The name of a new variable created to save
 #' identifiers for which random group each PSU was grouped into
 #' for the purpose of forming replicates.
@@ -198,6 +199,7 @@ as_random_group_jackknife_design <- function(
     replicates = 50,
     var_strat = NULL,
     var_strat_frac = NULL,
+    sort_var = NULL,
     adj_method = "variance-stratum-psus",
     scale_method = "variance-stratum-psus",
     group_var_name = ".random_group",
@@ -214,6 +216,7 @@ as_random_group_jackknife_design.survey.design <- function(
     replicates = 50,
     var_strat = NULL,
     var_strat_frac = NULL,
+    sort_var = NULL,
     adj_method = "variance-stratum-psus",
     scale_method = "variance-stratum-psus",
     group_var_name = ".random_group",
@@ -229,18 +232,14 @@ as_random_group_jackknife_design.survey.design <- function(
     stop("`scale_method` must be either 'variance-stratum-psus' or 'variance-units'")
   }
 
-  # Extract necessary design information
+  # Begin extracting necessary design information
   n <- nrow(design)
-
   design_vars <- data.frame(
     'ROW_ID' = seq_len(n),
-    'STRATUM' = design$strata[,1,drop=TRUE],
-    'PSU' = interaction(design$strata[,1,drop=TRUE],
-                        design$cluster[,1,drop=TRUE],
-                        drop = TRUE) |> as.numeric(),
-    stringsAsFactors = FALSE
+    'STRATUM' = design$strata[,1,drop=TRUE]
   )
 
+  # Handle VAR_STRAT variable
   if (!is.null(var_strat)) {
     if (!(var_strat %in% colnames(design$variables))) {
       stop("`var_strat` must be either NULL or the name of a variable in the data.")
@@ -253,6 +252,25 @@ as_random_group_jackknife_design.survey.design <- function(
   if (is.null(var_strat)) {
     design_vars[['VAR_STRAT']] <- 1
   }
+  if (!is.null(sort_var)) {
+    if (!(sort_var %in% colnames(design$variables))) {
+      stop("`sort_var` must be either NULL or the name of a variable in the data.")
+    }
+    design_vars[['SORT_VAR']] <- design$variables[[sort_var]]
+    if (any(is.na(design_vars[['SORT_VAR']]))) {
+      stop("The `sort_var` variable cannot have any missing values.")
+    }
+  }
+  if (is.null(sort_var)) {
+    design_vars[['SORT_VAR']] <- 1
+  }
+
+  # Create unique PSU IDs within
+  # combinations of variance strata and design strata
+  design_vars[['PSU']] <- interaction(design_vars[['VAR_STRAT']],
+                                      design$strata[,1,drop=TRUE],
+                                      design$cluster[,1,drop=TRUE],
+                                      drop = TRUE) |> as.numeric()
 
   # Warn the user about FPCs and check that `var_strat_frac` is valid
 
@@ -313,10 +331,11 @@ as_random_group_jackknife_design.survey.design <- function(
     drop = TRUE, lex.order = TRUE
   ) |> as.numeric()
 
-  # Order the data by stratum, then by PSU
+  # Order the data by varstrat, then stratum, then sort variable, then by PSU
   design_vars <- design_vars[order(design_vars[['RAND_PSU_ID']]),,drop=FALSE]
-  design_vars <- design_vars[order(design_vars[['STRATUM']]),]
-  design_vars <- design_vars[order(design_vars[['VAR_STRAT']]),]
+  design_vars <- design_vars[order(design_vars[['SORT_VAR']]),,drop=FALSE]
+  design_vars <- design_vars[order(design_vars[['STRATUM']]),,drop=FALSE]
+  design_vars <- design_vars[order(design_vars[['VAR_STRAT']]),,drop=FALSE]
 
   # Create random groups separately by VAR_STRAT
   design_vars[['RANDOM_GROUP_VAR_UNIT']] <- NA_real_
@@ -345,12 +364,19 @@ as_random_group_jackknife_design.survey.design <- function(
   design_vars[['RANDOM_GROUP_VAR_UNIT']] <- interaction(
     design_vars$VAR_STRAT,
     design_vars$RANDOM_GROUP_VAR_UNIT,
-    drop = TRUE
+    drop = TRUE, lex.order = TRUE
   ) |> as.numeric()
+
+
+
 
   # Create the jackknife replicate weights
 
   if ((adj_method == "variance-units") & (scale_method == "variance-units")) {
+
+    # Reorder the data back to its original order
+    design_vars <- design_vars[order(design_vars[['ROW_ID']]),]
+
     jk_design <- survey::svydesign(
       data = design$variables,
       ids = design_vars[['RANDOM_GROUP_VAR_UNIT']],
@@ -433,8 +459,7 @@ as_random_group_jackknife_design.survey.design <- function(
 
     scale_factors <- scale_factors * (1 - var_unit_psu_counts$VAR_STRAT_FRAC)
 
-    # Reorder the data by the original order
-
+    # Combine replicate factors and the design variables
     design_vars <- merge(
       x = design_vars,
       y = cbind(
@@ -444,8 +469,6 @@ as_random_group_jackknife_design.survey.design <- function(
       by = "RANDOM_GROUP_VAR_UNIT"
     )
 
-    design_vars <- design_vars[order(design_vars[['ROW_ID']]),]
-
     if (length(unique(scale_factors)) == 1) {
       overall_scale <- scale_factors[1]
       rscales <- rep(1, times = length(scale_factors))
@@ -454,6 +477,10 @@ as_random_group_jackknife_design.survey.design <- function(
       rscales <- scale_factors
     }
 
+    # Reorder the data back to its original order
+    design_vars <- design_vars[order(design_vars[['ROW_ID']]),]
+
+    # Combine data, replicate factors, and replication coefficients
     jk_design <- survey::svrepdesign(
       variables = design$variables,
       repweights = design_vars[,colnames(rep_factors)],
@@ -481,6 +508,12 @@ as_random_group_jackknife_design.survey.design <- function(
     jk_design$variables[[group_var_name]] <- design_vars[['RANDOM_GROUP_VAR_UNIT']]
   }
 
+  if (inherits(design, 'tbl_svy') && ('package:srvyr' %in% search())) {
+    jk_design <- srvyr::as_survey_rep(
+      jk_design
+    )
+  }
+
   # Return the result
   jk_design$call <- sys.call(which = -1)
   return(jk_design)
@@ -492,6 +525,7 @@ as_random_group_jackknife_design.DBIsvydesign <- function(
     replicates = 50,
     var_strat = NULL,
     var_strat_frac = NULL,
+    sort_var = NULL,
     adj_method = "variance-stratum-psus",
     scale_method = "variance-stratum-psus",
     group_var_name = ".random_group",

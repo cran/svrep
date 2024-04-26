@@ -1,4 +1,4 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
@@ -42,7 +42,7 @@ data('library_multistage_sample', package = 'svrep')
                NULL)
   )
 
-## ---- warning=FALSE-----------------------------------------------------------
+## ----warning=FALSE------------------------------------------------------------
 # Obtain a generalized bootstrap replicates
 # based on 
 #   - The phase 1 estimator is the usual variance estimator
@@ -99,7 +99,7 @@ twophase_sample <- twophase_sample |>
     )
   )
 
-## ---- warning=FALSE-----------------------------------------------------------
+## ----warning=FALSE------------------------------------------------------------
 # Describe the two-phase survey design
   twophase_design <- twophase(
     method = "full",
