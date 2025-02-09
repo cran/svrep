@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function(e) {
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css" data-origin="pandoc">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -43,7 +43,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
 { counter-reset: source-line 0; }
@@ -252,8 +252,9 @@ the srvyr package.</p>
 <span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="fu">print</span>(lou_vax_survey)</span>
 <span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">#&gt; Call: Called via srvyr</span></span>
 <span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt; Survey bootstrap with 100 replicates and MSE variances.</span></span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt; Data variables: RESPONSE_STATUS (chr), RACE_ETHNICITY (chr), SEX (chr),</span></span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt;   EDUC_ATTAINMENT (chr), VAX_STATUS (chr), SAMPLING_WEIGHT (dbl)</span></span></code></pre></div>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt; Data variables: </span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt;   - RESPONSE_STATUS (chr), RACE_ETHNICITY (chr), SEX (chr), EDUC_ATTAINMENT</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co">#&gt;     (chr), VAX_STATUS (chr), SAMPLING_WEIGHT (dbl)</span></span></code></pre></div>
 </div>
 <div id="redistributing-weight-from-nonrespondents-to-respondents" class="section level1">
 <h1>Redistributing weight from nonrespondents to respondents</h1>

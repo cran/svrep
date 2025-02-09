@@ -73,7 +73,7 @@
 #' @param compress Use a compressed representation of the replicate weights matrix.
 #' This reduces the computer memory required to represent the replicate weights and has no
 #' impact on estimates.
-#' @param mse If \code{TRUE}, compute variances from sums of squares around the point estimate from the full-sample weights,
+#' @param mse If \code{TRUE}, compute variances from sums of squares around the point estimate from the full-sample weights.
 #' If \code{FALSE}, compute variances from sums of squares around the mean estimate from the replicate weights.
 #'
 #' @return
@@ -107,11 +107,11 @@
 #' If case \eqn{i}
 #' is not in variance stratum \eqn{\tilde{h}}, then \eqn{w_{i}^{(r)} = w_i}.
 #'
-#' If case \eqn{i} is in variance stratum \eqn{\tilde{h}} but in random group \eqn{g},
+#' If case \eqn{i} is in variance stratum \eqn{\tilde{h}} and not in random group \eqn{g},
 #' then \eqn{w_{i}^{(r)} = a_{\tilde{h}g} w_i}.
 #'
-#' Otherwise, if case \eqn{i} is in
-#' in random group \eqn{g} of variance stratum \eqn{\tilde{h}}, then \eqn{w_{i}^{(r)} = 0}.
+#' Otherwise, if case \eqn{i} is in random group \eqn{g}
+#' of variance stratum \eqn{\tilde{h}}, then \eqn{w_{i}^{(r)} = 0}.
 #'
 #' The R function argument \code{adj_method} determines how
 #' the adjustment factor \eqn{a_{\tilde{h} g}} is calculated.
@@ -332,10 +332,19 @@ as_random_group_jackknife_design.survey.design <- function(
   ) |> as.numeric()
 
   # Order the data by varstrat, then stratum, then sort variable, then by PSU
-  design_vars <- design_vars[order(design_vars[['RAND_PSU_ID']]),,drop=FALSE]
-  design_vars <- design_vars[order(design_vars[['SORT_VAR']]),,drop=FALSE]
-  design_vars <- design_vars[order(design_vars[['STRATUM']]),,drop=FALSE]
-  design_vars <- design_vars[order(design_vars[['VAR_STRAT']]),,drop=FALSE]
+  if (packageVersion("base") <= "4.4.0") {
+    sort_by <- function(x, y, ...) {
+        if (inherits(y, "formula")) 
+            y <- .formula2varlist(y, x)
+        if (!is.list(y)) 
+            y <- list(y)
+        o <- do.call(order, c(unname(y), list(...)))
+        x[o, , drop = FALSE]
+    }
+  }
+  design_vars <- design_vars |> sort_by(
+    ~ VAR_STRAT + STRATUM + SORT_VAR + RAND_PSU_ID
+  )
 
   # Create random groups separately by VAR_STRAT
   design_vars[['RANDOM_GROUP_VAR_UNIT']] <- NA_real_

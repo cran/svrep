@@ -7,13 +7,16 @@
 #' @param Sigma The matrix of the quadratic form used to represent the variance estimator.
 #' Must be positive semidefinite.
 #' @param num_replicates The number of bootstrap replicates to create.
-#' @param tau Either \code{"auto"}, or a single number. This is the rescaling constant
+#' @param tau Either \code{"auto"}, or a single number; the default value is 1. 
+#' This is the rescaling constant
 #' used to avoid negative weights through the transformation \eqn{\frac{w + \tau - 1}{\tau}},
 #' where \eqn{w} is the original weight and \eqn{\tau} is the rescaling constant \code{tau}. \cr
 #' If \code{tau="auto"}, the rescaling factor is determined automatically as follows:
 #' if all of the adjustment factors are nonnegative, then \code{tau} is set equal to 1;
 #' otherwise, \code{tau} is set to the smallest value needed to rescale
 #' the adjustment factors such that they are all at least \code{0.01}.
+#' Instead of using \code{tau="auto"}, the user can instead use the function
+#' \code{rescale_reps()} to rescale the replicates later.
 #' @param exact_vcov If \code{exact_vcov=TRUE}, the replicate factors will be generated
 #' such that their variance-covariance matrix exactly matches the target variance estimator's
 #' quadratic form (within numeric precision).
@@ -172,7 +175,7 @@
 #' svytotal(x = ~ Bush + Kerry,
 #'          design = election_pps_ht_design)
 #' }
-make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto", exact_vcov = FALSE) {
+make_gen_boot_factors <- function(Sigma, num_replicates, tau = 1, exact_vcov = FALSE) {
 
   n <- nrow(Sigma)
 
@@ -218,30 +221,40 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto", exact_vco
     replicate_factors <- rep(1, times = n) + replicate_factors
   }
 
+  attr(replicate_factors, 'scale') <- 1/num_replicates
+
   # (Potentially) rescale to avoid negative weights
-  if (tau == "auto") {
-    tau <- NULL
-    min_wgt <- 0.01
+  if (missing(tau)) {
+    replicate_factors <- replicate_factors
+    attr(replicate_factors, 'tau') <- 1 
   } else {
-    tau <- tau
-    min_wgt <- NULL
+    if (tau == "auto") {
+      tau <- NULL
+      new_scale <- NULL
+      min_wgt <- 0.01
+    } else {
+      tau <- tau
+      new_scale <- attr(replicate_factors, 'scale') * (tau^2)
+      min_wgt <- NULL
+    }
+    replicate_factors <- rescale_replicates(
+      x = replicate_factors,
+      new_scale = new_scale,
+      min_wgt = min_wgt
+    )
+    selected_tau <- sqrt(
+      attr(replicate_factors, 'scale')*num_replicates
+    )
+    attr(replicate_factors, 'tau') <- selected_tau
   }
-  rescaled_replicate_factors <- rescale_reps(
-    x = replicate_factors,
-    tau = tau,
-    min_wgt = min_wgt
-  )
 
-  selected_tau <- attr(rescaled_replicate_factors, 'tau')
-
-  attr(rescaled_replicate_factors, 'scale') <- (selected_tau^2)/num_replicates
-  attr(rescaled_replicate_factors, 'rscales') <- rep(1, times = num_replicates)
+  attr(replicate_factors, 'rscales') <- rep(1, times = num_replicates)
 
   # Set column names
-  colnames(rescaled_replicate_factors) <- sprintf("REP_%s", seq_len(num_replicates))
+  colnames(replicate_factors) <- sprintf("REP_%s", seq_len(num_replicates))
 
   # Return result
-  return(rescaled_replicate_factors)
+  return(replicate_factors)
 }
 
 #' @title Convert a survey design object to a generalized bootstrap replicate design
@@ -279,21 +292,31 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto", exact_vco
 #'     for balanced sampling designs, proposed by Deville and Tillé (2005).
 #'   \item \strong{"SD1"}: \cr The non-circular successive-differences variance estimator described by Ash (2014),
 #'     sometimes used for variance estimation for systematic sampling.
-#'   \item\strong{"SD2"}:  \cr The circular successive-differences variance estimator described by Ash (2014).
+#'   \item \strong{"SD2"}:  \cr The circular successive-differences variance estimator described by Ash (2014).
 #'     This estimator is the basis of the "successive-differences replication" estimator commonly used
 #'     for variance estimation for systematic sampling.
+#'   \item \strong{"BOSB"}: \cr The kernel-based variance estimator proposed by
+#'     Breidt, Opsomer, and Sanchez-Borrego (2016) for use with systematic samples
+#'     or other finely stratified designs. Uses the Epanechnikov kernel
+#'     with the bandwidth automatically chosen to result in the smallest possible
+#'     nonempty kernel window.
+#'   \item\strong{"Beaumont-Emond"}: \cr The variance estimator of Beaumont and Emond (2022)
+#'     for multistage unequal-probability sampling without replacement.
 #' }
 #' @param aux_var_names (Only used if \code{variance_estimator = "Deville-Tille")}.
 #' A vector of the names of auxiliary variables used in sampling.
 #' @param replicates Number of bootstrap replicates (should be as large as possible, given computer memory/storage limitations).
 #' A commonly-recommended default is 500.
-#' @param tau Either \code{"auto"}, or a single number. This is the rescaling constant
+#' @param tau Either \code{"auto"}, or a single number; the default value is 1. 
+#' This is the rescaling constant
 #' used to avoid negative weights through the transformation \eqn{\frac{w + \tau - 1}{\tau}},
 #' where \eqn{w} is the original weight and \eqn{\tau} is the rescaling constant \code{tau}. \cr
 #' If \code{tau="auto"}, the rescaling factor is determined automatically as follows:
 #' if all of the adjustment factors are nonnegative, then \code{tau} is set equal to 1;
 #' otherwise, \code{tau} is set to the smallest value needed to rescale
 #' the adjustment factors such that they are all at least \code{0.01}.
+#' Instead of using \code{tau="auto"}, the user can instead use the function
+#' \code{rescale_reps()} to rescale the replicates later.
 #' @param exact_vcov If \code{exact_vcov=TRUE}, the replicate factors will be generated
 #' such that variance estimates for totals exactly match the results from the target variance estimator.
 #' This requires that \code{num_replicates} exceeds the rank of \code{Sigma}.
@@ -316,7 +339,7 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto", exact_vco
 #' for details of the approximation.
 #' @param compress This reduces the computer memory required to represent the replicate weights and has no
 #' impact on estimates.
-#' @param mse If \code{TRUE}, compute variances from sums of squares around the point estimate from the full-sample weights,
+#' @param mse If \code{TRUE}, compute variances from sums of squares around the point estimate from the full-sample weights.
 #' If \code{FALSE}, compute variances from sums of squares around the mean estimate from the replicate weights.
 #' @return
 #' A replicate design object, with class \code{svyrep.design}, which can be used with the usual functions,
@@ -390,7 +413,8 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto", exact_vco
 #'  \textbf{After rescaling: } v_B\left(\hat{T}_y\right) = \frac{\tau^2}{B}\sum_{b=1}^B\left(\hat{T}_y^{S*(b)}-\hat{T}_y\right)^2
 #' }
 #' When sharing a dataset that uses rescaled weights from a generalized survey bootstrap, the documentation for the dataset should instruct the user to use replication scale factor \eqn{\frac{\tau^2}{B}} rather than \eqn{\frac{1}{B}} when estimating sampling variances.
-#'
+#' This rescaling method does not affect variance estimates for linear statistics,
+#' but its impact on non-smooth statistics such as quantiles is unclear.
 
 #' @section Two-Phase Designs:
 #' For a two-phase design, \code{variance_estimator} should be a list of variance estimators' names,
@@ -414,6 +438,10 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto", exact_vco
 #' \cr \cr
 #' - Bellhouse, D.R. (1985). "\emph{Computing Methods for Variance Estimation in Complex Surveys}."
 #' \strong{Journal of Official Statistics}, Vol.1, No.3.
+#' \cr \cr
+#' - Breidt, F. J., Opsomer, J. D., & Sanchez-Borrego, I. (2016). 
+#' "\emph{Nonparametric Variance Estimation Under Fine Stratification: An Alternative to Collapsed Strata}." 
+#' \strong{Journal of the American Statistical Association}, 111(514), 822–833. https://doi.org/10.1080/01621459.2015.1058264
 #' \cr \cr
 #' - Beaumont, Jean-François, and Zdenek Patak. 2012. “On the Generalized Bootstrap for Sample Surveys with Special Attention to Poisson Sampling: Generalized Bootstrap for Sample Surveys.” International Statistical Review 80 (1): 127–48. https://doi.org/10.1111/j.1751-5823.2011.00166.x.
 #' \cr \cr
@@ -462,9 +490,8 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto", exact_vco
 #'    data('library_stsys_sample', package = 'svrep')
 #'
 #'    ## First, ensure data are sorted in same order as was used in sampling
-#'    library_stsys_sample <- library_stsys_sample[
-#'      order(library_stsys_sample$SAMPLING_SORT_ORDER),
-#'    ]
+#'    library_stsys_sample <- library_stsys_sample |>
+#'      sort_by(~ SAMPLING_SORT_ORDER)
 #'
 #'    ## Create a survey design object
 #'    design_obj <- svydesign(
@@ -524,7 +551,7 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = "auto", exact_vco
 #' }
 as_gen_boot_design <- function(design, variance_estimator = NULL,
                                aux_var_names = NULL,
-                               replicates = 500, tau = "auto", exact_vcov = FALSE,
+                               replicates = 500, tau = 1, exact_vcov = FALSE,
                                psd_option = "warn",
                                mse = getOption("survey.replicates.mse"),
                                compress = TRUE) {
@@ -534,7 +561,7 @@ as_gen_boot_design <- function(design, variance_estimator = NULL,
 #' @export
 as_gen_boot_design.twophase2 <- function(design, variance_estimator = NULL,
                                          aux_var_names = NULL,
-                                         replicates = 500, tau = "auto",
+                                         replicates = 500, tau = 1,
                                          exact_vcov = FALSE, psd_option = "warn",
                                          mse = getOption("survey.replicates.mse"),
                                          compress = TRUE) {
@@ -600,7 +627,7 @@ as_gen_boot_design.twophase2 <- function(design, variance_estimator = NULL,
 #' @export
 as_gen_boot_design.survey.design <- function(design, variance_estimator = NULL,
                                              aux_var_names = NULL,
-                                             replicates = 500, tau = "auto", exact_vcov = FALSE,
+                                             replicates = 500, tau = 1, exact_vcov = FALSE,
                                              psd_option = 'warn',
                                              mse = getOption("survey.replicates.mse"),
                                              compress = TRUE) {
@@ -687,7 +714,7 @@ as_gen_boot_design.survey.design <- function(design, variance_estimator = NULL,
 #' @export
 as_gen_boot_design.DBIsvydesign <- function(design, variance_estimator = NULL,
                                             aux_var_names = NULL,
-                                            replicates = 500, tau = "auto",
+                                            replicates = 500, tau = 1,
                                             exact_vcov = FALSE, psd_option = "warn",
                                             mse = getOption("survey.replicates.mse"),
                                             compress = TRUE) {

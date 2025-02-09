@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function(e) {
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css" data-origin="pandoc">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -43,7 +43,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
 { counter-reset: source-line 0; }
@@ -441,7 +441,7 @@ estimation using provided replicate weights.</p>
 <span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a><span class="co">#&gt;     repweights = &quot;PWGTP\\d{1,2}&quot;, type = &quot;successive-difference&quot;, </span></span>
 <span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a><span class="co">#&gt;     variables = ~AGE + SEX + RACE_ETHNICITY + EDUC_ATTAINMENT, </span></span>
 <span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a><span class="co">#&gt;     mse = TRUE)</span></span>
-<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a><span class="co">#&gt; with 80 replicates and MSE variances.</span></span></code></pre></div>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a><span class="co">#&gt; Successive difference with 80 replicates and MSE variances.</span></span></code></pre></div>
 <p>When conduction calibration, we have to make sure that the data from
 the control survey represent the same population as the primary survey.
 Since the Louisville vaccination survey only represents adults, we need
@@ -873,12 +873,12 @@ Hispanic or Latino</td>
 </tr>
 <tr class="odd">
 <td align="left">se1</td>
-<td align="right">13416.0747</td>
+<td align="right">13414.3618</td>
 <td align="right">13398.6829</td>
 </tr>
 <tr class="even">
 <td align="left">se2</td>
-<td align="right">13411.0008</td>
+<td align="right">13412.0351</td>
 <td align="right">13427.8218</td>
 </tr>
 <tr class="odd">
@@ -1165,27 +1165,27 @@ Hispanic or Latino</td>
 </tr>
 <tr class="odd">
 <td align="left">se1</td>
-<td align="right">0.0234586</td>
+<td align="right">0.0234566</td>
 <td align="right">0.0234216</td>
 </tr>
 <tr class="even">
 <td align="left">se2</td>
-<td align="right">0.0234586</td>
+<td align="right">0.0234566</td>
 <td align="right">0.0234216</td>
 </tr>
 <tr class="odd">
 <td align="left">se3</td>
-<td align="right">0.0009765</td>
+<td align="right">0.0009764</td>
 <td align="right">0.0009766</td>
 </tr>
 <tr class="even">
 <td align="left">se4</td>
-<td align="right">0.0001857</td>
+<td align="right">0.0001856</td>
 <td align="right">0.0001856</td>
 </tr>
 <tr class="odd">
 <td align="left">se5</td>
-<td align="right">0.0007811</td>
+<td align="right">0.0007810</td>
 <td align="right">0.0007809</td>
 </tr>
 <tr class="even">
@@ -1195,12 +1195,12 @@ Hispanic or Latino</td>
 </tr>
 <tr class="odd">
 <td align="left">se7</td>
-<td align="right">0.0007464</td>
+<td align="right">0.0007461</td>
 <td align="right">0.0007464</td>
 </tr>
 <tr class="even">
 <td align="left">se8</td>
-<td align="right">0.0007464</td>
+<td align="right">0.0007461</td>
 <td align="right">0.0007464</td>
 </tr>
 <tr class="odd">
@@ -1291,7 +1291,7 @@ primary survey replicate column was matched to.</p>
 </div>
 <div id="references" class="section level1 unnumbered">
 <h1 class="unnumbered">References</h1>
-<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
 <div id="ref-10.2307/24306529" class="csl-entry">
 Fuller, Wayne A. 1998. <span>“Replication <span>Variance
 Estimation</span> for <span>Two-Phase Samples</span>.”</span>

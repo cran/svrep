@@ -48,11 +48,18 @@ sometimes used for variance estimation for systematic sampling.
 \item \strong{"SD2"}: The circular successive-differences variance estimator described by Ash (2014).
 This estimator is the basis of the "successive-differences replication" estimator commonly used
 for variance estimation for systematic sampling.
+\item \strong{"BOSB"}: \cr The kernel-based variance estimator proposed by
+Breidt, Opsomer, and Sanchez-Borrego (2016) for use with systematic samples
+or other finely stratified designs. Uses the Epanechnikov kernel
+with the bandwidth automatically chosen to result in the smallest possible
+nonempty kernel window.
 \item \strong{"Deville-Tille"}: The estimator of Deville and Tillé (2005),
 developed for balanced sampling using the cube method.
+\item \strong{"Beaumont-Emond"}: The variance estimator of Beaumont and Emond (2022)
+for multistage unequal-probability sampling without replacement.
 }}
 
-\item{probs}{Required if \code{variance_estimator} equals \code{"Deville-1"}, \code{"Deville-2"}, or \code{"Breidt-Chauvet"}.
+\item{probs}{Required if \code{variance_estimator} equals \code{"Deville-1"}, \code{"Deville-2"}, or \code{"Deville-Tille"}.
 This should be a matrix or data frame of sampling probabilities.
 If there are multiple stages of sampling,
 then \code{probs} can have multiple columns,
@@ -115,7 +122,9 @@ Below are the arguments that are required or optional for each variance estimato
    SD2 \tab  \tab  \tab Required \tab Optional \tab Optional \tab Required \tab  \cr
    Deville-1 \tab Required \tab  \tab Required \tab Optional \tab  \tab  \tab  \cr
    Deville-2 \tab Required \tab  \tab Required \tab Optional \tab  \tab  \tab  \cr
+   Beaumont-Emond \tab Required \tab  \tab Required \tab Optional \tab  \tab  \tab  \cr
    Deville-Tille \tab Required \tab  \tab Required \tab Optional \tab  \tab  \tab Required \cr
+   BOSB \tab  \tab  \tab Required \tab Optional \tab  \tab  \tab Required \cr
    Yates-Grundy \tab  \tab Required \tab  \tab  \tab  \tab  \tab  \cr
    Horvitz-Thompson \tab  \tab Required \tab  \tab  \tab  \tab  \tab  \cr
 }

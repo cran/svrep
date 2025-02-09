@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function(e) {
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css" data-origin="pandoc">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -43,7 +43,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
 { counter-reset: source-line 0; }
@@ -416,7 +416,7 @@ estimation with the usual functions from the ‘survey’ and ‘srvyr’
 packages.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>twophase_boot_design <span class="sc">|&gt;</span> <span class="fu">svymean</span>(<span class="at">x =</span> <span class="sc">~</span> LIBRARIA, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt;            mean     SE</span></span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt; LIBRARIA 7.6044 1.8419</span></span></code></pre></div>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt; LIBRARIA 7.6044 1.9818</span></span></code></pre></div>
 <p>When using <code>as_gen_boot_design()</code> for two-phase designs,
 it’s useful to know that you will often see a warning message about
 needing to approximate the first-phase variance estimator’s quadratic
@@ -436,7 +436,7 @@ form.</p>
 <p>As you can see from the output above, the function emitted a warning
 message. The generalized bootstrap works by mimicking a variance
 estimator but requires that variance estimator to be represented as a
-positive semidefinite qudratic form. In two-phase designs, however, it
+positive semidefinite quadratic form. In two-phase designs, however, it
 is often the case that the usual variance estimator cannot be
 represented exactly as a positive semidefinite quadratic form. In such
 cases, <span class="citation">Beaumont and Patak (2012)</span> suggest
@@ -594,7 +594,7 @@ convenience we’ll use the generalized bootstrap.</p>
 <span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a><span class="co">#&gt; TOTCIR   6.606150e+16 5.853993e+12</span></span>
 <span id="cb9-26"><a href="#cb9-26" tabindex="-1"></a><span class="co">#&gt; TOTSTAFF 5.853993e+12 5.747174e+08</span></span>
 <span id="cb9-27"><a href="#cb9-27" tabindex="-1"></a><span class="co">#&gt; attr(,&quot;means&quot;)</span></span>
-<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a><span class="co">#&gt; [1] 1648121469.6     152702.4</span></span></code></pre></div>
+<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a><span class="co">#&gt; [1] 1645727222.2     152190.5</span></span></code></pre></div>
 <p>After we’ve estimated the first-phase totals, we can use the function
 <code>calibrate_to_estimate()</code> to calibrate the two-phase survey
 design object to the first-phase totals. This function is discussed in
@@ -636,7 +636,7 @@ calibration.</p>
 <span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a>  <span class="at">design =</span> calibrated_twophase_design</span>
 <span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>)</span>
 <span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a><span class="co">#&gt;          total    SE</span></span>
-<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a><span class="co">#&gt; LIBRARIA 57355 12308</span></span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a><span class="co">#&gt; LIBRARIA 57355 37647</span></span>
 <span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a></span>
 <span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a><span class="co"># Compare to uncalibrated second-phase estimate</span></span>
 <span id="cb12-10"><a href="#cb12-10" tabindex="-1"></a><span class="fu">svytotal</span>(</span>
@@ -734,7 +734,7 @@ calibration.</p>
 <span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a>  <span class="at">design =</span> calibrated_twophase_design</span>
 <span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a>)</span>
 <span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a><span class="co">#&gt;          total    SE</span></span>
-<span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a><span class="co">#&gt; LIBRARIA 57355 11958</span></span>
+<span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a><span class="co">#&gt; LIBRARIA 57355 42417</span></span>
 <span id="cb17-8"><a href="#cb17-8" tabindex="-1"></a></span>
 <span id="cb17-9"><a href="#cb17-9" tabindex="-1"></a><span class="co"># Compare to uncalibrated second-phase estimate</span></span>
 <span id="cb17-10"><a href="#cb17-10" tabindex="-1"></a><span class="fu">svytotal</span>(</span>
@@ -1365,7 +1365,7 @@ eigen-decomposition of a specified variance-covariance matrix.</p>
 <span id="cb22-7"><a href="#cb22-7" tabindex="-1"></a><span class="co">#&gt; TOTCIR   6.606150e+16 5.853993e+12</span></span>
 <span id="cb22-8"><a href="#cb22-8" tabindex="-1"></a><span class="co">#&gt; TOTSTAFF 5.853993e+12 5.747174e+08</span></span>
 <span id="cb22-9"><a href="#cb22-9" tabindex="-1"></a><span class="co">#&gt; attr(,&quot;means&quot;)</span></span>
-<span id="cb22-10"><a href="#cb22-10" tabindex="-1"></a><span class="co">#&gt; [1] 1648121469.6     152702.4</span></span>
+<span id="cb22-10"><a href="#cb22-10" tabindex="-1"></a><span class="co">#&gt; [1] 1645727222.2     152190.5</span></span>
 <span id="cb22-11"><a href="#cb22-11" tabindex="-1"></a></span>
 <span id="cb22-12"><a href="#cb22-12" tabindex="-1"></a><span class="co"># Calibrate the two-phase replicate design</span></span>
 <span id="cb22-13"><a href="#cb22-13" tabindex="-1"></a><span class="co"># to the totals estimated from the first-phase sample</span></span>
@@ -1497,7 +1497,7 @@ semidefinite.</p>
 </div>
 <div id="references" class="section level1 unnumbered">
 <h1 class="unnumbered">References</h1>
-<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
 <div id="ref-beaumont2012" class="csl-entry">
 Beaumont, Jean-François, and Zdenek Patak. 2012. <span>“On the
 Generalized Bootstrap for Sample Surveys with Special Attention to

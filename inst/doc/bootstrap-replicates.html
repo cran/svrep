@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function(e) {
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css" data-origin="pandoc">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -43,7 +43,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
 { counter-reset: source-line 0; }
@@ -746,7 +746,9 @@ with the bootstrap replicates, which becomes <span class="math inline">\(\frac{\
 <p>When sharing a dataset that uses rescaled weights from a generalized
 survey bootstrap, the documentation for the dataset should instruct the
 user to use replication scale factor <span class="math inline">\(\frac{\tau^2}{B}\)</span> rather than <span class="math inline">\(\frac{1}{B}\)</span> when estimating sampling
-variances.</p>
+variances. This rescaling method does not affect variance estimates for
+linear statistics such as totals, but its affect on non-smooth
+statistics such as quantiles is unclear.</p>
 </div>
 </div>
 <div id="implementation-1" class="section level2">
@@ -791,12 +793,12 @@ weights.</p>
 <span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a></span>
 <span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="co"># Estimate sampling variances</span></span>
 <span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="fu">svymean</span>(<span class="at">x =</span> <span class="sc">~</span> TOTSTAFF, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">design =</span> gen_boot_design_sd2)</span>
-<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt;            mean    SE</span></span>
-<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="co">#&gt; TOTSTAFF 19.756 4.238</span></span></code></pre></div>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt;            mean     SE</span></span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="co">#&gt; TOTSTAFF 19.756 4.2384</span></span></code></pre></div>
 <p>For a PPS design that uses the Horvitz-Thompson or Yates-Grundy
 estimator, we can create a generalized bootstrap estimator with the same
 expectation. In the example below, we create a PPS design with the
-‘survey’ package and convert it to a generalied bootstrap design.</p>
+‘survey’ package and convert it to a generalized bootstrap design.</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># Load example data of a PPS survey of counties and states</span></span>
 <span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>   <span class="fu">data</span>(<span class="st">&#39;election&#39;</span>, <span class="at">package =</span> <span class="st">&#39;survey&#39;</span>)</span>
 <span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a></span>
@@ -842,7 +844,7 @@ multistage, stratified simple random sampling without replacement.</p>
 <span id="cb10-21"><a href="#cb10-21" tabindex="-1"></a><span class="co">#&gt; TOTCIR 1634739229 251589313</span></span>
 <span id="cb10-22"><a href="#cb10-22" tabindex="-1"></a>  <span class="fu">svytotal</span>(<span class="at">x =</span> <span class="sc">~</span> TOTCIR, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">design =</span> multistage_boot_design)</span>
 <span id="cb10-23"><a href="#cb10-23" tabindex="-1"></a><span class="co">#&gt;             total        SE</span></span>
-<span id="cb10-24"><a href="#cb10-24" tabindex="-1"></a><span class="co">#&gt; TOTCIR 1634739229 250754550</span></span></code></pre></div>
+<span id="cb10-24"><a href="#cb10-24" tabindex="-1"></a><span class="co">#&gt; TOTCIR 1634739229 250754549</span></span></code></pre></div>
 <p>Unless specified otherwise, <code>as_gen_boot_design()</code>
 automatically selects a rescaling value <span class="math inline">\(\tau\)</span> to use for eliminating negative
 adjustment factors. The <code>scale</code> attribute of the resulting
@@ -851,18 +853,18 @@ design object, as follows.</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="co"># View overall scale factor</span></span>
 <span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>overall_scale_factor <span class="ot">&lt;-</span> multistage_boot_design<span class="sc">$</span>scale</span>
 <span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a><span class="fu">print</span>(overall_scale_factor)</span>
-<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a><span class="co">#&gt; [1] 0.0458882</span></span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a><span class="co">#&gt; [1] 0.002</span></span>
 <span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a></span>
 <span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a><span class="co"># Check that the scale factor was calculated correctly</span></span>
 <span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a>tau <span class="ot">&lt;-</span> multistage_boot_design<span class="sc">$</span>tau</span>
 <span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a><span class="fu">print</span>(tau)</span>
-<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a><span class="co">#&gt; [1] 4.79</span></span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a><span class="co">#&gt; [1] 1</span></span>
 <span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="fu">ncol</span>(multistage_boot_design<span class="sc">$</span>repweights)</span>
 <span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a><span class="fu">print</span>(B)</span>
 <span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a><span class="co">#&gt; [1] 500</span></span>
 <span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a></span>
 <span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a><span class="fu">print</span>( (tau<span class="sc">^</span><span class="dv">2</span>) <span class="sc">/</span> B )</span>
-<span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a><span class="co">#&gt; [1] 0.0458882</span></span></code></pre></div>
+<span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a><span class="co">#&gt; [1] 0.002</span></span></code></pre></div>
 </div>
 <div id="option-2-create-the-quadratic-form-matrix-and-then-use-it-to-create-bootstrap-weights" class="section level3">
 <h3>Option 2: Create the quadratic form matrix and then use it to create
@@ -907,11 +909,11 @@ included as attributes of the adjustment factors created by
 <div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="co"># Retrieve value of &#39;scale&#39;</span></span>
 <span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a>rep_adj_factors <span class="sc">|&gt;</span></span>
 <span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a>  <span class="fu">attr</span>(<span class="st">&#39;scale&#39;</span>) </span>
-<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="co">#&gt; [1] 0.041405</span></span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="co">#&gt; [1] 0.04124</span></span>
 <span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a></span>
 <span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a><span class="co"># Compare to manually-calculated value</span></span>
 <span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a>  (tau<span class="sc">^</span><span class="dv">2</span>) <span class="sc">/</span> B</span>
-<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a><span class="co">#&gt; [1] 0.041405</span></span>
+<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a><span class="co">#&gt; [1] 0.04124</span></span>
 <span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a></span>
 <span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a><span class="co"># Retrieve value of &#39;rscales&#39;</span></span>
 <span id="cb15-11"><a href="#cb15-11" tabindex="-1"></a>rep_adj_factors <span class="sc">|&gt;</span></span>
@@ -1138,7 +1140,7 @@ sizes.</p></li>
 </div>
 <div id="references" class="section level1 unnumbered">
 <h1 class="unnumbered">References</h1>
-<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
 <div id="ref-ash2014" class="csl-entry">
 Ash, Stephen. 2014. <span>“Using Successive Difference Replication for
 Estimating Variances.”</span> <em>Survey Methodology, Statistics

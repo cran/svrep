@@ -1,3 +1,24 @@
+# svrep 0.7.0
+
+-   Added the successive difference replication method, with functions `as_sdr_design()` and `make_sdr_replicate_factors()`.
+
+-   For the generalized bootstrap functions, the default value for the argument `tau` is now `1` instead of `auto`.
+    This means that generalized bootstrap replicates are not rescaled by default.
+
+-   The function `rescale_reps()` has been deprecated in favor of the replacement `rescale_replicates()`. The function `rescale_replicates()` uses an argument `new_scale` instead of `tau`, so that users can directly specify the desired scale factor after rescaling. Using `rescale_reps()` will emit a warning message.
+
+-   Added a kernel-based variance estimator (of Breidt, Opsomer, and Sanchez-Borrego 2016) for finely stratified or systematic samples. This can be used by calling `as_fays_gen_rep_design(..., variance_estimator = "BOSB")` or `as_gen_boot_design(..., variance_estimator = "BOSB")`. Or you can directly create the quadratic form matrix for this estimator using the function `make_kernel_var_matrix()`. Currently only supports a single auxiliary variable and only the Epanechnikov kernel function.
+
+-   Added the option `variance_estimator = "Beaumont-Emond"` to the generalized replication methods.
+
+-   For Fay's generalized replication, the default value of `max_replicates` is now `Inf`, meaning that there is no limit on the number of replicates that will be included in the output.
+
+-   Functions for Fay's generalized replication method are now noticeably faster.
+
+-   Added more detailed documentation to the Rao-Wu-Yue-Beaumont bootstrap method.
+
+-   Added new options to enable users to speed up the creation of replicate weights if they have the 'torch' package installed. For more details, see `help('svrep-package-options', package = 'svrep')`.
+
 # svrep 0.6.4
 
 -   Fix issue #32: `stack_replicate_designs()` would only accept designs with types known to the 'survey' package. Fixed to allow other design types such as the random-groups jackknife.

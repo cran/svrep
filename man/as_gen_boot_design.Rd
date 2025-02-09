@@ -9,7 +9,7 @@ as_gen_boot_design(
   variance_estimator = NULL,
   aux_var_names = NULL,
   replicates = 500,
-  tau = "auto",
+  tau = 1,
   exact_vcov = FALSE,
   psd_option = "warn",
   mse = getOption("survey.replicates.mse"),
@@ -46,9 +46,16 @@ Options include:
     for balanced sampling designs, proposed by Deville and Tillé (2005).
   \item \strong{"SD1"}: \cr The non-circular successive-differences variance estimator described by Ash (2014),
     sometimes used for variance estimation for systematic sampling.
-  \item\strong{"SD2"}:  \cr The circular successive-differences variance estimator described by Ash (2014).
+  \item \strong{"SD2"}:  \cr The circular successive-differences variance estimator described by Ash (2014).
     This estimator is the basis of the "successive-differences replication" estimator commonly used
     for variance estimation for systematic sampling.
+  \item \strong{"BOSB"}: \cr The kernel-based variance estimator proposed by
+    Breidt, Opsomer, and Sanchez-Borrego (2016) for use with systematic samples
+    or other finely stratified designs. Uses the Epanechnikov kernel
+    with the bandwidth automatically chosen to result in the smallest possible
+    nonempty kernel window.
+  \item\strong{"Beaumont-Emond"}: \cr The variance estimator of Beaumont and Emond (2022)
+    for multistage unequal-probability sampling without replacement.
 }}
 
 \item{aux_var_names}{(Only used if \code{variance_estimator = "Deville-Tille")}.
@@ -57,13 +64,16 @@ A vector of the names of auxiliary variables used in sampling.}
 \item{replicates}{Number of bootstrap replicates (should be as large as possible, given computer memory/storage limitations).
 A commonly-recommended default is 500.}
 
-\item{tau}{Either \code{"auto"}, or a single number. This is the rescaling constant
+\item{tau}{Either \code{"auto"}, or a single number; the default value is 1. 
+This is the rescaling constant
 used to avoid negative weights through the transformation \eqn{\frac{w + \tau - 1}{\tau}},
 where \eqn{w} is the original weight and \eqn{\tau} is the rescaling constant \code{tau}. \cr
 If \code{tau="auto"}, the rescaling factor is determined automatically as follows:
 if all of the adjustment factors are nonnegative, then \code{tau} is set equal to 1;
 otherwise, \code{tau} is set to the smallest value needed to rescale
-the adjustment factors such that they are all at least \code{0.01}.}
+the adjustment factors such that they are all at least \code{0.01}.
+Instead of using \code{tau="auto"}, the user can instead use the function
+\code{rescale_reps()} to rescale the replicates later.}
 
 \item{exact_vcov}{If \code{exact_vcov=TRUE}, the replicate factors will be generated
 such that variance estimates for totals exactly match the results from the target variance estimator.
@@ -87,7 +97,7 @@ Beaumont and Patak (2012) argue that this overestimation is expected to be
 small in magnitude. See \code{\link[svrep]{get_nearest_psd_matrix}}
 for details of the approximation.}
 
-\item{mse}{If \code{TRUE}, compute variances from sums of squares around the point estimate from the full-sample weights,
+\item{mse}{If \code{TRUE}, compute variances from sums of squares around the point estimate from the full-sample weights.
 If \code{FALSE}, compute variances from sums of squares around the mean estimate from the replicate weights.}
 
 \item{compress}{This reduces the computer memory required to represent the replicate weights and has no
@@ -167,6 +177,8 @@ If the adjustment factors are rescaled in this manner, it is important to adjust
  \textbf{After rescaling: } v_B\left(\hat{T}_y\right) = \frac{\tau^2}{B}\sum_{b=1}^B\left(\hat{T}_y^{S*(b)}-\hat{T}_y\right)^2
 }
 When sharing a dataset that uses rescaled weights from a generalized survey bootstrap, the documentation for the dataset should instruct the user to use replication scale factor \eqn{\frac{\tau^2}{B}} rather than \eqn{\frac{1}{B}} when estimating sampling variances.
+This rescaling method does not affect variance estimates for linear statistics,
+but its impact on non-smooth statistics such as quantiles is unclear.
 }
 
 \section{Two-Phase Designs}{
@@ -213,9 +225,8 @@ library(survey)
    data('library_stsys_sample', package = 'svrep')
 
    ## First, ensure data are sorted in same order as was used in sampling
-   library_stsys_sample <- library_stsys_sample[
-     order(library_stsys_sample$SAMPLING_SORT_ORDER),
-   ]
+   library_stsys_sample <- library_stsys_sample |>
+     sort_by(~ SAMPLING_SORT_ORDER)
 
    ## Create a survey design object
    design_obj <- svydesign(
@@ -285,6 +296,10 @@ in the general framework proposed by Fay (1984) and Dippo, Fay, and Morganstein 
 \cr \cr
 - Bellhouse, D.R. (1985). "\emph{Computing Methods for Variance Estimation in Complex Surveys}."
 \strong{Journal of Official Statistics}, Vol.1, No.3.
+\cr \cr
+- Breidt, F. J., Opsomer, J. D., & Sanchez-Borrego, I. (2016). 
+"\emph{Nonparametric Variance Estimation Under Fine Stratification: An Alternative to Collapsed Strata}." 
+\strong{Journal of the American Statistical Association}, 111(514), 822–833. https://doi.org/10.1080/01621459.2015.1058264
 \cr \cr
 - Beaumont, Jean-François, and Zdenek Patak. 2012. “On the Generalized Bootstrap for Sample Surveys with Special Attention to Poisson Sampling: Generalized Bootstrap for Sample Surveys.” International Statistical Review 80 (1): 127–48. https://doi.org/10.1111/j.1751-5823.2011.00166.x.
 \cr \cr

@@ -81,7 +81,7 @@ Specify \code{group_var_name = NULL} to avoid creating the variable in the data.
 This reduces the computer memory required to represent the replicate weights and has no
 impact on estimates.}
 
-\item{mse}{If \code{TRUE}, compute variances from sums of squares around the point estimate from the full-sample weights,
+\item{mse}{If \code{TRUE}, compute variances from sums of squares around the point estimate from the full-sample weights.
 If \code{FALSE}, compute variances from sums of squares around the mean estimate from the replicate weights.}
 }
 \value{
@@ -141,11 +141,11 @@ variance stratum \eqn{\tilde{h}} is defined as follows.
 If case \eqn{i}
 is not in variance stratum \eqn{\tilde{h}}, then \eqn{w_{i}^{(r)} = w_i}.
 
-If case \eqn{i} is in variance stratum \eqn{\tilde{h}} but in random group \eqn{g},
+If case \eqn{i} is in variance stratum \eqn{\tilde{h}} and not in random group \eqn{g},
 then \eqn{w_{i}^{(r)} = a_{\tilde{h}g} w_i}.
 
-Otherwise, if case \eqn{i} is in
-in random group \eqn{g} of variance stratum \eqn{\tilde{h}}, then \eqn{w_{i}^{(r)} = 0}.
+Otherwise, if case \eqn{i} is in random group \eqn{g}
+of variance stratum \eqn{\tilde{h}}, then \eqn{w_{i}^{(r)} = 0}.
 
 The R function argument \code{adj_method} determines how
 the adjustment factor \eqn{a_{\tilde{h} g}} is calculated.

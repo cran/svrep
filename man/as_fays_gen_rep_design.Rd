@@ -9,7 +9,7 @@ as_fays_gen_rep_design(
   design,
   variance_estimator = NULL,
   aux_var_names = NULL,
-  max_replicates = 500,
+  max_replicates = Inf,
   balanced = TRUE,
   psd_option = "warn",
   mse = TRUE,
@@ -46,9 +46,16 @@ Options include:
     for balanced sampling designs, proposed by Deville and Tillé (2005).
   \item \strong{"SD1"}: \cr The non-circular successive-differences variance estimator described by Ash (2014),
     sometimes used for variance estimation for systematic sampling.
-  \item\strong{"SD2"}:  \cr The circular successive-differences variance estimator described by Ash (2014).
+  \item \strong{"SD2"}:  \cr The circular successive-differences variance estimator described by Ash (2014).
     This estimator is the basis of the "successive-differences replication" estimator commonly used
     for variance estimation for systematic sampling.
+  \item \strong{"BOSB"}: \cr The kernel-based variance estimator proposed by
+    Breidt, Opsomer, and Sanchez-Borrego (2016) for use with systematic samples
+    or other finely stratified designs. Uses the Epanechnikov kernel
+    with the bandwidth automatically chosen to result in the smallest possible
+    nonempty kernel window.
+  \item\strong{"Beaumont-Emond"}: \cr The variance estimator of Beaumont and Emond (2022)
+    for multistage unequal-probability sampling without replacement.
 }}
 
 \item{aux_var_names}{(Only used if \code{variance_estimator = "Deville-Tille")}.
@@ -80,7 +87,7 @@ Beaumont and Patak (2012) argue that this overestimation is expected to be
 small in magnitude. See \code{\link[svrep]{get_nearest_psd_matrix}}
 for details of the approximation.}
 
-\item{mse}{If \code{TRUE} (the default), compute variances from sums of squares around the point estimate from the full-sample weights,
+\item{mse}{If \code{TRUE} (the default), compute variances from sums of squares around the point estimate from the full-sample weights.
 If \code{FALSE}, compute variances from sums of squares around the mean estimate from the replicate weights.
 For Fay's generalized replication method, setting \code{mse = FALSE} can potentially
 lead to large underestimates of variance.}
@@ -140,9 +147,8 @@ if (FALSE) {
   data('library_stsys_sample', package = 'svrep')
 
   ## First, ensure data are sorted in same order as was used in sampling
-  library_stsys_sample <- library_stsys_sample[
-    order(library_stsys_sample$SAMPLING_SORT_ORDER),
-  ]
+  library_stsys_sample <- library_stsys_sample |>
+    sort_by(~ SAMPLING_SORT_ORDER)
 
   ## Create a survey design object
   design_obj <- svydesign(
@@ -175,6 +181,15 @@ by using only a random subset of the replicates.
 
 - Ash, S. (2014). "\emph{Using successive difference replication for estimating variances}."
 \strong{Survey Methodology}, Statistics Canada, 40(1), 47–59.
+\cr \cr
+- Beaumont, J.-F.; Émond, N. (2022).
+"\emph{A Bootstrap Variance Estimation Method for Multistage Sampling and Two-Phase Sampling When Poisson Sampling Is Used at the Second Phase}."
+\strong{Stats}, \emph{5}: 339–357.
+https://doi.org/10.3390/stats5020019
+\cr \cr
+- Breidt, F. J., Opsomer, J. D., & Sanchez-Borrego, I. (2016). 
+"\emph{Nonparametric Variance Estimation Under Fine Stratification: An Alternative to Collapsed Strata}." 
+\strong{Journal of the American Statistical Association}, 111(514), 822–833. https://doi.org/10.1080/01621459.2015.1058264
 \cr \cr
 - Deville, J.‐C., and Tillé, Y. (2005). "\emph{Variance approximation under balanced sampling.}"
 \strong{Journal of Statistical Planning and Inference}, 128, 569–591.

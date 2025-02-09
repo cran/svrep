@@ -400,10 +400,11 @@ test_that(
     })
 
     rescaled_design <- twophase_gen_repl |>
-      rescale_reps(tau = NULL, min_wgt = 0.05)
+      rescale_replicates(min_wgt = 0.05)
     rescaled_matrix <- twophase_gen_repl |>
       weights(type = "replication") |>
-      rescale_reps(tau = NULL, min_wgt = 0.05)
+      `attr<-`('scale', twophase_gen_repl$scale) |>
+      rescale_replicates(min_wgt = 0.05)
 
     expect_equal(
       object = rescaled_design |> weights(type = "replication"),
@@ -416,7 +417,8 @@ test_that(
 
     expect_equal(
       object = matrix(c(1,0.3,0.02,2,3,4), ncol = 3) |>
-        rescale_reps(min_wgt = 0.02) |>
+        `attr<-`('scale', 1) |>
+        rescale_replicates(min_wgt = 0.02) |>
         `attr<-`('tau', NULL),
       expected = matrix(c(1,0.3,0.02,2,3,4), ncol = 3)
     )
@@ -529,5 +531,37 @@ test_that(
           inherits('tbl_svy')
       })
     )
+  }
+)
+
+# Test use of 'torch' for matrix decomposition ----
+
+test_that(
+  desc = "Can use 'torch' for Fay's generalized replication", {
+    skip_if_not_installed("torch")
+    skip_if_not(torch::torch_is_installed())
+    
+    non_torch_result <- svydesign(
+      data = election_pps,
+      id = ~1, fpc = ~p,
+      pps = ppsmat(election_jointprob),
+      variance = "YG"
+    ) |> svytotal(x = ~ Bush + Kerry) |> SE()
+    
+    torch_result <- withr::with_options(list(svrep.torch_device = "cpu"), {
+      svydesign(
+        data = election_pps,
+        id = ~1, fpc = ~p,
+        pps = ppsmat(election_jointprob),
+        variance = "YG"
+      ) |> as_fays_gen_rep_design(
+        variance_estimator = "Yates-Grundy",
+        max_replicates = 100
+      ) |> svytotal(x = ~ Bush + Kerry) |> SE()
+    })
+    
+    expect_equal(unname(torch_result), unname(non_torch_result),
+                 tolerance = 0.1)
+    
   }
 )

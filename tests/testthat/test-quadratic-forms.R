@@ -320,6 +320,123 @@ library_stsys_sample <- library_stsys_sample |>
         ) |> svytotal(x = ~TOTCIR) |> vcov()
       )
   })
+  
+# Check BOSB results ----
+  
+  ##_ Basic correctness checks
+  bosb_quad_form <- make_quad_form_matrix(
+    variance_estimator = 'BOSB',
+    cluster_ids = library_stsys_sample[,'FSCSKEY',drop=FALSE],
+    strata_ids = matrix(c(rep(1, times = 100),
+                          rep(2, times = 119)),
+                        nrow = nrow(library_stsys_sample), ncol = 1),
+    aux_vars = library_stsys_sample[['SAMPLING_SORT_ORDER']] |>
+      factor() |> as.numeric() |> matrix(nrow = nrow(library_stsys_sample))
+  )
+  
+  stratum_1_quad_form <- make_kernel_var_matrix(
+    x = library_stsys_sample[['SAMPLING_SORT_ORDER']][1:100] |>
+      factor() |> as.numeric(),
+    kernel = "Epanechnikov", bandwidth = "auto"
+  )
+  stratum_2_quad_form <- make_kernel_var_matrix(
+    x = library_stsys_sample[['SAMPLING_SORT_ORDER']][101:219] |>
+      factor() |> as.numeric(),
+    kernel = "Epanechnikov", bandwidth = "auto"
+  )
+  
+  wtd_y <- as.matrix(library_stsys_sample[['TOTCIR']] /
+                       library_stsys_sample$SAMPLING_PROB)
+  
+  test_that(
+    "`make_quad_form_matrix()` works correctly for 'BOSB' with stratified single-stage samples", {
+      
+      actual_estimate <- as.numeric(t(wtd_y) %*% bosb_quad_form %*% wtd_y)
+      
+      expected_estimate <- sum(c(
+        as.numeric(t(wtd_y[1:100])   %*% stratum_1_quad_form %*% wtd_y[1:100]),
+        as.numeric(t(wtd_y[101:219]) %*% stratum_2_quad_form %*% wtd_y[101:219])
+      ))
+      
+      expect_equal(
+        object   = actual_estimate,
+        expected = expected_estimate
+      )
+    })
+  
+  test_that(
+    "Expected errors and warnings for 'BOSB'", {
+      expect_error(
+        object = {
+          make_quad_form_matrix(
+            variance_estimator = 'BOSB',
+            strata_ids = matrix(c(1,2), 2, 1)
+          )
+        },
+        regexp = "must supply.+strata.+cluster"
+      )
+      
+      expect_error(
+        object = {
+          make_quad_form_matrix(
+            variance_estimator = 'BOSB',
+            strata_ids = matrix(c(1,1), 2, 1),
+            cluster_ids = matrix(c(1,2), 2, 1)
+          )
+        },
+        regexp = "must supply.+aux_vars"
+      )
+    }
+  )
+  
+  test_that(
+    "Correct quadratic forms for 'BOSB' in specific examples", {
+      
+      expect_equal(
+        object   = make_kernel_var_matrix(c(1,1,100,100)) |> as.matrix(),
+        expected = matrix(c( 1,-1, 0, 0,
+                            -1, 1, 0, 0,
+                             0, 0, 1,-1,
+                             0, 0,-1, 1),
+                          nrow = 4, ncol = 4,
+                          byrow = TRUE)
+      )
+      
+      expect_equal(
+        object = make_kernel_var_matrix(100) |> as.matrix(),
+        expected = matrix(0, 1, 1)
+      )
+      
+      expect_equal(
+        object   = make_kernel_var_matrix(c(1,100)) |> as.matrix(),
+        expected = matrix(c( 1,-1, 
+                            -1, 1),
+                          nrow = 2, ncol = 2,
+                          byrow = TRUE)
+      )
+      
+      expect_equal(
+        object = make_kernel_var_matrix(c(1,1,100,80))[1:2,3:4] |> as.matrix(),
+        expected = matrix(0, nrow = 2, ncol = 2)
+      )
+      
+      expect_equal(
+        object   = make_kernel_var_matrix(c(1,1,2,2,3)/3) |> attr('bandwidth'),
+        expected = 2/3
+      )
+      
+      expect_equal(
+        object   = make_kernel_var_matrix(c(1,1,2,2,4)) |> attr('bandwidth'),
+        expected = 3/4 * 4
+      )
+      
+      expect_equal(
+        object = make_kernel_var_matrix(c(102, 103, 104)/104) |> is.nan() |> sum(),
+        expected = 0
+      )
+      
+    }
+  )
 
 # Check "Ultimate Cluster" results ----
 
@@ -458,6 +575,60 @@ library_stsys_sample <- library_stsys_sample |>
         expected = mu284_design |>
           svytotal(x = ~ y1, na.rm = TRUE) |>
           vcov()
+      )
+    })
+  
+# Check "Beaumont-Emond" results ----
+  
+  test_that(
+    "Helper function for Beaumont-Emond quadratic forms works correctly", {
+      
+      data('api', package = 'survey')
+      
+      # For a single-stage stratified SRSWOR sample,
+      # results match usual variance estimator
+      wtd_y_matrix <- as.matrix(
+        library_stsys_sample[,c("TOTCIR", "TOTSTAFF")]
+      )/library_stsys_sample[['SAMPLING_PROB']]
+      quad_BE <- make_quad_form_matrix(
+        variance_estimator = "Beaumont-Emond",
+        cluster_ids = library_stsys_sample[,'FSCSKEY',drop=FALSE],
+        strata_ids = library_stsys_sample[,'SAMPLING_STRATUM',drop=FALSE],
+        probs = library_stsys_sample[,'SAMPLING_PROB',drop=FALSE]
+      )
+      expect_equal(
+        object = as.matrix(t(wtd_y_matrix) %*% quad_BE %*% wtd_y_matrix),
+        expected = svydesign(
+          data = library_stsys_sample,
+          ids = ~ FSCSKEY,
+          strata = ~ SAMPLING_STRATUM,
+          fpc = ~ STRATUM_POP_SIZE
+        ) |> svytotal(x = ~ TOTCIR + TOTSTAFF, na.rm = TRUE) |>
+          vcov()
+      )
+      
+      # For a stratified multistage SRSWOR sample,
+      # results match the usual variance estimator
+      wtd_y_matrix <- as.matrix(apiclus2[,c('api00', 'api99')] * apiclus2$pw)
+      apiclus2_design <- svydesign(id=~dnum+snum, fpc=~fpc1+fpc2, data=apiclus2)
+      quad_BE <- make_quad_form_matrix(
+        variance_estimator = "Beaumont-Emond",
+        cluster_ids = apiclus2[,c("dnum", "snum"),drop=FALSE],
+        strata_ids = data.frame('PSU_STRATUM' = rep(1, times = nrow(apiclus2)),
+                                'SSU_STRATUM' = rep(1, times = nrow(apiclus2))),
+        probs = apiclus2_design$allprob
+      )
+      expect_equal(
+        object = as.matrix(t(wtd_y_matrix) %*% quad_BE %*% wtd_y_matrix),
+        expected = svydesign(id=~dnum+snum, fpc=~fpc1+fpc2, data=apiclus2) |> 
+          svytotal(x = ~ api00 + api99, na.rm = TRUE) |>
+          vcov()
+      )
+
+      # Correct result for only a single unit
+      expect_equal(
+        object = svrep:::make_ppswor_approx_matrix(probs = 0.5) |> as.matrix(),
+        expected = matrix(0, nrow = 1, ncol = 1)
       )
     })
 
