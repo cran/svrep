@@ -5,19 +5,19 @@ knitr::opts_chunk$set(
 )
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  calibrate_to_estimate(
-#    rep_design = rep_design,
-#    estimate = vector_of_control_totals,
-#    vcov_estimate = variance_covariance_matrix_for_controls,
-#    cal_formula = ~ CALIBRATION_VARIABLE_1 + CALIBRATION_VARIABLE_2 + ...,
-#  )
+# calibrate_to_estimate(
+#   rep_design = rep_design,
+#   estimate = vector_of_control_totals,
+#   vcov_estimate = variance_covariance_matrix_for_controls,
+#   cal_formula = ~ CALIBRATION_VARIABLE_1 + CALIBRATION_VARIABLE_2 + ...,
+# )
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  calibrate_to_sample(
-#    primary_rep_design = primary_rep_design,
-#    control_rep_design = control_rep_design
-#    cal_formula = ~ CALIBRATION_VARIABLE_1 + CALIBRATION_VARIABLE_2 + ...,
-#  )
+# calibrate_to_sample(
+#   primary_rep_design = primary_rep_design,
+#   control_rep_design = control_rep_design
+#   cal_formula = ~ CALIBRATION_VARIABLE_1 + CALIBRATION_VARIABLE_2 + ...,
+# )
 
 ## ----setup--------------------------------------------------------------------
 # Load the data

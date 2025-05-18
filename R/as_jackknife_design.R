@@ -165,7 +165,7 @@
 #'
 #' - Valliant, Richard, Michael Brick, and Jill Dever. 2008.
 #' "Weight Adjustments for the Grouped Jackknife Variance Estimator."
-#' \emph{Journal of Official Statistics}. 24: 469–88.
+#' \emph{Journal of Official Statistics}. 24: 469-88.
 #'
 #' See Chapter 4 of Wolter (2007) for additional details of the jackknife,
 #' including the method based on random groups.
@@ -481,7 +481,7 @@ as_random_group_jackknife_design.survey.design <- function(
     if (length(unique(scale_factors)) == 1) {
       overall_scale <- scale_factors[1]
       rscales <- rep(1, times = length(scale_factors))
-    } else{
+    } else {
       overall_scale <- 1
       rscales <- scale_factors
     }

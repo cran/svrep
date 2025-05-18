@@ -14,52 +14,86 @@ library(svrep)
 library(survey) # For complex survey analysis
 library(svrep)
 
-set.seed(2022)
+set.seed(2025)
 
 # Load an example dataset from a multistage sample, with two stages of SRSWOR
   data("mu284", package = 'survey')
-  multistage_srswor_design <- svydesign(data = mu284,
-                                        ids = ~ id1 + id2,
-                                        fpc = ~ n1 + n2)
-
-  bootstrap_rep_design <- as_bootstrap_design(multistage_srswor_design,
-                                              type = "Rao-Wu-Yue-Beaumont",
-                                              replicates = 500)
   
+  multistage_srswor_design <- svydesign(
+    data = mu284,
+    ids  = ~ id1 + id2,
+    fpc  = ~  n1 +  n2
+  )
+
+# Create bootstrap replicate weights
+  bootstrap_rep_design <- as_bootstrap_design(
+    design     = multistage_srswor_design,
+    type       = "Rao-Wu-Yue-Beaumont",
+    replicates = 500
+  )
+  
+# Estimate variances with and without the use of bootstrap replicates
   svytotal(x = ~ y1, design = multistage_srswor_design)
   svytotal(x = ~ y1, design = bootstrap_rep_design)
 
-## ----eval=FALSE---------------------------------------------------------------
-#  # Load example dataset of U.S. counties and states with 2004 Presidential vote counts
-#    data("election", package = 'survey')
-#    pps_wor_design <- svydesign(data = election_pps,
-#                                pps = HR(),
-#                                fpc = ~ p, # Inclusion probabilities
-#                                ids = ~ 1)
-#    bootstrap_rep_design <- as_bootstrap_design(pps_wor_design,
-#                                                type = "Rao-Wu-Yue-Beaumont",
-#                                                replicates = 100)
-#  
-#    svytotal(x = ~ Bush + Kerry, design = pps_wor_design)
-#    svytotal(x = ~ Bush + Kerry, design = bootstrap_rep_design)
+## -----------------------------------------------------------------------------
+bootstrap_rep_design <- as_bootstrap_design(
+  design     = multistage_srswor_design,
+  type       = "Preston",
+  replicates = 500
+)
+
+svytotal(x = ~ y1, design = bootstrap_rep_design)
+
+## ----eval=TRUE----------------------------------------------------------------
+# Load example dataset of U.S. counties and states with 2004 Presidential vote counts
+
+  data("election", package = 'survey')
+
+  pps_wor_design <- svydesign(
+    data = election_pps,
+    pps  = HR(), # Method of estimating variance
+    fpc  = ~ p,  # Inclusion probabilities
+    ids  = ~ 1   # Sampling unit IDs
+  )
+  
+# Create bootstrap replicate weights
+  boot_design <- as_bootstrap_design(
+    design     = pps_wor_design,
+    type       = "Rao-Wu-Yue-Beaumont",
+    replicates = 100
+  )
+  
+# Estimate variances with and without the use of bootstrap replicates
+  svytotal(x = ~ Bush + Kerry, design = pps_wor_design)
+  svytotal(x = ~ Bush + Kerry, design = boot_design)
+
+## -----------------------------------------------------------------------------
+antal_tille_boot_design <- as_bootstrap_design(
+  design     = pps_wor_design,
+  type       = "Antal-Tille",
+  replicates = 100
+)
+
+svytotal(x = ~ Bush + Kerry, design = antal_tille_boot_design)
 
 ## -----------------------------------------------------------------------------
 # Declare a multistage design
 # where first-stage probabilities are PPSWOR sampling
 # and second-stage probabilities are based on SRSWOR
 multistage_design <- svydesign(
-  data = library_multistage_sample,
-  ids = ~ PSU_ID + SSU_ID,
+  data  = library_multistage_sample,
+  ids   = ~ PSU_ID + SSU_ID,
   probs = ~ PSU_SAMPLING_PROB + SSU_SAMPLING_PROB,
-  pps = "brewer"
+  pps   = "brewer"
 )
 
 # Convert to a bootstrap replicate design
 boot_design <- as_bootstrap_design(
-  design = multistage_design,
-  type = "Rao-Wu-Yue-Beaumont",
+  design               = multistage_design,
+  type                 = "Rao-Wu-Yue-Beaumont",
   samp_method_by_stage = c("PPSWOR", "SRSWOR"),
-  replicates = 1000
+  replicates           = 1000
 )
 
 # Compare variance estimates
@@ -67,11 +101,39 @@ svytotal(x = ~ TOTCIR, na.rm = TRUE, design = multistage_design)
 svytotal(x = ~ TOTCIR, na.rm = TRUE, design = boot_design)
 
 ## -----------------------------------------------------------------------------
+# Convert the survey design object to a data frame
+output_data <- as_data_frame_with_weights(
+  design         = boot_design,
+  full_wgt_name  = "SAMP_WGT",
+  rep_wgt_prefix = "REP_WGT_"
+)
+
+# Inspect a few rows and columns
+output_data[,c("LIBID", "SAMP_WGT", "REP_WGT_1", "REP_WGT_2", "REP_WGT_3")] |>
+  head(5)
+
+## -----------------------------------------------------------------------------
+# Extract a matrix of replication factors
+antal_tille_rep_factors <- antal_tille_boot_design |> weights(type = "replication")
+
+# Inspect the replication factors
+# for the first five observations and first five replicates
+antal_tille_rep_factors[1:5,1:5]
+
+## -----------------------------------------------------------------------------
+# Extract a matrix of replication factors
+rep_factors <- boot_design |> weights(type = "replication")
+
+# Inspect the replication factors
+# for the first five observations and first five replicates
+rep_factors[1:5,1:5]
+
+## -----------------------------------------------------------------------------
 make_quad_form_matrix(
     variance_estimator = "SD2",
-    cluster_ids = c(1,2,3,4,5) |> data.frame(),
-    strata_ids = c(1,1,1,1,1) |> data.frame(),
-    sort_order = c(1,2,3,4,5)
+    cluster_ids        = c(1,2,3,4,5) |> data.frame(),
+    strata_ids         = c(1,1,1,1,1) |> data.frame(),
+    sort_order         = c(1,2,3,4,5)
 )
 
 ## ----eval=TRUE----------------------------------------------------------------
@@ -84,15 +146,15 @@ library_stsys_sample <- library_stsys_sample |>
 
 # Create a survey design object
 survey_design <- svydesign(
-  data = library_stsys_sample,
-  ids = ~ 1,
+  data   = library_stsys_sample,
+  ids    = ~ 1,
   strata = ~ SAMPLING_STRATUM,
-  fpc = ~ STRATUM_POP_SIZE
+  fpc    = ~ STRATUM_POP_SIZE
 )
 
 # Obtain the quadratic form for the target estimator
 sd2_quad_form <- get_design_quad_form(
-  design = survey_design,
+  design             = survey_design,
   variance_estimator = "SD2"
 )
 
@@ -127,44 +189,45 @@ library_stsys_sample <- library_stsys_sample[
 
 # Create a survey design object
 design_obj <- svydesign(
-  data = library_stsys_sample,
+  data   = library_stsys_sample,
   strata = ~ SAMPLING_STRATUM,
-  ids = ~ 1,
-  fpc = ~ STRATUM_POP_SIZE
+  ids    = ~ 1,
+  fpc    = ~ STRATUM_POP_SIZE
 )
 
 ## -----------------------------------------------------------------------------
 # Convert to generalized bootstrap replicate design
 gen_boot_design_sd2 <- as_gen_boot_design(
-  design = design_obj,
+  design             = design_obj,
   variance_estimator = "SD2",
-  replicates = 2000
+  replicates         = 2000
 )
 
 # Estimate sampling variances
 svymean(x = ~ TOTSTAFF, na.rm = TRUE, design = gen_boot_design_sd2)
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  # Load example data of a PPS survey of counties and states
-#     data('election', package = 'survey')
-#  
-#  # Create survey design object
-#     pps_design_ht <- svydesign(
-#       data = election_pps,
-#       id = ~1, fpc = ~p,
-#       pps = ppsmat(election_jointprob),
-#       variance = "HT"
-#     )
-#  
-#  
-#  # Convert to generalized bootstrap replicate design
-#  gen_boot_design_ht <- pps_design_ht |>
-#    as_gen_boot_design(variance_estimator = "Horvitz-Thompson",
-#                       replicates = 5000, tau = "auto")
-#  
-#  # Compare sampling variances from bootstrap vs. Horvitz-Thompson estimator
-#  svytotal(x = ~ Bush + Kerry, design = pps_design_ht)
-#  svytotal(x = ~ Bush + Kerry, design = gen_boot_design_ht)
+# # Load example data of a PPS survey of counties and states
+#    data('election', package = 'survey')
+# 
+# # Create survey design object
+#    pps_design_ht <- svydesign(
+#      data     = election_pps,
+#      id       = ~1,
+#      fpc      = ~p,
+#      pps      = ppsmat(election_jointprob),
+#      variance = "HT"
+#    )
+# 
+# 
+# # Convert to generalized bootstrap replicate design
+# gen_boot_design_ht <- pps_design_ht |>
+#   as_gen_boot_design(variance_estimator = "Horvitz-Thompson",
+#                      replicates = 5000, tau = "auto")
+# 
+# # Compare sampling variances from bootstrap vs. Horvitz-Thompson estimator
+# svytotal(x = ~ Bush + Kerry, design = pps_design_ht)
+# svytotal(x = ~ Bush + Kerry, design = gen_boot_design_ht)
 
 ## -----------------------------------------------------------------------------
 library(dplyr) # For data manipulation
@@ -209,22 +272,22 @@ data('library_stsys_sample', package = 'svrep')
 # and obtain the matrix of that quadratic form
 sd2_quad_form <- make_quad_form_matrix(
   variance_estimator = 'SD2',
-  cluster_ids = library_stsys_sample |> select(FSCSKEY),
-  strata_ids = library_stsys_sample |> select(SAMPLING_STRATUM),
-  strata_pop_sizes = library_stsys_sample |> select(STRATUM_POP_SIZE),
-  sort_order = library_stsys_sample |> pull("SAMPLING_SORT_ORDER")
+  cluster_ids        = library_stsys_sample |> select(FSCSKEY),
+  strata_ids         = library_stsys_sample |> select(SAMPLING_STRATUM),
+  strata_pop_sizes   = library_stsys_sample |> select(STRATUM_POP_SIZE),
+  sort_order         = library_stsys_sample |> pull("SAMPLING_SORT_ORDER")
 )
 
 ## -----------------------------------------------------------------------------
 rep_adj_factors <- make_gen_boot_factors(
-  Sigma = sd2_quad_form,
+  Sigma          = sd2_quad_form,
   num_replicates = 500,
-  tau = "auto"
+  tau            = "auto"
 )
 
 ## -----------------------------------------------------------------------------
 tau <- attr(rep_adj_factors, 'tau')
-B <- ncol(rep_adj_factors)
+B   <- ncol(rep_adj_factors)
 
 ## -----------------------------------------------------------------------------
 # Retrieve value of 'scale'
@@ -243,12 +306,12 @@ rep_adj_factors |>
 gen_boot_design <- svrepdesign(
   data = library_stsys_sample |>
     mutate(SAMPLING_WEIGHT = 1/SAMPLING_PROB),
-  repweights = rep_adj_factors,
-  weights = ~ SAMPLING_WEIGHT,
+  repweights       = rep_adj_factors,
+  weights          = ~ SAMPLING_WEIGHT,
   combined.weights = FALSE,
-  type = "other",
-  scale = attr(rep_adj_factors, 'scale'),
-  rscales = attr(rep_adj_factors, 'rscales')
+  type             = "other",
+  scale            = attr(rep_adj_factors, 'scale'),
+  rscales          = attr(rep_adj_factors, 'rscales')
 )
 
 ## -----------------------------------------------------------------------------
@@ -262,11 +325,11 @@ data('api', package = 'survey')
 
 # Declare a bootstrap survey design object ----
   boot_design <- svydesign(
-    data = apistrat,
+    data    = apistrat,
     weights = ~pw,
-    id = ~1,
-    strata = ~stype,
-    fpc = ~fpc
+    id      = ~1,
+    strata  = ~stype,
+    fpc     = ~fpc
   ) |>
     svrep::as_bootstrap_design(replicates = 5000)
 

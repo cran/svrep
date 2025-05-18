@@ -43,7 +43,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
 { counter-reset: source-line 0; }
@@ -160,6 +160,8 @@ Method</a></li>
 <li><a href="#basic-bootstrap-methods" id="toc-basic-bootstrap-methods">Basic Bootstrap Methods</a>
 <ul>
 <li><a href="#implementation" id="toc-implementation">Implementation</a></li>
+<li><a href="#extracting-bootstrap-replicate-weights" id="toc-extracting-bootstrap-replicate-weights">Extracting Bootstrap
+Replicate Weights</a></li>
 </ul></li>
 <li><a href="#generalized-survey-bootstrap" id="toc-generalized-survey-bootstrap">Generalized Survey Bootstrap</a>
 <ul>
@@ -209,14 +211,9 @@ help decide the number of bootstrap replicates needed for your data.</p>
 <p>The functions covered in this vignette include:</p>
 <p><strong>Functions for Creating Bootstrap Weights</strong>:</p>
 <ul>
-<li><p><code>as_bootstrap_design()</code>, which converts a survey
-design object to a replicate survey design object with bootstrap
-replicate weights.</p></li>
-<li><p><code>make_rwyb_bootstrap_weights()</code>, which creates
-bootstrap replicate weights for general survey designs using the method
-of Rao-Wu-Yue-Beaumont. The survey designs may potentially include
-stratification, multistage clustering, and sampling with or without
-replacement with unequal probabilities.</p></li>
+<li><code>as_bootstrap_design()</code>, which converts a survey design
+object to a replicate survey design object with bootstrap replicate
+weights.</li>
 </ul>
 <p><strong>Functions for Creating Generalized Survey Bootstrap
 Weights</strong>:</p>
@@ -324,6 +321,13 @@ sampling fraction</td>
 <td>Yes</td>
 <td>No</td>
 </tr>
+<tr class="odd">
+<td>Antal-Tillé</td>
+<td>Only if first-stage sampling is without replacement or has a small
+sampling fraction</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
 </tbody>
 </table>
 <table style="width:100%;">
@@ -379,6 +383,14 @@ sampling fraction</td>
 <td>Yes (first stage only), if sampling is without replacement</td>
 <td>No</td>
 </tr>
+<tr class="odd">
+<td>Antal-Tillé</td>
+<td>Yes (first-stage only)</td>
+<td>Yes (first stage only)</td>
+<td>Yes</td>
+<td>Yes (first stage only), if sampling is without replacement</td>
+<td>No</td>
+</tr>
 </tbody>
 </table>
 <div id="implementation" class="section level2">
@@ -386,46 +398,93 @@ sampling fraction</td>
 <p>To implement these basic bootstrap methods, we can create a survey
 design object with the <code>svydesign()</code> function from the survey
 package, and then convert this object to a bootstrap replicate design
-using <code>as_bootstrap_design()</code>. This method can be used for
-multistage, stratified designs with one or more different kinds of
-sampling, provided the “Rao-Wu-Yue-Beaumont” method is used.</p>
+using <code>as_bootstrap_design()</code>.</p>
+<p>Below, we illustrate the use of bootstrap methods for examples with
+various kinds of sample designs. We use the Rao-Wu-Yue-Beaumont
+bootstrap method for all of these examples, as well as other bootstrap
+methods where applicable.</p>
 <p><strong>Example 1: Multistage Simple Random Sampling without
 Replacement (SRSWOR)</strong></p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(survey) <span class="co"># For complex survey analysis</span></span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(svrep)</span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2022</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2025</span>)</span>
 <span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a></span>
 <span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="co"># Load an example dataset from a multistage sample, with two stages of SRSWOR</span></span>
 <span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  <span class="fu">data</span>(<span class="st">&quot;mu284&quot;</span>, <span class="at">package =</span> <span class="st">&#39;survey&#39;</span>)</span>
-<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>  multistage_srswor_design <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(<span class="at">data =</span> mu284,</span>
-<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>                                        <span class="at">ids =</span> <span class="sc">~</span> id1 <span class="sc">+</span> id2,</span>
-<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>                                        <span class="at">fpc =</span> <span class="sc">~</span> n1 <span class="sc">+</span> n2)</span>
-<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a></span>
-<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>  bootstrap_rep_design <span class="ot">&lt;-</span> <span class="fu">as_bootstrap_design</span>(multistage_srswor_design,</span>
-<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>                                              <span class="at">type =</span> <span class="st">&quot;Rao-Wu-Yue-Beaumont&quot;</span>,</span>
-<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>                                              <span class="at">replicates =</span> <span class="dv">500</span>)</span>
-<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>  </span>
-<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>  <span class="fu">svytotal</span>(<span class="at">x =</span> <span class="sc">~</span> y1, <span class="at">design =</span> multistage_srswor_design)</span>
-<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a><span class="co">#&gt;    total     SE</span></span>
-<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a><span class="co">#&gt; y1 15080 2274.3</span></span>
-<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a>  <span class="fu">svytotal</span>(<span class="at">x =</span> <span class="sc">~</span> y1, <span class="at">design =</span> bootstrap_rep_design)</span>
-<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a><span class="co">#&gt;    total     SE</span></span>
-<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a><span class="co">#&gt; y1 15080 2311.1</span></span></code></pre></div>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>  </span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>  multistage_srswor_design <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(</span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>    <span class="at">data =</span> mu284,</span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>    <span class="at">ids  =</span> <span class="sc">~</span> id1 <span class="sc">+</span> id2,</span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>    <span class="at">fpc  =</span> <span class="sc">~</span>  n1 <span class="sc">+</span>  n2</span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>  )</span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a><span class="co"># Create bootstrap replicate weights</span></span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>  bootstrap_rep_design <span class="ot">&lt;-</span> <span class="fu">as_bootstrap_design</span>(</span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a>    <span class="at">design     =</span> multistage_srswor_design,</span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a>    <span class="at">type       =</span> <span class="st">&quot;Rao-Wu-Yue-Beaumont&quot;</span>,</span>
+<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a>    <span class="at">replicates =</span> <span class="dv">500</span></span>
+<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a>  )</span>
+<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a>  </span>
+<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a><span class="co"># Estimate variances with and without the use of bootstrap replicates</span></span>
+<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a>  <span class="fu">svytotal</span>(<span class="at">x =</span> <span class="sc">~</span> y1, <span class="at">design =</span> multistage_srswor_design)</span>
+<span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a><span class="co">#&gt;    total     SE</span></span>
+<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a><span class="co">#&gt; y1 15080 2274.3</span></span>
+<span id="cb1-26"><a href="#cb1-26" tabindex="-1"></a>  <span class="fu">svytotal</span>(<span class="at">x =</span> <span class="sc">~</span> y1, <span class="at">design =</span> bootstrap_rep_design)</span>
+<span id="cb1-27"><a href="#cb1-27" tabindex="-1"></a><span class="co">#&gt;    total     SE</span></span>
+<span id="cb1-28"><a href="#cb1-28" tabindex="-1"></a><span class="co">#&gt; y1 15080 2341.8</span></span></code></pre></div>
+<p>For multistage simple random sampling, Preston’s bootstrap method can
+also be used.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>bootstrap_rep_design <span class="ot">&lt;-</span> <span class="fu">as_bootstrap_design</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  <span class="at">design     =</span> multistage_srswor_design,</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="at">type       =</span> <span class="st">&quot;Preston&quot;</span>,</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  <span class="at">replicates =</span> <span class="dv">500</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>)</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="fu">svytotal</span>(<span class="at">x =</span> <span class="sc">~</span> y1, <span class="at">design =</span> bootstrap_rep_design)</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt;    total     SE</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co">#&gt; y1 15080 2297.1</span></span></code></pre></div>
 <p><strong>Example 2: Single-stage unequal probability sampling without
 replacement</strong></p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Load example dataset of U.S. counties and states with 2004 Presidential vote counts</span></span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  <span class="fu">data</span>(<span class="st">&quot;election&quot;</span>, <span class="at">package =</span> <span class="st">&#39;survey&#39;</span>)</span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  pps_wor_design <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(<span class="at">data =</span> election_pps,</span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>                              <span class="at">pps =</span> <span class="fu">HR</span>(),</span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>                              <span class="at">fpc =</span> <span class="sc">~</span> p, <span class="co"># Inclusion probabilities</span></span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>                              <span class="at">ids =</span> <span class="sc">~</span> <span class="dv">1</span>)</span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>  bootstrap_rep_design <span class="ot">&lt;-</span> <span class="fu">as_bootstrap_design</span>(pps_wor_design,</span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>                                              <span class="at">type =</span> <span class="st">&quot;Rao-Wu-Yue-Beaumont&quot;</span>,</span>
-<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>                                              <span class="at">replicates =</span> <span class="dv">100</span>)</span>
-<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>  </span>
-<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>  <span class="fu">svytotal</span>(<span class="at">x =</span> <span class="sc">~</span> Bush <span class="sc">+</span> Kerry, <span class="at">design =</span> pps_wor_design)</span>
-<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>  <span class="fu">svytotal</span>(<span class="at">x =</span> <span class="sc">~</span> Bush <span class="sc">+</span> Kerry, <span class="at">design =</span> bootstrap_rep_design)</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># Load example dataset of U.S. counties and states with 2004 Presidential vote counts</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  <span class="fu">data</span>(<span class="st">&quot;election&quot;</span>, <span class="at">package =</span> <span class="st">&#39;survey&#39;</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  pps_wor_design <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>    <span class="at">data =</span> election_pps,</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>    <span class="at">pps  =</span> <span class="fu">HR</span>(), <span class="co"># Method of estimating variance</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>    <span class="at">fpc  =</span> <span class="sc">~</span> p,  <span class="co"># Inclusion probabilities</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>    <span class="at">ids  =</span> <span class="sc">~</span> <span class="dv">1</span>   <span class="co"># Sampling unit IDs</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>  )</span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>  </span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co"># Create bootstrap replicate weights</span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>  boot_design <span class="ot">&lt;-</span> <span class="fu">as_bootstrap_design</span>(</span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>    <span class="at">design     =</span> pps_wor_design,</span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a>    <span class="at">type       =</span> <span class="st">&quot;Rao-Wu-Yue-Beaumont&quot;</span>,</span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a>    <span class="at">replicates =</span> <span class="dv">100</span></span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a>  )</span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a>  </span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="co"># Estimate variances with and without the use of bootstrap replicates</span></span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a>  <span class="fu">svytotal</span>(<span class="at">x =</span> <span class="sc">~</span> Bush <span class="sc">+</span> Kerry, <span class="at">design =</span> pps_wor_design)</span>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a><span class="co">#&gt;          total      SE</span></span>
+<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a><span class="co">#&gt; Bush  64518472 2472753</span></span>
+<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a><span class="co">#&gt; Kerry 51202102 2426842</span></span>
+<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a>  <span class="fu">svytotal</span>(<span class="at">x =</span> <span class="sc">~</span> Bush <span class="sc">+</span> Kerry, <span class="at">design =</span> boot_design)</span>
+<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a><span class="co">#&gt;          total      SE</span></span>
+<span id="cb3-26"><a href="#cb3-26" tabindex="-1"></a><span class="co">#&gt; Bush  64518472 2456150</span></span>
+<span id="cb3-27"><a href="#cb3-27" tabindex="-1"></a><span class="co">#&gt; Kerry 51202102 2491278</span></span></code></pre></div>
+<p>For single-stage unequal probability sampling, the Antal-Tillé
+bootstrap method can also be used.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>antal_tille_boot_design <span class="ot">&lt;-</span> <span class="fu">as_bootstrap_design</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  <span class="at">design     =</span> pps_wor_design,</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="at">type       =</span> <span class="st">&quot;Antal-Tille&quot;</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  <span class="at">replicates =</span> <span class="dv">100</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>)</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="fu">svytotal</span>(<span class="at">x =</span> <span class="sc">~</span> Bush <span class="sc">+</span> Kerry, <span class="at">design =</span> antal_tille_boot_design)</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co">#&gt;          total      SE</span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#&gt; Bush  64518472 2407341</span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co">#&gt; Kerry 51202102 2412210</span></span></code></pre></div>
 <p><strong>Example 3: Multistage Sampling with Different Sampling
 Methods at Each Stage</strong></p>
 <p>For designs that use different sampling methods at different stages,
@@ -436,31 +495,90 @@ stages, then when creating the initial design object, the stage-specific
 sampling probabilities should be supplied to the <code>fpc</code>
 argument of the <code>svydesign()</code> function, and the user should
 specify <code>pps = &quot;brewer&quot;</code>.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># Declare a multistage design</span></span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co"># where first-stage probabilities are PPSWOR sampling</span></span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co"># and second-stage probabilities are based on SRSWOR</span></span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>multistage_design <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(</span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  <span class="at">data =</span> library_multistage_sample,</span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>  <span class="at">ids =</span> <span class="sc">~</span> PSU_ID <span class="sc">+</span> SSU_ID,</span>
-<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>  <span class="at">probs =</span> <span class="sc">~</span> PSU_SAMPLING_PROB <span class="sc">+</span> SSU_SAMPLING_PROB,</span>
-<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>  <span class="at">pps =</span> <span class="st">&quot;brewer&quot;</span></span>
-<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>)</span>
-<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a></span>
-<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co"># Convert to a bootstrap replicate design</span></span>
-<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>boot_design <span class="ot">&lt;-</span> <span class="fu">as_bootstrap_design</span>(</span>
-<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>  <span class="at">design =</span> multistage_design,</span>
-<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">&quot;Rao-Wu-Yue-Beaumont&quot;</span>,</span>
-<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a>  <span class="at">samp_method_by_stage =</span> <span class="fu">c</span>(<span class="st">&quot;PPSWOR&quot;</span>, <span class="st">&quot;SRSWOR&quot;</span>),</span>
-<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a>  <span class="at">replicates =</span> <span class="dv">1000</span></span>
-<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a>)</span>
-<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a></span>
-<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="co"># Compare variance estimates</span></span>
-<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a><span class="fu">svytotal</span>(<span class="at">x =</span> <span class="sc">~</span> TOTCIR, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">design =</span> multistage_design)</span>
-<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a><span class="co">#&gt;             total        SE</span></span>
-<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a><span class="co">#&gt; TOTCIR 1634739229 250890030</span></span>
-<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a><span class="fu">svytotal</span>(<span class="at">x =</span> <span class="sc">~</span> TOTCIR, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">design =</span> boot_design)</span>
-<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a><span class="co">#&gt;             total        SE</span></span>
-<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a><span class="co">#&gt; TOTCIR 1634739229 264207604</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># Declare a multistage design</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co"># where first-stage probabilities are PPSWOR sampling</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co"># and second-stage probabilities are based on SRSWOR</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>multistage_design <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>  <span class="at">data  =</span> library_multistage_sample,</span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>  <span class="at">ids   =</span> <span class="sc">~</span> PSU_ID <span class="sc">+</span> SSU_ID,</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>  <span class="at">probs =</span> <span class="sc">~</span> PSU_SAMPLING_PROB <span class="sc">+</span> SSU_SAMPLING_PROB,</span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>  <span class="at">pps   =</span> <span class="st">&quot;brewer&quot;</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>)</span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co"># Convert to a bootstrap replicate design</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>boot_design <span class="ot">&lt;-</span> <span class="fu">as_bootstrap_design</span>(</span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>  <span class="at">design               =</span> multistage_design,</span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>  <span class="at">type                 =</span> <span class="st">&quot;Rao-Wu-Yue-Beaumont&quot;</span>,</span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>  <span class="at">samp_method_by_stage =</span> <span class="fu">c</span>(<span class="st">&quot;PPSWOR&quot;</span>, <span class="st">&quot;SRSWOR&quot;</span>),</span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a>  <span class="at">replicates           =</span> <span class="dv">1000</span></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a>)</span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a></span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="co"># Compare variance estimates</span></span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="fu">svytotal</span>(<span class="at">x =</span> <span class="sc">~</span> TOTCIR, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">design =</span> multistage_design)</span>
+<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="co">#&gt;             total        SE</span></span>
+<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a><span class="co">#&gt; TOTCIR 1634739229 250890030</span></span>
+<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="fu">svytotal</span>(<span class="at">x =</span> <span class="sc">~</span> TOTCIR, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">design =</span> boot_design)</span>
+<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a><span class="co">#&gt;             total        SE</span></span>
+<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a><span class="co">#&gt; TOTCIR 1634739229 247959421</span></span></code></pre></div>
+</div>
+<div id="extracting-bootstrap-replicate-weights" class="section level2">
+<h2>Extracting Bootstrap Replicate Weights</h2>
+<p>All of the examples above used survey design objects from the
+‘survey’ package. If we want to instead work with a dataframe containing
+the data and weights, we can convert the survey design object to a
+dataframe.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># Convert the survey design object to a data frame</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>output_data <span class="ot">&lt;-</span> <span class="fu">as_data_frame_with_weights</span>(</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="at">design         =</span> boot_design,</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  <span class="at">full_wgt_name  =</span> <span class="st">&quot;SAMP_WGT&quot;</span>,</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>  <span class="at">rep_wgt_prefix =</span> <span class="st">&quot;REP_WGT_&quot;</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>)</span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co"># Inspect a few rows and columns</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>output_data[,<span class="fu">c</span>(<span class="st">&quot;LIBID&quot;</span>, <span class="st">&quot;SAMP_WGT&quot;</span>, <span class="st">&quot;REP_WGT_1&quot;</span>, <span class="st">&quot;REP_WGT_2&quot;</span>, <span class="st">&quot;REP_WGT_3&quot;</span>)] <span class="sc">|&gt;</span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">5</span>)</span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt;       LIBID  SAMP_WGT  REP_WGT_1  REP_WGT_2  REP_WGT_3</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt; 1 AROO1-009  8.430076 12.2865125 11.0228829 10.7798395</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt; 2     AR016  8.430076 20.8938676 18.7449983  6.3390194</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt; 3  AE-PINAL 14.500000 28.4910686 28.4910686 28.4910686</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt; 4     AE-AJ 14.500000  0.5089314  0.5089314  0.5089314</span></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt; 5      M637 24.000000 47.4946802 47.4946802 47.4946802</span></span></code></pre></div>
+<p>Instead of looking at the bootstrap replicate weights, we sometimes
+might want to look at the replicate factors. The replicate factors for a
+given bootstrap replicate indicate how many times each observation is
+resampled for that replicate.</p>
+<p>We can extract replicate factors from a replicate survey design
+object using the <code>weights()</code> function from the ‘survey’
+package.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Extract a matrix of replication factors</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>antal_tille_rep_factors <span class="ot">&lt;-</span> antal_tille_boot_design <span class="sc">|&gt;</span> <span class="fu">weights</span>(<span class="at">type =</span> <span class="st">&quot;replication&quot;</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co"># Inspect the replication factors</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co"># for the first five observations and first five replicates</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>antal_tille_rep_factors[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>,<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>]</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="co">#&gt;      [,1] [,2] [,3] [,4] [,5]</span></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="co">#&gt; [1,]    0    1    1    1    1</span></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co">#&gt; [2,]    2    2    0    2    2</span></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co">#&gt; [3,]    0    0    1    0    2</span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="co">#&gt; [4,]    2    0    2    2    2</span></span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="co">#&gt; [5,]    2    2    2    0    0</span></span></code></pre></div>
+<p>For complex survey bootstrap methods, the replication factors are
+often not integers but are instead real numbers. The Antal-Tillé
+bootstrap method is a notable exception where the replication factors
+are guaranteed to be integers. Below, we can see replication factors for
+the Rao-Wu-Yue-Beaumont bootstrap.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># Extract a matrix of replication factors</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>rep_factors <span class="ot">&lt;-</span> boot_design <span class="sc">|&gt;</span> <span class="fu">weights</span>(<span class="at">type =</span> <span class="st">&quot;replication&quot;</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co"># Inspect the replication factors</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co"># for the first five observations and first five replicates</span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>rep_factors[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>,<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>]</span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&gt;            [,1]       [,2]       [,3]       [,4]       [,5]</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="co">#&gt; [1,] 1.45746158 1.30756620 1.27873568 1.18370614 1.39282150</span></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="co">#&gt; [2,] 2.47849089 2.22358582 0.75195279 0.69607124 2.36856699</span></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co">#&gt; [3,] 1.96490128 1.96490128 1.96490128 1.96490128 0.03509872</span></span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt; [4,] 0.03509872 0.03509872 0.03509872 0.03509872 1.96490128</span></span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="co">#&gt; [5,] 1.97894501 1.97894501 1.97894501 1.97894501 0.02105499</span></span></code></pre></div>
 </div>
 </div>
 <div id="generalized-survey-bootstrap" class="section level1">
@@ -591,19 +709,19 @@ use the function <code>make_quad_form_matrix()</code>, which takes as
 inputs the name of a variance estimator and relevant survey design
 information. For example, the following code produces the quadratic form
 matrix of the “SD2” variance estimator we saw earlier.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">make_quad_form_matrix</span>(</span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>    <span class="at">variance_estimator =</span> <span class="st">&quot;SD2&quot;</span>,</span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>    <span class="at">cluster_ids =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>) <span class="sc">|&gt;</span> <span class="fu">data.frame</span>(),</span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>    <span class="at">strata_ids =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>) <span class="sc">|&gt;</span> <span class="fu">data.frame</span>(),</span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>    <span class="at">sort_order =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>)</span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>)</span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt; 5 x 5 sparse Matrix of class &quot;dsCMatrix&quot;</span></span>
-<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co">#&gt;                              </span></span>
-<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#&gt; [1,]  1.0 -0.5  .    .   -0.5</span></span>
-<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co">#&gt; [2,] -0.5  1.0 -0.5  .    .  </span></span>
-<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="co">#&gt; [3,]  .   -0.5  1.0 -0.5  .  </span></span>
-<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="co">#&gt; [4,]  .    .   -0.5  1.0 -0.5</span></span>
-<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="co">#&gt; [5,] -0.5  .    .   -0.5  1.0</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">make_quad_form_matrix</span>(</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>    <span class="at">variance_estimator =</span> <span class="st">&quot;SD2&quot;</span>,</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>    <span class="at">cluster_ids        =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>) <span class="sc">|&gt;</span> <span class="fu">data.frame</span>(),</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>    <span class="at">strata_ids         =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>) <span class="sc">|&gt;</span> <span class="fu">data.frame</span>(),</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>    <span class="at">sort_order         =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>)</span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co">#&gt; 5 x 5 sparse Matrix of class &quot;dsCMatrix&quot;</span></span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="co">#&gt;                              </span></span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="co">#&gt; [1,]  1.0 -0.5  .    .   -0.5</span></span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="co">#&gt; [2,] -0.5  1.0 -0.5  .    .  </span></span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="co">#&gt; [3,]  .   -0.5  1.0 -0.5  .  </span></span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a><span class="co">#&gt; [4,]  .    .   -0.5  1.0 -0.5</span></span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a><span class="co">#&gt; [5,] -0.5  .    .   -0.5  1.0</span></span></code></pre></div>
 <p>In the following example, we use this method to estimate the variance
 for a stratified systematic sample of U.S. public libraries. First, we
 create a quadratic form matrix to represent the SD2
@@ -611,53 +729,53 @@ successive-difference estimator. This can be done by using the
 <code>svydesign()</code> function to describe the survey design and then
 using <code>get_design_quad_form()</code> to obtain the quadratic form
 for a specified variance estimator.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># Load an example dataset of a stratified systematic sample</span></span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&#39;library_stsys_sample&#39;</span>, <span class="at">package =</span> <span class="st">&#39;svrep&#39;</span>)</span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a></span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co"># First, sort the rows in the order used in sampling</span></span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>library_stsys_sample <span class="ot">&lt;-</span> library_stsys_sample <span class="sc">|&gt;</span></span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">arrange</span>(SAMPLING_SORT_ORDER)</span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a></span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co"># Create a survey design object</span></span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>survey_design <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(</span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>  <span class="at">data =</span> library_stsys_sample,</span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>  <span class="at">ids =</span> <span class="sc">~</span> <span class="dv">1</span>,</span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>  <span class="at">strata =</span> <span class="sc">~</span> SAMPLING_STRATUM,</span>
-<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>  <span class="at">fpc =</span> <span class="sc">~</span> STRATUM_POP_SIZE</span>
-<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>)</span>
-<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a></span>
-<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="co"># Obtain the quadratic form for the target estimator</span></span>
-<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a>sd2_quad_form <span class="ot">&lt;-</span> <span class="fu">get_design_quad_form</span>(</span>
-<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a>  <span class="at">design =</span> survey_design,</span>
-<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a>  <span class="at">variance_estimator =</span> <span class="st">&quot;SD2&quot;</span></span>
-<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a>)</span>
-<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="co">#&gt; For `variance_estimator=&#39;SD2&#39;, assumes rows of data are sorted in the same order used in sampling.</span></span>
-<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a></span>
-<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="fu">class</span>(sd2_quad_form)</span>
-<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a><span class="co">#&gt; [1] &quot;dsCMatrix&quot;</span></span>
-<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a><span class="co">#&gt; attr(,&quot;package&quot;)</span></span>
-<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a><span class="co">#&gt; [1] &quot;Matrix&quot;</span></span>
-<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a><span class="fu">dim</span>(sd2_quad_form)</span>
-<span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a><span class="co">#&gt; [1] 219 219</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="co"># Load an example dataset of a stratified systematic sample</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&#39;library_stsys_sample&#39;</span>, <span class="at">package =</span> <span class="st">&#39;svrep&#39;</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co"># First, sort the rows in the order used in sampling</span></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>library_stsys_sample <span class="ot">&lt;-</span> library_stsys_sample <span class="sc">|&gt;</span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">arrange</span>(SAMPLING_SORT_ORDER)</span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="co"># Create a survey design object</span></span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a>survey_design <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(</span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a>  <span class="at">data   =</span> library_stsys_sample,</span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a>  <span class="at">ids    =</span> <span class="sc">~</span> <span class="dv">1</span>,</span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a>  <span class="at">strata =</span> <span class="sc">~</span> SAMPLING_STRATUM,</span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a>  <span class="at">fpc    =</span> <span class="sc">~</span> STRATUM_POP_SIZE</span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a>)</span>
+<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a></span>
+<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a><span class="co"># Obtain the quadratic form for the target estimator</span></span>
+<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a>sd2_quad_form <span class="ot">&lt;-</span> <span class="fu">get_design_quad_form</span>(</span>
+<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a>  <span class="at">design             =</span> survey_design,</span>
+<span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a>  <span class="at">variance_estimator =</span> <span class="st">&quot;SD2&quot;</span></span>
+<span id="cb10-20"><a href="#cb10-20" tabindex="-1"></a>)</span>
+<span id="cb10-21"><a href="#cb10-21" tabindex="-1"></a><span class="co">#&gt; For `variance_estimator=&#39;SD2&#39;, assumes rows of data are sorted in the same order used in sampling.</span></span>
+<span id="cb10-22"><a href="#cb10-22" tabindex="-1"></a></span>
+<span id="cb10-23"><a href="#cb10-23" tabindex="-1"></a><span class="fu">class</span>(sd2_quad_form)</span>
+<span id="cb10-24"><a href="#cb10-24" tabindex="-1"></a><span class="co">#&gt; [1] &quot;dsCMatrix&quot;</span></span>
+<span id="cb10-25"><a href="#cb10-25" tabindex="-1"></a><span class="co">#&gt; attr(,&quot;package&quot;)</span></span>
+<span id="cb10-26"><a href="#cb10-26" tabindex="-1"></a><span class="co">#&gt; [1] &quot;Matrix&quot;</span></span>
+<span id="cb10-27"><a href="#cb10-27" tabindex="-1"></a><span class="fu">dim</span>(sd2_quad_form)</span>
+<span id="cb10-28"><a href="#cb10-28" tabindex="-1"></a><span class="co">#&gt; [1] 219 219</span></span></code></pre></div>
 <p>Next, we estimate the sampling variance of the estimated total for
 the <code>TOTCIR</code> variable using the quadratic form.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># Obtain weighted values</span></span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>wtd_y <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(library_stsys_sample[[<span class="st">&#39;LIBRARIA&#39;</span>]] <span class="sc">/</span></span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>                     library_stsys_sample[[<span class="st">&#39;SAMPLING_PROB&#39;</span>]])</span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>wtd_y[<span class="fu">is.na</span>(wtd_y)] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a></span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co"># Obtain point estimate for a population total</span></span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>point_estimate <span class="ot">&lt;-</span> <span class="fu">sum</span>(wtd_y)</span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a></span>
-<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co"># Obtain the variance estimate using the quadratic form</span></span>
-<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>variance_estimate <span class="ot">&lt;-</span> <span class="fu">t</span>(wtd_y) <span class="sc">%*%</span> sd2_quad_form <span class="sc">%*%</span> wtd_y</span>
-<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>std_error <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(variance_estimate[<span class="dv">1</span>,<span class="dv">1</span>])</span>
-<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a></span>
-<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co"># Summarize results</span></span>
-<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="fu">sprintf</span>(<span class="st">&quot;Estimate: %s&quot;</span>, <span class="fu">round</span>(point_estimate))</span>
-<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt; [1] &quot;Estimate: 65642&quot;</span></span>
-<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="fu">sprintf</span>(<span class="st">&quot;Standard Error: %s&quot;</span>, <span class="fu">round</span>(std_error))</span>
-<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">#&gt; [1] &quot;Standard Error: 13972&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="co"># Obtain weighted values</span></span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>wtd_y <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(library_stsys_sample[[<span class="st">&#39;LIBRARIA&#39;</span>]] <span class="sc">/</span></span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>                     library_stsys_sample[[<span class="st">&#39;SAMPLING_PROB&#39;</span>]])</span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>wtd_y[<span class="fu">is.na</span>(wtd_y)] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a><span class="co"># Obtain point estimate for a population total</span></span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a>point_estimate <span class="ot">&lt;-</span> <span class="fu">sum</span>(wtd_y)</span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a></span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a><span class="co"># Obtain the variance estimate using the quadratic form</span></span>
+<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a>variance_estimate <span class="ot">&lt;-</span> <span class="fu">t</span>(wtd_y) <span class="sc">%*%</span> sd2_quad_form <span class="sc">%*%</span> wtd_y</span>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a>std_error <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(variance_estimate[<span class="dv">1</span>,<span class="dv">1</span>])</span>
+<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a></span>
+<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a><span class="co"># Summarize results</span></span>
+<span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a><span class="fu">sprintf</span>(<span class="st">&quot;Estimate: %s&quot;</span>, <span class="fu">round</span>(point_estimate))</span>
+<span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a><span class="co">#&gt; [1] &quot;Estimate: 65642&quot;</span></span>
+<span id="cb11-16"><a href="#cb11-16" tabindex="-1"></a><span class="fu">sprintf</span>(<span class="st">&quot;Standard Error: %s&quot;</span>, <span class="fu">round</span>(std_error))</span>
+<span id="cb11-17"><a href="#cb11-17" tabindex="-1"></a><span class="co">#&gt; [1] &quot;Standard Error: 13972&quot;</span></span></code></pre></div>
 </div>
 <div id="forming-adjustment-factors" class="section level3">
 <h3>Forming Adjustment Factors</h3>
@@ -763,108 +881,109 @@ a generalized bootstrap design.</p>
 <code>svydesign()</code> function. This allows us to represent
 information about stratification and clustering (potentially at multiple
 stages), as well as information about finite population corrections.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Load example data from stratified systematic sample</span></span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&#39;library_stsys_sample&#39;</span>, <span class="at">package =</span> <span class="st">&#39;svrep&#39;</span>)</span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a></span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co"># First, ensure data are sorted in same order as was used in sampling</span></span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>library_stsys_sample <span class="ot">&lt;-</span> library_stsys_sample[</span>
-<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>  <span class="fu">order</span>(library_stsys_sample<span class="sc">$</span>SAMPLING_SORT_ORDER),</span>
-<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>]</span>
-<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a></span>
-<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co"># Create a survey design object</span></span>
-<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>design_obj <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(</span>
-<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>  <span class="at">data =</span> library_stsys_sample,</span>
-<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>  <span class="at">strata =</span> <span class="sc">~</span> SAMPLING_STRATUM,</span>
-<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a>  <span class="at">ids =</span> <span class="sc">~</span> <span class="dv">1</span>,</span>
-<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a>  <span class="at">fpc =</span> <span class="sc">~</span> STRATUM_POP_SIZE</span>
-<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="co"># Load example data from stratified systematic sample</span></span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&#39;library_stsys_sample&#39;</span>, <span class="at">package =</span> <span class="st">&#39;svrep&#39;</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="co"># First, ensure data are sorted in same order as was used in sampling</span></span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>library_stsys_sample <span class="ot">&lt;-</span> library_stsys_sample[</span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a>  <span class="fu">order</span>(library_stsys_sample<span class="sc">$</span>SAMPLING_SORT_ORDER),</span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a>]</span>
+<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a></span>
+<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a><span class="co"># Create a survey design object</span></span>
+<span id="cb12-10"><a href="#cb12-10" tabindex="-1"></a>design_obj <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(</span>
+<span id="cb12-11"><a href="#cb12-11" tabindex="-1"></a>  <span class="at">data   =</span> library_stsys_sample,</span>
+<span id="cb12-12"><a href="#cb12-12" tabindex="-1"></a>  <span class="at">strata =</span> <span class="sc">~</span> SAMPLING_STRATUM,</span>
+<span id="cb12-13"><a href="#cb12-13" tabindex="-1"></a>  <span class="at">ids    =</span> <span class="sc">~</span> <span class="dv">1</span>,</span>
+<span id="cb12-14"><a href="#cb12-14" tabindex="-1"></a>  <span class="at">fpc    =</span> <span class="sc">~</span> STRATUM_POP_SIZE</span>
+<span id="cb12-15"><a href="#cb12-15" tabindex="-1"></a>)</span></code></pre></div>
 <p>Next, we convert the survey design object to a replicate design using
 the function <code>as_gen_boot_design()</code>. The function argument
 <code>variance_estimator</code> allows us to specify the name of a
 variance estimator to use as the basis for creating replicate
 weights.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># Convert to generalized bootstrap replicate design</span></span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>gen_boot_design_sd2 <span class="ot">&lt;-</span> <span class="fu">as_gen_boot_design</span>(</span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="at">design =</span> design_obj,</span>
-<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  <span class="at">variance_estimator =</span> <span class="st">&quot;SD2&quot;</span>,</span>
-<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>  <span class="at">replicates =</span> <span class="dv">2000</span></span>
-<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>)</span>
-<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&gt; For `variance_estimator=&#39;SD2&#39;, assumes rows of data are sorted in the same order used in sampling.</span></span>
-<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a></span>
-<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="co"># Estimate sampling variances</span></span>
-<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="fu">svymean</span>(<span class="at">x =</span> <span class="sc">~</span> TOTSTAFF, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">design =</span> gen_boot_design_sd2)</span>
-<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt;            mean     SE</span></span>
-<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="co">#&gt; TOTSTAFF 19.756 4.2384</span></span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="co"># Convert to generalized bootstrap replicate design</span></span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>gen_boot_design_sd2 <span class="ot">&lt;-</span> <span class="fu">as_gen_boot_design</span>(</span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>  <span class="at">design             =</span> design_obj,</span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a>  <span class="at">variance_estimator =</span> <span class="st">&quot;SD2&quot;</span>,</span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a>  <span class="at">replicates         =</span> <span class="dv">2000</span></span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a>)</span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a><span class="co">#&gt; For `variance_estimator=&#39;SD2&#39;, assumes rows of data are sorted in the same order used in sampling.</span></span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a></span>
+<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a><span class="co"># Estimate sampling variances</span></span>
+<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a><span class="fu">svymean</span>(<span class="at">x =</span> <span class="sc">~</span> TOTSTAFF, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">design =</span> gen_boot_design_sd2)</span>
+<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a><span class="co">#&gt;            mean     SE</span></span>
+<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a><span class="co">#&gt; TOTSTAFF 19.756 4.2251</span></span></code></pre></div>
 <p>For a PPS design that uses the Horvitz-Thompson or Yates-Grundy
 estimator, we can create a generalized bootstrap estimator with the same
 expectation. In the example below, we create a PPS design with the
 ‘survey’ package and convert it to a generalized bootstrap design.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># Load example data of a PPS survey of counties and states</span></span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>   <span class="fu">data</span>(<span class="st">&#39;election&#39;</span>, <span class="at">package =</span> <span class="st">&#39;survey&#39;</span>)</span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a></span>
-<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="co"># Create survey design object</span></span>
-<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>   pps_design_ht <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(</span>
-<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>     <span class="at">data =</span> election_pps,</span>
-<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>     <span class="at">id =</span> <span class="sc">~</span><span class="dv">1</span>, <span class="at">fpc =</span> <span class="sc">~</span>p,</span>
-<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>     <span class="at">pps =</span> <span class="fu">ppsmat</span>(election_jointprob),</span>
-<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>     <span class="at">variance =</span> <span class="st">&quot;HT&quot;</span></span>
-<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a>   )</span>
-<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a></span>
-<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a>  </span>
-<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a><span class="co"># Convert to generalized bootstrap replicate design</span></span>
-<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a>gen_boot_design_ht <span class="ot">&lt;-</span> pps_design_ht <span class="sc">|&gt;</span></span>
-<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a>  <span class="fu">as_gen_boot_design</span>(<span class="at">variance_estimator =</span> <span class="st">&quot;Horvitz-Thompson&quot;</span>,</span>
-<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a>                     <span class="at">replicates =</span> <span class="dv">5000</span>, <span class="at">tau =</span> <span class="st">&quot;auto&quot;</span>)</span>
-<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a></span>
-<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a><span class="co"># Compare sampling variances from bootstrap vs. Horvitz-Thompson estimator</span></span>
-<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a><span class="fu">svytotal</span>(<span class="at">x =</span> <span class="sc">~</span> Bush <span class="sc">+</span> Kerry, <span class="at">design =</span> pps_design_ht)</span>
-<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a><span class="fu">svytotal</span>(<span class="at">x =</span> <span class="sc">~</span> Bush <span class="sc">+</span> Kerry, <span class="at">design =</span> gen_boot_design_ht)</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="co"># Load example data of a PPS survey of counties and states</span></span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>   <span class="fu">data</span>(<span class="st">&#39;election&#39;</span>, <span class="at">package =</span> <span class="st">&#39;survey&#39;</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="co"># Create survey design object</span></span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a>   pps_design_ht <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(</span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a>     <span class="at">data     =</span> election_pps,</span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a>     <span class="at">id       =</span> <span class="sc">~</span><span class="dv">1</span>, </span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a>     <span class="at">fpc      =</span> <span class="sc">~</span>p,</span>
+<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a>     <span class="at">pps      =</span> <span class="fu">ppsmat</span>(election_jointprob),</span>
+<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a>     <span class="at">variance =</span> <span class="st">&quot;HT&quot;</span></span>
+<span id="cb14-11"><a href="#cb14-11" tabindex="-1"></a>   )</span>
+<span id="cb14-12"><a href="#cb14-12" tabindex="-1"></a></span>
+<span id="cb14-13"><a href="#cb14-13" tabindex="-1"></a>  </span>
+<span id="cb14-14"><a href="#cb14-14" tabindex="-1"></a><span class="co"># Convert to generalized bootstrap replicate design</span></span>
+<span id="cb14-15"><a href="#cb14-15" tabindex="-1"></a>gen_boot_design_ht <span class="ot">&lt;-</span> pps_design_ht <span class="sc">|&gt;</span></span>
+<span id="cb14-16"><a href="#cb14-16" tabindex="-1"></a>  <span class="fu">as_gen_boot_design</span>(<span class="at">variance_estimator =</span> <span class="st">&quot;Horvitz-Thompson&quot;</span>,</span>
+<span id="cb14-17"><a href="#cb14-17" tabindex="-1"></a>                     <span class="at">replicates =</span> <span class="dv">5000</span>, <span class="at">tau =</span> <span class="st">&quot;auto&quot;</span>)</span>
+<span id="cb14-18"><a href="#cb14-18" tabindex="-1"></a></span>
+<span id="cb14-19"><a href="#cb14-19" tabindex="-1"></a><span class="co"># Compare sampling variances from bootstrap vs. Horvitz-Thompson estimator</span></span>
+<span id="cb14-20"><a href="#cb14-20" tabindex="-1"></a><span class="fu">svytotal</span>(<span class="at">x =</span> <span class="sc">~</span> Bush <span class="sc">+</span> Kerry, <span class="at">design =</span> pps_design_ht)</span>
+<span id="cb14-21"><a href="#cb14-21" tabindex="-1"></a><span class="fu">svytotal</span>(<span class="at">x =</span> <span class="sc">~</span> Bush <span class="sc">+</span> Kerry, <span class="at">design =</span> gen_boot_design_ht)</span></code></pre></div>
 <p>We can also use the generalized bootstrap for designs that use
 multistage, stratified simple random sampling without replacement.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">library</span>(dplyr) <span class="co"># For data manipulation</span></span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a></span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co"># Create a multistage survey design</span></span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>  multistage_design <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(</span>
-<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>    <span class="at">data =</span> library_multistage_sample <span class="sc">|&gt;</span></span>
-<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>      <span class="fu">mutate</span>(<span class="at">Weight =</span> <span class="dv">1</span><span class="sc">/</span>SAMPLING_PROB),</span>
-<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>    <span class="at">ids =</span> <span class="sc">~</span> PSU_ID <span class="sc">+</span> SSU_ID,</span>
-<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>    <span class="at">fpc =</span> <span class="sc">~</span> PSU_POP_SIZE <span class="sc">+</span> SSU_POP_SIZE,</span>
-<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a>    <span class="at">weights =</span> <span class="sc">~</span> Weight</span>
-<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a>  )</span>
-<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a></span>
-<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a><span class="co"># Convert to a generalized bootstrap design</span></span>
-<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a>  multistage_boot_design <span class="ot">&lt;-</span> <span class="fu">as_gen_boot_design</span>(</span>
-<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a>    <span class="at">design =</span> multistage_design,</span>
-<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a>    <span class="at">variance_estimator =</span> <span class="st">&quot;Stratified Multistage SRS&quot;</span></span>
-<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a>  )</span>
-<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a></span>
-<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a><span class="co"># Compare variance estimates</span></span>
-<span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a>  <span class="fu">svytotal</span>(<span class="at">x =</span> <span class="sc">~</span> TOTCIR, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">design =</span> multistage_design)</span>
-<span id="cb10-20"><a href="#cb10-20" tabindex="-1"></a><span class="co">#&gt;             total        SE</span></span>
-<span id="cb10-21"><a href="#cb10-21" tabindex="-1"></a><span class="co">#&gt; TOTCIR 1634739229 251589313</span></span>
-<span id="cb10-22"><a href="#cb10-22" tabindex="-1"></a>  <span class="fu">svytotal</span>(<span class="at">x =</span> <span class="sc">~</span> TOTCIR, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">design =</span> multistage_boot_design)</span>
-<span id="cb10-23"><a href="#cb10-23" tabindex="-1"></a><span class="co">#&gt;             total        SE</span></span>
-<span id="cb10-24"><a href="#cb10-24" tabindex="-1"></a><span class="co">#&gt; TOTCIR 1634739229 250754549</span></span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="fu">library</span>(dplyr) <span class="co"># For data manipulation</span></span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a><span class="co"># Create a multistage survey design</span></span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a>  multistage_design <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(</span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a>    <span class="at">data =</span> library_multistage_sample <span class="sc">|&gt;</span></span>
+<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a>      <span class="fu">mutate</span>(<span class="at">Weight =</span> <span class="dv">1</span><span class="sc">/</span>SAMPLING_PROB),</span>
+<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a>    <span class="at">ids =</span> <span class="sc">~</span> PSU_ID <span class="sc">+</span> SSU_ID,</span>
+<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a>    <span class="at">fpc =</span> <span class="sc">~</span> PSU_POP_SIZE <span class="sc">+</span> SSU_POP_SIZE,</span>
+<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a>    <span class="at">weights =</span> <span class="sc">~</span> Weight</span>
+<span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a>  )</span>
+<span id="cb15-11"><a href="#cb15-11" tabindex="-1"></a></span>
+<span id="cb15-12"><a href="#cb15-12" tabindex="-1"></a><span class="co"># Convert to a generalized bootstrap design</span></span>
+<span id="cb15-13"><a href="#cb15-13" tabindex="-1"></a>  multistage_boot_design <span class="ot">&lt;-</span> <span class="fu">as_gen_boot_design</span>(</span>
+<span id="cb15-14"><a href="#cb15-14" tabindex="-1"></a>    <span class="at">design =</span> multistage_design,</span>
+<span id="cb15-15"><a href="#cb15-15" tabindex="-1"></a>    <span class="at">variance_estimator =</span> <span class="st">&quot;Stratified Multistage SRS&quot;</span></span>
+<span id="cb15-16"><a href="#cb15-16" tabindex="-1"></a>  )</span>
+<span id="cb15-17"><a href="#cb15-17" tabindex="-1"></a></span>
+<span id="cb15-18"><a href="#cb15-18" tabindex="-1"></a><span class="co"># Compare variance estimates</span></span>
+<span id="cb15-19"><a href="#cb15-19" tabindex="-1"></a>  <span class="fu">svytotal</span>(<span class="at">x =</span> <span class="sc">~</span> TOTCIR, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">design =</span> multistage_design)</span>
+<span id="cb15-20"><a href="#cb15-20" tabindex="-1"></a><span class="co">#&gt;             total        SE</span></span>
+<span id="cb15-21"><a href="#cb15-21" tabindex="-1"></a><span class="co">#&gt; TOTCIR 1634739229 251589313</span></span>
+<span id="cb15-22"><a href="#cb15-22" tabindex="-1"></a>  <span class="fu">svytotal</span>(<span class="at">x =</span> <span class="sc">~</span> TOTCIR, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">design =</span> multistage_boot_design)</span>
+<span id="cb15-23"><a href="#cb15-23" tabindex="-1"></a><span class="co">#&gt;             total        SE</span></span>
+<span id="cb15-24"><a href="#cb15-24" tabindex="-1"></a><span class="co">#&gt; TOTCIR 1634739229 255663156</span></span></code></pre></div>
 <p>Unless specified otherwise, <code>as_gen_boot_design()</code>
 automatically selects a rescaling value <span class="math inline">\(\tau\)</span> to use for eliminating negative
 adjustment factors. The <code>scale</code> attribute of the resulting
 replicate survey design object is thus set to equal <span class="math inline">\(\tau^2/B\)</span>. The specific value of <span class="math inline">\(\tau\)</span> can be retrieved from the replicate
 design object, as follows.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="co"># View overall scale factor</span></span>
-<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>overall_scale_factor <span class="ot">&lt;-</span> multistage_boot_design<span class="sc">$</span>scale</span>
-<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a><span class="fu">print</span>(overall_scale_factor)</span>
-<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a><span class="co">#&gt; [1] 0.002</span></span>
-<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a></span>
-<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a><span class="co"># Check that the scale factor was calculated correctly</span></span>
-<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a>tau <span class="ot">&lt;-</span> multistage_boot_design<span class="sc">$</span>tau</span>
-<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a><span class="fu">print</span>(tau)</span>
-<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a><span class="co">#&gt; [1] 1</span></span>
-<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="fu">ncol</span>(multistage_boot_design<span class="sc">$</span>repweights)</span>
-<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a><span class="fu">print</span>(B)</span>
-<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a><span class="co">#&gt; [1] 500</span></span>
-<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a></span>
-<span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a><span class="fu">print</span>( (tau<span class="sc">^</span><span class="dv">2</span>) <span class="sc">/</span> B )</span>
-<span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a><span class="co">#&gt; [1] 0.002</span></span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="co"># View overall scale factor</span></span>
+<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a>overall_scale_factor <span class="ot">&lt;-</span> multistage_boot_design<span class="sc">$</span>scale</span>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a><span class="fu">print</span>(overall_scale_factor)</span>
+<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a><span class="co">#&gt; [1] 0.002</span></span>
+<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a></span>
+<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a><span class="co"># Check that the scale factor was calculated correctly</span></span>
+<span id="cb16-7"><a href="#cb16-7" tabindex="-1"></a>tau <span class="ot">&lt;-</span> multistage_boot_design<span class="sc">$</span>tau</span>
+<span id="cb16-8"><a href="#cb16-8" tabindex="-1"></a><span class="fu">print</span>(tau)</span>
+<span id="cb16-9"><a href="#cb16-9" tabindex="-1"></a><span class="co">#&gt; [1] 1</span></span>
+<span id="cb16-10"><a href="#cb16-10" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="fu">ncol</span>(multistage_boot_design<span class="sc">$</span>repweights)</span>
+<span id="cb16-11"><a href="#cb16-11" tabindex="-1"></a><span class="fu">print</span>(B)</span>
+<span id="cb16-12"><a href="#cb16-12" tabindex="-1"></a><span class="co">#&gt; [1] 500</span></span>
+<span id="cb16-13"><a href="#cb16-13" tabindex="-1"></a></span>
+<span id="cb16-14"><a href="#cb16-14" tabindex="-1"></a><span class="fu">print</span>( (tau<span class="sc">^</span><span class="dv">2</span>) <span class="sc">/</span> B )</span>
+<span id="cb16-15"><a href="#cb16-15" tabindex="-1"></a><span class="co">#&gt; [1] 0.002</span></span></code></pre></div>
 </div>
 <div id="option-2-create-the-quadratic-form-matrix-and-then-use-it-to-create-bootstrap-weights" class="section level3">
 <h3>Option 2: Create the quadratic form matrix and then use it to create
@@ -875,72 +994,72 @@ process:</p>
 <li><strong>Step 1</strong>: Use <code>make_quad_form_matrix()</code> to
 represent the variance estimator as a quadratic form’s matrix.</li>
 </ul>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="co"># Load an example dataset of a stratified systematic sample</span></span>
-<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&#39;library_stsys_sample&#39;</span>, <span class="at">package =</span> <span class="st">&#39;svrep&#39;</span>)</span>
-<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a></span>
-<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="co"># Represent the SD2 successive-difference estimator as a quadratic form,</span></span>
-<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a><span class="co"># and obtain the matrix of that quadratic form</span></span>
-<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a>sd2_quad_form <span class="ot">&lt;-</span> <span class="fu">make_quad_form_matrix</span>(</span>
-<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a>  <span class="at">variance_estimator =</span> <span class="st">&#39;SD2&#39;</span>,</span>
-<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a>  <span class="at">cluster_ids =</span> library_stsys_sample <span class="sc">|&gt;</span> <span class="fu">select</span>(FSCSKEY),</span>
-<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a>  <span class="at">strata_ids =</span> library_stsys_sample <span class="sc">|&gt;</span> <span class="fu">select</span>(SAMPLING_STRATUM),</span>
-<span id="cb12-10"><a href="#cb12-10" tabindex="-1"></a>  <span class="at">strata_pop_sizes =</span> library_stsys_sample <span class="sc">|&gt;</span> <span class="fu">select</span>(STRATUM_POP_SIZE),</span>
-<span id="cb12-11"><a href="#cb12-11" tabindex="-1"></a>  <span class="at">sort_order =</span> library_stsys_sample <span class="sc">|&gt;</span> <span class="fu">pull</span>(<span class="st">&quot;SAMPLING_SORT_ORDER&quot;</span>)</span>
-<span id="cb12-12"><a href="#cb12-12" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a><span class="co"># Load an example dataset of a stratified systematic sample</span></span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&#39;library_stsys_sample&#39;</span>, <span class="at">package =</span> <span class="st">&#39;svrep&#39;</span>)</span>
+<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a><span class="co"># Represent the SD2 successive-difference estimator as a quadratic form,</span></span>
+<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a><span class="co"># and obtain the matrix of that quadratic form</span></span>
+<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a>sd2_quad_form <span class="ot">&lt;-</span> <span class="fu">make_quad_form_matrix</span>(</span>
+<span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a>  <span class="at">variance_estimator =</span> <span class="st">&#39;SD2&#39;</span>,</span>
+<span id="cb17-8"><a href="#cb17-8" tabindex="-1"></a>  <span class="at">cluster_ids        =</span> library_stsys_sample <span class="sc">|&gt;</span> <span class="fu">select</span>(FSCSKEY),</span>
+<span id="cb17-9"><a href="#cb17-9" tabindex="-1"></a>  <span class="at">strata_ids         =</span> library_stsys_sample <span class="sc">|&gt;</span> <span class="fu">select</span>(SAMPLING_STRATUM),</span>
+<span id="cb17-10"><a href="#cb17-10" tabindex="-1"></a>  <span class="at">strata_pop_sizes   =</span> library_stsys_sample <span class="sc">|&gt;</span> <span class="fu">select</span>(STRATUM_POP_SIZE),</span>
+<span id="cb17-11"><a href="#cb17-11" tabindex="-1"></a>  <span class="at">sort_order         =</span> library_stsys_sample <span class="sc">|&gt;</span> <span class="fu">pull</span>(<span class="st">&quot;SAMPLING_SORT_ORDER&quot;</span>)</span>
+<span id="cb17-12"><a href="#cb17-12" tabindex="-1"></a>)</span></code></pre></div>
 <ul>
 <li><strong>Step 2</strong>: Use <code>make_gen_boot_factors()</code> to
 generate replicate factors based on the target quadratic form. The
 function argument <code>tau</code> can be used to avoid negative
 adjustment factors using the previously-described method.</li>
 </ul>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>rep_adj_factors <span class="ot">&lt;-</span> <span class="fu">make_gen_boot_factors</span>(</span>
-<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>  <span class="at">Sigma =</span> sd2_quad_form,</span>
-<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>  <span class="at">num_replicates =</span> <span class="dv">500</span>,</span>
-<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a>  <span class="at">tau =</span> <span class="st">&quot;auto&quot;</span></span>
-<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a>rep_adj_factors <span class="ot">&lt;-</span> <span class="fu">make_gen_boot_factors</span>(</span>
+<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a>  <span class="at">Sigma          =</span> sd2_quad_form,</span>
+<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a>  <span class="at">num_replicates =</span> <span class="dv">500</span>,</span>
+<span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a>  <span class="at">tau            =</span> <span class="st">&quot;auto&quot;</span></span>
+<span id="cb18-5"><a href="#cb18-5" tabindex="-1"></a>)</span></code></pre></div>
 <p>The actual value of <code>tau</code> used can be extracted from the
 function’s output using the <code>attr()</code> function.</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>tau <span class="ot">&lt;-</span> <span class="fu">attr</span>(rep_adj_factors, <span class="st">&#39;tau&#39;</span>)</span>
-<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="fu">ncol</span>(rep_adj_factors)</span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a>tau <span class="ot">&lt;-</span> <span class="fu">attr</span>(rep_adj_factors, <span class="st">&#39;tau&#39;</span>)</span>
+<span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a>B   <span class="ot">&lt;-</span> <span class="fu">ncol</span>(rep_adj_factors)</span></code></pre></div>
 <p>For convenience, the values to use for the <code>scale</code> and
 <code>rscales</code> arguments of <code>svrepdesign()</code> are
 included as attributes of the adjustment factors created by
 <code>make_gen_boot_factors()</code>.</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="co"># Retrieve value of &#39;scale&#39;</span></span>
-<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a>rep_adj_factors <span class="sc">|&gt;</span></span>
-<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a>  <span class="fu">attr</span>(<span class="st">&#39;scale&#39;</span>) </span>
-<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="co">#&gt; [1] 0.04124</span></span>
-<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a></span>
-<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a><span class="co"># Compare to manually-calculated value</span></span>
-<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a>  (tau<span class="sc">^</span><span class="dv">2</span>) <span class="sc">/</span> B</span>
-<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a><span class="co">#&gt; [1] 0.04124</span></span>
-<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a></span>
-<span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a><span class="co"># Retrieve value of &#39;rscales&#39;</span></span>
-<span id="cb15-11"><a href="#cb15-11" tabindex="-1"></a>rep_adj_factors <span class="sc">|&gt;</span></span>
-<span id="cb15-12"><a href="#cb15-12" tabindex="-1"></a>  <span class="fu">attr</span>(<span class="st">&#39;rscales&#39;</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb15-13"><a href="#cb15-13" tabindex="-1"></a>  <span class="fu">head</span>() <span class="co"># Only show first 5 values</span></span>
-<span id="cb15-14"><a href="#cb15-14" tabindex="-1"></a><span class="co">#&gt; [1] 1 1 1 1 1 1</span></span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a><span class="co"># Retrieve value of &#39;scale&#39;</span></span>
+<span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a>rep_adj_factors <span class="sc">|&gt;</span></span>
+<span id="cb20-3"><a href="#cb20-3" tabindex="-1"></a>  <span class="fu">attr</span>(<span class="st">&#39;scale&#39;</span>) </span>
+<span id="cb20-4"><a href="#cb20-4" tabindex="-1"></a><span class="co">#&gt; [1] 0.04076</span></span>
+<span id="cb20-5"><a href="#cb20-5" tabindex="-1"></a></span>
+<span id="cb20-6"><a href="#cb20-6" tabindex="-1"></a><span class="co"># Compare to manually-calculated value</span></span>
+<span id="cb20-7"><a href="#cb20-7" tabindex="-1"></a>  (tau<span class="sc">^</span><span class="dv">2</span>) <span class="sc">/</span> B</span>
+<span id="cb20-8"><a href="#cb20-8" tabindex="-1"></a><span class="co">#&gt; [1] 0.04076</span></span>
+<span id="cb20-9"><a href="#cb20-9" tabindex="-1"></a></span>
+<span id="cb20-10"><a href="#cb20-10" tabindex="-1"></a><span class="co"># Retrieve value of &#39;rscales&#39;</span></span>
+<span id="cb20-11"><a href="#cb20-11" tabindex="-1"></a>rep_adj_factors <span class="sc">|&gt;</span></span>
+<span id="cb20-12"><a href="#cb20-12" tabindex="-1"></a>  <span class="fu">attr</span>(<span class="st">&#39;rscales&#39;</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb20-13"><a href="#cb20-13" tabindex="-1"></a>  <span class="fu">head</span>() <span class="co"># Only show first 5 values</span></span>
+<span id="cb20-14"><a href="#cb20-14" tabindex="-1"></a><span class="co">#&gt; [1] 1 1 1 1 1 1</span></span></code></pre></div>
 <p>Using the adjustment factors thus created, we can create a replicate
 survey design object by using the function <code>svrepdesign()</code>,
 with arguments <code>type = &quot;other&quot;</code> and specifying the
 <code>scale</code> argument to use the factor <span class="math inline">\(\tau^2/B\)</span>.</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a>gen_boot_design <span class="ot">&lt;-</span> <span class="fu">svrepdesign</span>(</span>
-<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a>  <span class="at">data =</span> library_stsys_sample <span class="sc">|&gt;</span></span>
-<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">SAMPLING_WEIGHT =</span> <span class="dv">1</span><span class="sc">/</span>SAMPLING_PROB),</span>
-<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a>  <span class="at">repweights =</span> rep_adj_factors,</span>
-<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a>  <span class="at">weights =</span> <span class="sc">~</span> SAMPLING_WEIGHT,</span>
-<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a>  <span class="at">combined.weights =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb16-7"><a href="#cb16-7" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">&quot;other&quot;</span>,</span>
-<span id="cb16-8"><a href="#cb16-8" tabindex="-1"></a>  <span class="at">scale =</span> <span class="fu">attr</span>(rep_adj_factors, <span class="st">&#39;scale&#39;</span>),</span>
-<span id="cb16-9"><a href="#cb16-9" tabindex="-1"></a>  <span class="at">rscales =</span> <span class="fu">attr</span>(rep_adj_factors, <span class="st">&#39;rscales&#39;</span>)</span>
-<span id="cb16-10"><a href="#cb16-10" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a>gen_boot_design <span class="ot">&lt;-</span> <span class="fu">svrepdesign</span>(</span>
+<span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a>  <span class="at">data =</span> library_stsys_sample <span class="sc">|&gt;</span></span>
+<span id="cb21-3"><a href="#cb21-3" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">SAMPLING_WEIGHT =</span> <span class="dv">1</span><span class="sc">/</span>SAMPLING_PROB),</span>
+<span id="cb21-4"><a href="#cb21-4" tabindex="-1"></a>  <span class="at">repweights       =</span> rep_adj_factors,</span>
+<span id="cb21-5"><a href="#cb21-5" tabindex="-1"></a>  <span class="at">weights          =</span> <span class="sc">~</span> SAMPLING_WEIGHT,</span>
+<span id="cb21-6"><a href="#cb21-6" tabindex="-1"></a>  <span class="at">combined.weights =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb21-7"><a href="#cb21-7" tabindex="-1"></a>  <span class="at">type             =</span> <span class="st">&quot;other&quot;</span>,</span>
+<span id="cb21-8"><a href="#cb21-8" tabindex="-1"></a>  <span class="at">scale            =</span> <span class="fu">attr</span>(rep_adj_factors, <span class="st">&#39;scale&#39;</span>),</span>
+<span id="cb21-9"><a href="#cb21-9" tabindex="-1"></a>  <span class="at">rscales          =</span> <span class="fu">attr</span>(rep_adj_factors, <span class="st">&#39;rscales&#39;</span>)</span>
+<span id="cb21-10"><a href="#cb21-10" tabindex="-1"></a>)</span></code></pre></div>
 <p>This allows us to estimate sampling variances, even for quite complex
 sampling designs.</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a>gen_boot_design <span class="sc">|&gt;</span></span>
-<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a>  <span class="fu">svymean</span>(<span class="at">x =</span> <span class="sc">~</span> TOTSTAFF,</span>
-<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a>          <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">deff =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a><span class="co">#&gt;            mean     SE   DEff</span></span>
-<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a><span class="co">#&gt; TOTSTAFF 19.756  4.149 0.9455</span></span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a>gen_boot_design <span class="sc">|&gt;</span></span>
+<span id="cb22-2"><a href="#cb22-2" tabindex="-1"></a>  <span class="fu">svymean</span>(<span class="at">x =</span> <span class="sc">~</span> TOTSTAFF,</span>
+<span id="cb22-3"><a href="#cb22-3" tabindex="-1"></a>          <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">deff =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb22-4"><a href="#cb22-4" tabindex="-1"></a><span class="co">#&gt;             mean      SE   DEff</span></span>
+<span id="cb22-5"><a href="#cb22-5" tabindex="-1"></a><span class="co">#&gt; TOTSTAFF 19.7565  4.2014 0.9695</span></span></code></pre></div>
 </div>
 </div>
 </div>
@@ -1009,43 +1128,43 @@ determining the number of bootstrap replicates to use for a survey.</p>
 <p>With the ‘svrep’ package, it is possible to estimate the number of
 bootstrap replicates required to obtain a target simulation CV for a
 statistic.</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a><span class="fu">library</span>(survey)</span>
-<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&#39;api&#39;</span>, <span class="at">package =</span> <span class="st">&#39;survey&#39;</span>)</span>
-<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a></span>
-<span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a><span class="co"># Declare a bootstrap survey design object ----</span></span>
-<span id="cb18-5"><a href="#cb18-5" tabindex="-1"></a>  boot_design <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(</span>
-<span id="cb18-6"><a href="#cb18-6" tabindex="-1"></a>    <span class="at">data =</span> apistrat,</span>
-<span id="cb18-7"><a href="#cb18-7" tabindex="-1"></a>    <span class="at">weights =</span> <span class="sc">~</span>pw,</span>
-<span id="cb18-8"><a href="#cb18-8" tabindex="-1"></a>    <span class="at">id =</span> <span class="sc">~</span><span class="dv">1</span>,</span>
-<span id="cb18-9"><a href="#cb18-9" tabindex="-1"></a>    <span class="at">strata =</span> <span class="sc">~</span>stype,</span>
-<span id="cb18-10"><a href="#cb18-10" tabindex="-1"></a>    <span class="at">fpc =</span> <span class="sc">~</span>fpc</span>
-<span id="cb18-11"><a href="#cb18-11" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb18-12"><a href="#cb18-12" tabindex="-1"></a>    svrep<span class="sc">::</span><span class="fu">as_bootstrap_design</span>(<span class="at">replicates =</span> <span class="dv">5000</span>)</span>
-<span id="cb18-13"><a href="#cb18-13" tabindex="-1"></a></span>
-<span id="cb18-14"><a href="#cb18-14" tabindex="-1"></a><span class="co"># Produce estimates of interest, and save the estimate from each replicate ----</span></span>
-<span id="cb18-15"><a href="#cb18-15" tabindex="-1"></a>  estimated_means_and_proportions <span class="ot">&lt;-</span> <span class="fu">svymean</span>(<span class="at">x =</span> <span class="sc">~</span> api00 <span class="sc">+</span> api99 <span class="sc">+</span> stype,</span>
-<span id="cb18-16"><a href="#cb18-16" tabindex="-1"></a>                                             <span class="at">design =</span> boot_design,</span>
-<span id="cb18-17"><a href="#cb18-17" tabindex="-1"></a>                                             <span class="at">return.replicates =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb18-18"><a href="#cb18-18" tabindex="-1"></a></span>
-<span id="cb18-19"><a href="#cb18-19" tabindex="-1"></a><span class="co"># Estimate the number of replicates needed to obtain a target simulation CV ----</span></span>
-<span id="cb18-20"><a href="#cb18-20" tabindex="-1"></a>  <span class="fu">estimate_boot_reps_for_target_cv</span>(</span>
-<span id="cb18-21"><a href="#cb18-21" tabindex="-1"></a>    <span class="at">svrepstat =</span> estimated_means_and_proportions,</span>
-<span id="cb18-22"><a href="#cb18-22" tabindex="-1"></a>    <span class="at">target_cv =</span> <span class="fu">c</span>(<span class="fl">0.01</span>, <span class="fl">0.05</span>, <span class="fl">0.10</span>)</span>
-<span id="cb18-23"><a href="#cb18-23" tabindex="-1"></a>  )</span>
-<span id="cb18-24"><a href="#cb18-24" tabindex="-1"></a><span class="co">#&gt;   TARGET_CV MAX_REPS api00 api99 stypeE stypeH stypeM</span></span>
-<span id="cb18-25"><a href="#cb18-25" tabindex="-1"></a><span class="co">#&gt; 1      0.01    15068  6651  6650  15068  15068  15068</span></span>
-<span id="cb18-26"><a href="#cb18-26" tabindex="-1"></a><span class="co">#&gt; 2      0.05      603   267   266    603    603    603</span></span>
-<span id="cb18-27"><a href="#cb18-27" tabindex="-1"></a><span class="co">#&gt; 3      0.10      151    67    67    151    151    151</span></span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" tabindex="-1"></a><span class="fu">library</span>(survey)</span>
+<span id="cb23-2"><a href="#cb23-2" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&#39;api&#39;</span>, <span class="at">package =</span> <span class="st">&#39;survey&#39;</span>)</span>
+<span id="cb23-3"><a href="#cb23-3" tabindex="-1"></a></span>
+<span id="cb23-4"><a href="#cb23-4" tabindex="-1"></a><span class="co"># Declare a bootstrap survey design object ----</span></span>
+<span id="cb23-5"><a href="#cb23-5" tabindex="-1"></a>  boot_design <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(</span>
+<span id="cb23-6"><a href="#cb23-6" tabindex="-1"></a>    <span class="at">data    =</span> apistrat,</span>
+<span id="cb23-7"><a href="#cb23-7" tabindex="-1"></a>    <span class="at">weights =</span> <span class="sc">~</span>pw,</span>
+<span id="cb23-8"><a href="#cb23-8" tabindex="-1"></a>    <span class="at">id      =</span> <span class="sc">~</span><span class="dv">1</span>,</span>
+<span id="cb23-9"><a href="#cb23-9" tabindex="-1"></a>    <span class="at">strata  =</span> <span class="sc">~</span>stype,</span>
+<span id="cb23-10"><a href="#cb23-10" tabindex="-1"></a>    <span class="at">fpc     =</span> <span class="sc">~</span>fpc</span>
+<span id="cb23-11"><a href="#cb23-11" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb23-12"><a href="#cb23-12" tabindex="-1"></a>    svrep<span class="sc">::</span><span class="fu">as_bootstrap_design</span>(<span class="at">replicates =</span> <span class="dv">5000</span>)</span>
+<span id="cb23-13"><a href="#cb23-13" tabindex="-1"></a></span>
+<span id="cb23-14"><a href="#cb23-14" tabindex="-1"></a><span class="co"># Produce estimates of interest, and save the estimate from each replicate ----</span></span>
+<span id="cb23-15"><a href="#cb23-15" tabindex="-1"></a>  estimated_means_and_proportions <span class="ot">&lt;-</span> <span class="fu">svymean</span>(<span class="at">x =</span> <span class="sc">~</span> api00 <span class="sc">+</span> api99 <span class="sc">+</span> stype,</span>
+<span id="cb23-16"><a href="#cb23-16" tabindex="-1"></a>                                             <span class="at">design =</span> boot_design,</span>
+<span id="cb23-17"><a href="#cb23-17" tabindex="-1"></a>                                             <span class="at">return.replicates =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb23-18"><a href="#cb23-18" tabindex="-1"></a></span>
+<span id="cb23-19"><a href="#cb23-19" tabindex="-1"></a><span class="co"># Estimate the number of replicates needed to obtain a target simulation CV ----</span></span>
+<span id="cb23-20"><a href="#cb23-20" tabindex="-1"></a>  <span class="fu">estimate_boot_reps_for_target_cv</span>(</span>
+<span id="cb23-21"><a href="#cb23-21" tabindex="-1"></a>    <span class="at">svrepstat =</span> estimated_means_and_proportions,</span>
+<span id="cb23-22"><a href="#cb23-22" tabindex="-1"></a>    <span class="at">target_cv =</span> <span class="fu">c</span>(<span class="fl">0.01</span>, <span class="fl">0.05</span>, <span class="fl">0.10</span>)</span>
+<span id="cb23-23"><a href="#cb23-23" tabindex="-1"></a>  )</span>
+<span id="cb23-24"><a href="#cb23-24" tabindex="-1"></a><span class="co">#&gt;   TARGET_CV MAX_REPS api00 api99 stypeE stypeH stypeM</span></span>
+<span id="cb23-25"><a href="#cb23-25" tabindex="-1"></a><span class="co">#&gt; 1      0.01    15068  6650  6649  15068  15068  15068</span></span>
+<span id="cb23-26"><a href="#cb23-26" tabindex="-1"></a><span class="co">#&gt; 2      0.05      603   266   266    603    603    603</span></span>
+<span id="cb23-27"><a href="#cb23-27" tabindex="-1"></a><span class="co">#&gt; 3      0.10      151    67    67    151    151    151</span></span></code></pre></div>
 <p>To estimate the simulation CV for the current number of replicates
 used, it is possible to use the function
 <code>estimate_boot_sim_cv()</code>.</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a><span class="fu">estimate_boot_sim_cv</span>(estimated_means_and_proportions)</span>
-<span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a><span class="co">#&gt;   STATISTIC SIMULATION_CV N_REPLICATES</span></span>
-<span id="cb19-3"><a href="#cb19-3" tabindex="-1"></a><span class="co">#&gt; 1     api00    0.01153261         5000</span></span>
-<span id="cb19-4"><a href="#cb19-4" tabindex="-1"></a><span class="co">#&gt; 2     api99    0.01153177         5000</span></span>
-<span id="cb19-5"><a href="#cb19-5" tabindex="-1"></a><span class="co">#&gt; 3    stypeE    0.01735956         5000</span></span>
-<span id="cb19-6"><a href="#cb19-6" tabindex="-1"></a><span class="co">#&gt; 4    stypeH    0.01735950         5000</span></span>
-<span id="cb19-7"><a href="#cb19-7" tabindex="-1"></a><span class="co">#&gt; 5    stypeM    0.01735951         5000</span></span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" tabindex="-1"></a><span class="fu">estimate_boot_sim_cv</span>(estimated_means_and_proportions)</span>
+<span id="cb24-2"><a href="#cb24-2" tabindex="-1"></a><span class="co">#&gt;   STATISTIC SIMULATION_CV N_REPLICATES</span></span>
+<span id="cb24-3"><a href="#cb24-3" tabindex="-1"></a><span class="co">#&gt; 1     api00    0.01153197         5000</span></span>
+<span id="cb24-4"><a href="#cb24-4" tabindex="-1"></a><span class="co">#&gt; 2     api99    0.01153134         5000</span></span>
+<span id="cb24-5"><a href="#cb24-5" tabindex="-1"></a><span class="co">#&gt; 3    stypeE    0.01735954         5000</span></span>
+<span id="cb24-6"><a href="#cb24-6" tabindex="-1"></a><span class="co">#&gt; 4    stypeH    0.01735949         5000</span></span>
+<span id="cb24-7"><a href="#cb24-7" tabindex="-1"></a><span class="co">#&gt; 5    stypeM    0.01735949         5000</span></span></code></pre></div>
 </div>
 </div>
 <div id="the-bootstrap-vs.-other-replication-methods" class="section level1">
@@ -1140,7 +1259,7 @@ sizes.</p></li>
 </div>
 <div id="references" class="section level1 unnumbered">
 <h1 class="unnumbered">References</h1>
-<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-ash2014" class="csl-entry">
 Ash, Stephen. 2014. <span>“Using Successive Difference Replication for
 Estimating Variances.”</span> <em>Survey Methodology, Statistics

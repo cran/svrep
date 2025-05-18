@@ -43,7 +43,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
 { counter-reset: source-line 0; }
@@ -441,7 +441,7 @@ estimation using provided replicate weights.</p>
 <span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a><span class="co">#&gt;     repweights = &quot;PWGTP\\d{1,2}&quot;, type = &quot;successive-difference&quot;, </span></span>
 <span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a><span class="co">#&gt;     variables = ~AGE + SEX + RACE_ETHNICITY + EDUC_ATTAINMENT, </span></span>
 <span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a><span class="co">#&gt;     mse = TRUE)</span></span>
-<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a><span class="co">#&gt; Successive difference with 80 replicates and MSE variances.</span></span></code></pre></div>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a><span class="co">#&gt; with 80 replicates and MSE variances.</span></span></code></pre></div>
 <p>When conduction calibration, we have to make sure that the data from
 the control survey represent the same population as the primary survey.
 Since the Louisville vaccination survey only represents adults, we need
@@ -873,13 +873,13 @@ Hispanic or Latino</td>
 </tr>
 <tr class="odd">
 <td align="left">se1</td>
-<td align="right">13414.3618</td>
-<td align="right">13398.6829</td>
+<td align="right">13425.0629</td>
+<td align="right">13409.3779</td>
 </tr>
 <tr class="even">
 <td align="left">se2</td>
-<td align="right">13412.0351</td>
-<td align="right">13427.8218</td>
+<td align="right">13396.6464</td>
+<td align="right">13431.8766</td>
 </tr>
 <tr class="odd">
 <td align="left">se3</td>
@@ -1165,13 +1165,13 @@ Hispanic or Latino</td>
 </tr>
 <tr class="odd">
 <td align="left">se1</td>
-<td align="right">0.0234566</td>
-<td align="right">0.0234216</td>
+<td align="right">0.0234766</td>
+<td align="right">0.0234450</td>
 </tr>
 <tr class="even">
 <td align="left">se2</td>
-<td align="right">0.0234566</td>
-<td align="right">0.0234216</td>
+<td align="right">0.0234766</td>
+<td align="right">0.0234450</td>
 </tr>
 <tr class="odd">
 <td align="left">se3</td>
@@ -1239,7 +1239,7 @@ control totals, we can use the function argument
 <span id="cb24-5"><a href="#cb24-5" tabindex="-1"></a>                             <span class="at">size =</span> dimension_of_control_totals)</span>
 <span id="cb24-6"><a href="#cb24-6" tabindex="-1"></a></span>
 <span id="cb24-7"><a href="#cb24-7" tabindex="-1"></a><span class="fu">print</span>(columns_to_perturb)</span>
-<span id="cb24-8"><a href="#cb24-8" tabindex="-1"></a><span class="co">#&gt;  [1] 514 344  51 970 396 367 699 552 323 168 272 679 107 500 986 933</span></span>
+<span id="cb24-8"><a href="#cb24-8" tabindex="-1"></a><span class="co">#&gt;  [1]  85 856  82 131 451 952  46 113 524 377 916 685 901 717 960 610</span></span>
 <span id="cb24-9"><a href="#cb24-9" tabindex="-1"></a></span>
 <span id="cb24-10"><a href="#cb24-10" tabindex="-1"></a><span class="co"># Perform the calibration</span></span>
 <span id="cb24-11"><a href="#cb24-11" tabindex="-1"></a>poststratified_design <span class="ot">&lt;-</span> <span class="fu">calibrate_to_estimate</span>(</span>
@@ -1291,7 +1291,7 @@ primary survey replicate column was matched to.</p>
 </div>
 <div id="references" class="section level1 unnumbered">
 <h1 class="unnumbered">References</h1>
-<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-10.2307/24306529" class="csl-entry">
 Fuller, Wayne A. 1998. <span>“Replication <span>Variance
 Estimation</span> for <span>Two-Phase Samples</span>.”</span>

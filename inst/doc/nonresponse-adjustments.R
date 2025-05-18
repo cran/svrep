@@ -152,9 +152,9 @@ data_frame_with_nr_adjusted_weights <- nr_adjusted_survey |>
 colnames(data_frame_with_nr_adjusted_weights) |> head(12)
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  # Write the data to a CSV file
-#  write.csv(
-#    x = data_frame_with_nr_adjusted_weights,
-#    file = "survey-data-with-nonresponse-adjusted-weights.csv"
-#  )
+# # Write the data to a CSV file
+# write.csv(
+#   x = data_frame_with_nr_adjusted_weights,
+#   file = "survey-data-with-nonresponse-adjusted-weights.csv"
+# )
 
