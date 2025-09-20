@@ -2,7 +2,7 @@
 % Please edit documentation in R/successive-difference-replication.R
 \name{as_sdr_design}
 \alias{as_sdr_design}
-\title{Convert a survey design object to a successive differences replicate design}
+\title{Convert Survey Design to Successive Differences Replicate Design}
 \usage{
 as_sdr_design(
   design,
@@ -129,9 +129,8 @@ library(survey)
 data('library_stsys_sample', package = 'svrep')
 
 ## First, ensure data are sorted in same order as was used in sampling
-library_stsys_sample <- library_stsys_sample[
-  order(library_stsys_sample$SAMPLING_SORT_ORDER),
-]
+library_stsys_sample <- library_stsys_sample |>
+  sort_by(~ SAMPLING_SORT_ORDER)
 
 ## Create a survey design object
 design_obj <- svydesign(

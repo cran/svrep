@@ -1,4 +1,4 @@
-#' @title Add inactive replicates to a survey design object
+#' @title Add Inactive Replicates to a Survey Design Object
 #' @description Adds inactive replicates to a survey design object. An inactive
 #' replicate is a replicate that does not contribute to variance estimates but
 #' adds to the matrix of replicate weights so that the matrix has the desired
@@ -59,7 +59,6 @@
 #' @export
 #'
 #' @examples
-#' library(survey)
 #' set.seed(2023)
 #'
 #' # Create an example survey design object
@@ -77,7 +76,7 @@
 #'   rep_design <- survey_design |>
 #'     as.svrepdesign(type = "JK1", mse = TRUE)
 #'
-#' # Inspect replicates before subsampling
+#' # Inspect replicate weights
 #'
 #'   rep_design |> weights(type = "analysis")
 #'

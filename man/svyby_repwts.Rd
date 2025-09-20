@@ -2,7 +2,7 @@
 % Please edit documentation in R/svyby_repwts.R
 \name{svyby_repwts}
 \alias{svyby_repwts}
-\title{Compare survey statistics calculated separately from different sets of replicate weights}
+\title{Survey Statistics for Multiple Replicate Design Objects}
 \usage{
 svyby_repwts(
   rep_designs,
@@ -70,8 +70,7 @@ Whereas \code{svyby()} calculates statistics separately for each subset formed b
 \code{svyby_repwts()} calculates statistics separately for each replicate design, in addition to any additional user-specified grouping variables.
 }
 \examples{
-\dontrun{
-suppressPackageStartupMessages(library(survey))
+\donttest{
 data(api)
 
 dclus1 <- svydesign(id=~dnum, weights=~pw, data=apiclus1, fpc=~fpc)

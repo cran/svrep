@@ -2,7 +2,7 @@
 % Please edit documentation in R/bootstrap_helpers.R
 \name{estimate_boot_sim_cv}
 \alias{estimate_boot_sim_cv}
-\title{Estimate the bootstrap simulation error}
+\title{Estimate Bootstrap Simulation Error}
 \usage{
 estimate_boot_sim_cv(svrepstat)
 }
@@ -11,7 +11,9 @@ estimate_boot_sim_cv(svrepstat)
 with a function such as \code{svymean(..., return.replicates = TRUE)} or \code{withReplicates(..., return.replicates = TRUE)}.}
 }
 \value{
-A data frame with one row for each statistic.
+An object of class \code{sim_cv_estimate},
+with methods \code{print()} and \code{summary()}.
+Call \code{summary()} to get a data frame with one row for each statistic.
 The column \code{STATISTIC} gives the name of the statistic.
 The column \code{SIMULATION_CV} gives the estimated simulation CV of the statistic.
 The column \code{N_REPLICATES} gives the number of bootstrap replicates.
@@ -53,29 +55,35 @@ Estimates the bootstrap simulation error, expressed as a "simulation coefficient
 }
 
 \examples{
-\dontrun{
+\donttest{
+
 set.seed(2022)
 
 # Create an example bootstrap survey design object ----
-library(survey)
 data('api', package = 'survey')
 
 boot_design <- svydesign(id=~1,strata=~stype, weights=~pw,
                          data=apistrat, fpc=~fpc) |>
- svrep::as_bootstrap_design(replicates = 5000)
+  as_bootstrap_design(replicates = 5000)
 
 # Calculate estimates of interest and retain estimates from each replicate ----
 
-estimated_means_and_proportions <- svymean(x = ~ api00 + api99 + stype, design = boot_design,
-                                           return.replicates = TRUE)
-custom_statistic <- withReplicates(design = boot_design,
-                                   return.replicates = TRUE,
-                                   theta = function(wts, data) {
-                                      numerator <- sum(data$api00 * wts)
-                                      denominator <- sum(data$api99 * wts)
-                                      statistic <- numerator/denominator
-                                      return(statistic)
-                                   })
+estimated_means_and_proportions <- svymean(
+  x = ~ api00 + api99 + stype, 
+  design = boot_design,
+  return.replicates = TRUE
+)
+
+custom_statistic <- withReplicates(
+  design = boot_design,
+  return.replicates = TRUE,
+  theta = function(wts, data) {
+     numerator   <- sum(data$api00 * wts)
+     denominator <- sum(data$api99 * wts)
+     statistic   <- numerator/denominator
+     return(statistic)
+  }
+)
 # Estimate simulation CV of bootstrap estimates ----
 
   estimate_boot_sim_cv(

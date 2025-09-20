@@ -183,9 +183,8 @@ sprintf("Standard Error: %s", round(std_error))
 data('library_stsys_sample', package = 'svrep')
 
 # First, ensure data are sorted in same order as was used in sampling
-library_stsys_sample <- library_stsys_sample[
-  order(library_stsys_sample$SAMPLING_SORT_ORDER),
-]
+library_stsys_sample <- library_stsys_sample |>
+  sort_by(~ SAMPLING_SORT_ORDER)
 
 # Create a survey design object
 design_obj <- svydesign(
@@ -339,10 +338,13 @@ data('api', package = 'survey')
                                              return.replicates = TRUE)
 
 # Estimate the number of replicates needed to obtain a target simulation CV ----
-  estimate_boot_reps_for_target_cv(
+  required_boot_reps <- estimate_boot_reps_for_target_cv(
     svrepstat = estimated_means_and_proportions,
     target_cv = c(0.01, 0.05, 0.10)
   )
+
+  print(required_boot_reps)
+  plot(required_boot_reps)
 
 ## -----------------------------------------------------------------------------
 estimate_boot_sim_cv(estimated_means_and_proportions)

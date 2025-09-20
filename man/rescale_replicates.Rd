@@ -2,7 +2,7 @@
 % Please edit documentation in R/rescale_replicates.R
 \name{rescale_replicates}
 \alias{rescale_replicates}
-\title{Rescale replicate factors}
+\title{Rescale Replicate Factors}
 \usage{
 rescale_replicates(x, new_scale = NULL, min_wgt = 0.01, digits = 2)
 }
@@ -91,14 +91,13 @@ by rescaling the replicate factor matrix \eqn{\mathbf{A}} using the transformati
  print(rep_wgts)
  print(rescaled_wgts)
  
- # Example 2: Rescaling replicate weights with a specified value of 'tau'
+ # Example 2: Rescale with a new, specific scale value
  
  rescaled_wgts <- rescale_replicates(rep_wgts, new_scale = 1/10)
  print(rescaled_wgts)
 
  # Example 3: Rescaling replicate weights of a survey design object
  set.seed(2023)
- library(survey)
  data('mu284', package = 'survey')
 
  ## First create a bootstrap design object

@@ -1,5 +1,5 @@
-#' Convert a survey design object to a data frame with weights stored as columns
-#'
+#' @title Convert Survey Design to Data Frame
+#' @description Convert a survey design object to a data frame with weights stored as columns
 #' @param design A survey design object, created with either the \code{survey} or \code{srvyr} packages.
 #' @param full_wgt_name The column name to use for the full-sample weights
 #' @param rep_wgt_prefix For replicate design objects, a prefix to use for the column names
@@ -16,7 +16,6 @@
 #'
 #' data("lou_vax_survey", package = 'svrep')
 #'
-#' library(survey)
 #' # Create a survey design object
 #' survey_design <- svydesign(data = lou_vax_survey,
 #'                            weights = ~ SAMPLING_WEIGHT,

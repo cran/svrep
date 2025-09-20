@@ -3,7 +3,7 @@
 \docType{data}
 \name{lou_pums_microdata}
 \alias{lou_pums_microdata}
-\title{ACS PUMS Data for Louisville}
+\title{Auxiliary Data for Louisville Vaccination Survey}
 \format{
 A data frame with 80 rows and 85 variables
 \itemize{
@@ -24,25 +24,27 @@ A data frame with 80 rows and 85 variables
 data(lou_pums_microdata)
 }
 \description{
-Person-level microdata from the American Community Survey (ACS) 2015-2019
+Auxiliary data that can be used to produce control totals
+for the Louisville Vaccination Survey.
+Consists of person-level microdata from the American Community Survey (ACS) 2015-2019
 public-use microdata sample (PUMS) data for Louisville, KY. This microdata sample
 represents all adults (persons aged 18 or over) in Louisville, KY. \cr
 
 These data include replicate weights to use for variance estimation.
 }
 \examples{
-\dontrun{
+\donttest{
 data(lou_pums_microdata)
 
 # Prepare the data for analysis with the survey package
-  library(survey)
 
-  lou_pums_rep_design <- survey::svrepdesign(
-    data = lou_pums_microdata,
-    variables = ~ UNIQUE_ID + AGE + SEX + RACE_ETHNICITY + EDUC_ATTAINMENT,
-    weights = ~ PWGTP, repweights = "PWGTP\\\\d{1,2}",
-    type = "successive-difference",
-    mse = TRUE
+  lou_pums_rep_design <- svrepdesign(
+    data       = lou_pums_microdata,
+    variables  = ~ UNIQUE_ID + AGE + SEX + RACE_ETHNICITY + EDUC_ATTAINMENT,
+    weights    = ~ PWGTP, 
+    repweights = "PWGTP\\\\d{1,2}",
+    type       = "successive-difference",
+    mse        = TRUE
   )
 
 # Estimate population proportions

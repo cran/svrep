@@ -1,4 +1,4 @@
-#' @title Determine the quadratic form matrix of a variance estimator for a survey design object
+#' @title Quadratic Form Matrix of Variance Estimator for a Survey Design
 #' @description Determines the quadratic form matrix of a specified variance estimator,
 #' by parsing the information stored in a survey design object created using
 #' the 'survey' package.
@@ -82,15 +82,15 @@
 #' \cr \cr
 #' - Särndal, C.E., Swensson, B., & Wretman, J. (1992). "\emph{Model Assisted Survey Sampling}." Springer New York.
 #' @examples
-#' \dontrun{
+#' \donttest{
+#' 
 #' # Example 1: Quadratic form for successive-difference variance estimator ----
 #'
 #'    data('library_stsys_sample', package = 'svrep')
 #'
 #'    ## First, ensure data are sorted in same order as was used in sampling
-#'    library_stsys_sample <- library_stsys_sample[
-#'      order(library_stsys_sample$SAMPLING_SORT_ORDER),
-#'    ]
+#'    library_stsys_sample <- library_stsys_sample |>
+#'      sort_by(~ SAMPLING_SORT_ORDER)
 #'
 #'    ## Create a survey design object
 #'    design_obj <- svydesign(
@@ -122,27 +122,14 @@
 #'    # Compare to estimate from assuming SRS
 #'    svytotal(x = ~ LIBRARIA, na.rm = TRUE,
 #'             design = design_obj)
-#'             
-#' # Example 2: Kernel-based variance estimator ----
-#' 
-#'    Q_BOSB <- get_design_quad_form(
-#'      design             = design_obj,
-#'      variance_estimator = "BOSB",
-#'      aux_var_names      = "SAMPLING_SORT_ORDER"
-#'    )
-#'    
-#'    var_est <- t(y_wtd) %*% Q_BOSB %*% y_wtd
-#'    std_error <- sqrt(var_est)
-#'    
-#'    print(pop_total); print(std_error)
 #'
-#' # Example 3: Two-phase design (second phase is nonresponse) ----
+#' # Example 2: Two-phase design (second phase is nonresponse) ----
 #'
 #'   ## Estimate response propensities, separately by stratum
 #'   library_stsys_sample[['RESPONSE_PROB']] <- svyglm(
 #'     design = design_obj,
 #'     formula = I(RESPONSE_STATUS == "Survey Respondent") ~ SAMPLING_STRATUM,
-#'     family = quasibinomial('logistic')
+#'     family = quasibinomial(link = 'logit')
 #'   ) |> predict(type = 'response')
 #'
 #'   ## Create a survey design object,

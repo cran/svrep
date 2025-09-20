@@ -1,4 +1,4 @@
-#' @title Form replication factors using Fay's generalized replication method
+#' @title Factors for Fay's Generalized Replication Method
 #' @description Generate a matrix of replication factors
 #' using Fay's generalized replication method.
 #' This method yields a fully efficient variance estimator
@@ -50,7 +50,7 @@
 #' then \eqn{c = \frac{1}{\sqrt{k^{\prime}}}}.
 #'
 #' If any of the replicates
-#' are negative, you can use \code{\link[svrep]{rescale_reps}},
+#' are negative, you can use \code{\link[svrep]{rescale_replicates}},
 #' which recalculates the replicate factors with a smaller value of \eqn{c}.
 #'
 #' If all \eqn{k^{\prime}} replicates are used, then variance estimates are calculated as:
@@ -107,11 +107,10 @@
 #' In, 495-500. Alexandria, VA: American Statistical Association.
 #' http://www.asasrms.org/Proceedings/papers/1989_033.pdf
 #'
-#' @seealso Use \code{\link[svrep]{rescale_reps}} to eliminate negative adjustment factors.
+#' @seealso Use \code{\link[svrep]{rescale_replicates}} to eliminate negative adjustment factors.
 #' @export
 #' @examples
-#' \dontrun{
-#'   library(survey)
+#' \donttest{
 #'
 #' # Load an example dataset that uses unequal probability sampling ----
 #'   data('election', package = 'survey')
@@ -249,8 +248,7 @@ make_fays_gen_rep_factors <- function(
   return(replicate_factors)
 }
 
-#' @title Convert a survey design object to a replication design
-#' using Fay's generalized replication method
+#' @title Convert Survey Design to Fay's Generalized Replication Design
 #' @description Converts a survey design object to a replicate design object
 #' with replicate weights formed using the generalized replication method of Fay (1989).
 #' The generalized replication method forms replicate weights
@@ -345,7 +343,7 @@ make_fays_gen_rep_factors <- function(
 #' description of each variance estimator available for use with
 #' this function.
 #'
-#' Use \code{\link[svrep]{rescale_reps}} to eliminate negative adjustment factors.
+#' Use \code{\link[svrep]{rescale_replicates}} to eliminate negative adjustment factors.
 #'
 #' @seealso
 #' For greater customization of the method, \code{\link[svrep]{make_quad_form_matrix}} can be used to
@@ -398,9 +396,8 @@ make_fays_gen_rep_factors <- function(
 #' in Maximum Entropy Sampling with Unequal Probability and Fixed Sample Size.}"
 #' \strong{Journal of Official Statistics}, 21(4):543-70.
 #' @examples
-#' if (FALSE) {
+#' \donttest{
 #'
-#'   library(survey)
 #'
 #'   ## Load an example systematic sample ----
 #'   data('library_stsys_sample', package = 'svrep')

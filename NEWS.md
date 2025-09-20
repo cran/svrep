@@ -1,3 +1,20 @@
+# svrep 0.9.0
+
+-   The 'survey' package is now listed under 'Depends' rather than 'Imports'.
+    This means it will be attached whenever 'svrep' is loaded, for example by calling `library(svrep)`.
+    For GitHub issue #51.
+
+-   Fully removed `rescale_reps()`, since it was already deprecated in favor of the replacement `rescale_replicates()`. 
+    For GitHub issue #45.
+
+-   Enhanced the functions for choosing the number of bootstrap replicates. The output from `estimate_boot_reps_for_target_cv()` now has generic S3 methods like `plot()` and `print()`. For GitHub issue #47.
+
+-   Added new accessor functions, `get_rep_scale_coefs()` and `get_rep_type()`. For GitHub issue #44.
+
+-   Some minor internal refactoring to improve memory efficiency and speed. For GitHub issue #46.
+
+-   Improvements to examples. Most notably, replaced all instances of `dontrun{}` with `donttest{}`. Also removed calls of `library(survey)` since the 'survey' package is now attached whenever 'svrep' is loaded. For GitHub issue #49.
+
 # svrep 0.8.0
 
 -   Added the doubled half bootstrap of Antal and Tillé (2014), which works for single stage designs with simple random sampling or unequal probability sampling, with or without replacement.
@@ -6,7 +23,7 @@
 
 -   Small improvements to vignette on bootstrap methods.
 
-- For two-phase designs, Fay's generalized replication method now defaults to using `mse = FALSE`, as is the default for other designs.
+-   For two-phase designs, Fay's generalized replication method now defaults to using `mse = FALSE`, as is the default for other designs.
 
 # svrep 0.7.0
 

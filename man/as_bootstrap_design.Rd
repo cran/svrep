@@ -2,7 +2,7 @@
 % Please edit documentation in R/as_bootstrap_design.R
 \name{as_bootstrap_design}
 \alias{as_bootstrap_design}
-\title{Convert a survey design object to a bootstrap replicate design}
+\title{Convert Survey Design to Bootstrap Replicate Design}
 \usage{
 as_bootstrap_design(
   design,
@@ -36,7 +36,7 @@ The available types are the following: \cr
  \item \strong{"Antal-Tille"}: \cr
    The doubled half bootstrap method proposed by Antal and Tillé (2014), which is only applicable to single-stage designs or
    multistage designs where the first-stage sampling fractions are small (and can thus be ignored).
-   Accomodates stratified designs. Sampling within each stratum can be simple random sampling or unequal probability sampling
+   Accommodates stratified designs. Sampling within each stratum can be simple random sampling or unequal probability sampling
    with or without replacement.
  \item \strong{"Preston"}: \cr
    Preston's multistage rescaled bootstrap, which is applicable to single-stage designs or multistage designs
@@ -85,7 +85,6 @@ either simple random sampling (with or without replacement)
 or unequal probability sampling (with or without replacement) may be used.
 }
 \examples{
-library(survey)
 # Example 1: A multistage sample with two stages of SRSWOR
 
   ## Load an example dataset from a multistage sample, with two stages of SRSWOR

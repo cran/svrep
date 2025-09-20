@@ -2,7 +2,7 @@
 % Please edit documentation in R/as_jackknife_design.R
 \name{as_random_group_jackknife_design}
 \alias{as_random_group_jackknife_design}
-\title{Convert a survey design object to a random-groups jackknife design}
+\title{Convert Survey Design to Random Group Jackknife Replicate Design}
 \usage{
 as_random_group_jackknife_design(
   design,
@@ -188,7 +188,6 @@ if the total number of PSUs is not a multiple of the total number of replicates 
 }
 
 \examples{
-library(survey)
 
 # Load example data
 

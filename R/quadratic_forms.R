@@ -1,4 +1,4 @@
-#' @title Represent a variance estimator as a quadratic form
+#' @title Get Variance Estimator's Quadratic Form Matrix
 #' @description Common variance estimators for estimated population totals can be represented as a quadratic form.
 #' Given a choice of variance estimator and information about the sample design,
 #' this function constructs the matrix of the quadratic form.
@@ -106,7 +106,7 @@
 #' \link[svrep]{make_twophase_quad_form} combines
 #' the quadratic form matrix from each phase.
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Example 1: The Horvitz-Thompson Estimator
 #'   library(survey)
 #'   data("election", package = "survey")
@@ -845,18 +845,21 @@ make_deville_tille_matrix <- function(probs, aux_vars) {
   H <- wls_hat_matrix(X = aux_vars, w = c_k/(probs^2))
 
   # Subtract the hat matrix from the identity matrix
-  I_minus_H <- diag(n) - H
+  I_minus_H <- -H
+  diag(I_minus_H) <- 1 + diag(I_minus_H)
+  
 
   # Weight each entry
   wtd_I_minus_H <- I_minus_H * sqrt(c_k/(probs^2))
 
-  Sigma <- diag(probs) %*% crossprod(wtd_I_minus_H, wtd_I_minus_H) %*% diag(probs)
+  Sigma <- crossprod(wtd_I_minus_H) |>
+    sweep(MARGIN = 1, STATS = probs, FUN = "*") |>
+    sweep(MARGIN = 2, STATS = probs, FUN = "*")
 
   return(Sigma)
 }
 
-#' @title Make a quadratic form matrix for the kernel-based variance estimator
-#' of Breidt, Opsomer, and Sanchez-Borrego (2016)
+#' @title Quadratic Form Matrix of Kernel-based Variance Estimator
 #' @description Constructs the quadratic form matrix
 #' for the kernel-based variance estimator of Breidt, Opsomer, and Sanchez-Borrego (2016).
 #' The bandwidth is automatically chosen to result
@@ -1014,20 +1017,20 @@ make_kernel_var_matrix <- function(x, kernel = "Epanechnikov", bandwidth = "auto
       bw <- 1
     }
   }
-  K     <- kernel_fn(diffs/bw)
+  K <- kernel_fn(diffs/bw)
   
   # Construct quadratic form for the variance estimator
   
   D_ij  <- K / rowSums(K)
   
   if (H > 1) {
-    C_d   <- 1 - (1/H) * (2*sum(diag(D_ij)) - sum(D_ij^2))
+    C_d <- 1 - (1/H) * (2*sum(diag(D_ij)) - sum(D_ij^2))
   }
   if (H == 1) {
-    C_d   <- 1
+    C_d <- 1
   }
   
-  Q     <- (1/C_d) * crossprod(diag(H) - D_ij)
+  Q <- (1/C_d) * crossprod(diag(H) - D_ij)
   
   Q <- as(Q, "symmetricMatrix")
   
@@ -1088,7 +1091,7 @@ distribute_matrix_across_clusters <- function(cluster_level_matrix, cluster_ids,
   return(result)
 }
 
-#' @title Check whether a matrix is positive semidefinite
+#' @title Check if Matrix is Positive Semidefinite
 #' @description Check whether a matrix is positive semidefinite, based on checking for symmetric and negative eigenvalues.
 #'
 #' @param X A matrix with no missing or infinite values.
@@ -1138,8 +1141,7 @@ is_psd_matrix <- function(X, tolerance = sqrt(.Machine$double.eps)) {
   return(result)
 }
 
-#' @title Approximates a symmetric, real matrix by the nearest positive
-#' semidefinite matrix.
+#' @title Positive Semidefinite Matrix Approximation
 #'
 #' @description Approximates a symmetric, real matrix by the nearest positive
 #' semidefinite matrix in the Frobenius norm, using the method of Higham (1988).
@@ -1178,11 +1180,11 @@ get_nearest_psd_matrix <- function(X) {
   eigen_vectors <- eigen_decomposition$vectors
   eigen_values <- eigen_decomposition$values
 
-  updated_eigen_values <- pmax(eigen_values, 0)
-  updated_eigen_values <- abs(updated_eigen_values)
-
-  X <- eigen_vectors %*% diag(updated_eigen_values) %*% t(eigen_vectors)
-  return(X)
+  result <- tcrossprod(
+    sweep(eigen_vectors, 2, abs(pmax(eigen_values, 0)), "*"),
+    eigen_vectors
+  )
+  return(result)
 }
 
 #' @title Compute the matrix of joint inclusion probabilities
@@ -1192,7 +1194,7 @@ get_nearest_psd_matrix <- function(X) {
 #' representing the Horvitz-Thompson variance estimator.
 #' @details The quadratic form matrix of the Horvitz-Thompson variance estimator
 #' has \eqn{ij}-th entry equal to \eqn{(1-\frac{\pi_i \pi_j}{\pi_{ij}})}.
-#' The matrix of joint probabilties has \eqn{ij}-th entry equal to \eqn{\pi_{ij}}.
+#' The matrix of joint probabilities has \eqn{ij}-th entry equal to \eqn{\pi_{ij}}.
 #' @return The matrix of joint inclusion probabilities
 #' @keywords internal
 ht_matrix_to_joint_probs <- function(ht_quad_form) {
@@ -1236,7 +1238,7 @@ wls_hat_matrix <- function(X, w) {
   return(result)
 }
 
-#' @title Combine quadratic forms from each phase of a two phase design
+#' @title Quadratic Form Matrix for a Two-phase Design
 #' @description This function combines quadratic forms from each phase of a two phase design,
 #' so that the combined variance of the entire two-phase sampling design can be estimated.
 #' @param sigma_1 The quadratic form for the first phase variance estimator,
@@ -1345,8 +1347,9 @@ wls_hat_matrix <- function(X, w) {
 #' \link[svrep]{make_quad_form_matrix} can be used to create
 #' the appropriate quadratic form matrix.
 #' @examples
-#' \dontrun{
-#'
+#' \donttest{
+#' library(survey)
+#' 
 #' ## ---------------------- Example 1 ------------------------##
 #' ## First phase is a stratified multistage sample            ##
 #' ## Second phase is a simple random sample                   ##
@@ -1502,8 +1505,6 @@ wls_hat_matrix <- function(X, w) {
 #'     Sigma = twophase_quad_form,
 #'     num_replicates = 500
 #'   )
-#'
-#'   library(survey)
 #'
 #'   twophase_rep_design <- svrepdesign(
 #'     data = phase2_sample,

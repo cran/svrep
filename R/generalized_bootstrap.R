@@ -1,4 +1,4 @@
-#' @title Creates replicate factors for the generalized survey bootstrap
+#' @title Factors for the Generalized Survey Bootstrap
 #' @description Creates replicate factors for the generalized survey bootstrap method.
 #' The generalized survey bootstrap is a method for forming bootstrap replicate weights
 #' from a textbook variance estimator, provided that the variance estimator
@@ -16,7 +16,7 @@
 #' otherwise, \code{tau} is set to the smallest value needed to rescale
 #' the adjustment factors such that they are all at least \code{0.01}.
 #' Instead of using \code{tau="auto"}, the user can instead use the function
-#' \code{rescale_reps()} to rescale the replicates later.
+#' \code{rescale_replicates()} to rescale the replicates later.
 #' @param exact_vcov If \code{exact_vcov=TRUE}, the replicate factors will be generated
 #' such that their variance-covariance matrix exactly matches the target variance estimator's
 #' quadratic form (within numeric precision).
@@ -113,8 +113,7 @@
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#'   library(survey)
+#' \donttest{
 #'
 #' # Load an example dataset that uses unequal probability sampling ----
 #'   data('election', package = 'survey')
@@ -210,7 +209,7 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = 1, exact_vcov = F
     draws <- scale(draws, FALSE, TRUE)
     # Color the draws
     replicate_factors <- with(svd(Sigma, nu = 0, nv = n), {
-      (v %*% diag(sqrt(pmax(d, 0)), n)) %*% t(draws)
+      tcrossprod(sweep(v, 2, sqrt(pmax(d, 0)), "*"), draws)
     })
     # Adjust the scale of the replicates,
     # since the generalized bootstrap uses the scale (1/B),
@@ -257,7 +256,7 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = 1, exact_vcov = F
   return(replicate_factors)
 }
 
-#' @title Convert a survey design object to a generalized bootstrap replicate design
+#' @title Convert Survey Design to Generalized Bootstrap Replicate Design
 #' @description Converts a survey design object to a replicate design object
 #' with replicate weights formed using the generalized bootstrap method.
 #' The generalized survey bootstrap is a method for forming bootstrap replicate weights
@@ -316,7 +315,7 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = 1, exact_vcov = F
 #' otherwise, \code{tau} is set to the smallest value needed to rescale
 #' the adjustment factors such that they are all at least \code{0.01}.
 #' Instead of using \code{tau="auto"}, the user can instead use the function
-#' \code{rescale_reps()} to rescale the replicates later.
+#' \code{rescale_replicates()} to rescale the replicates later.
 #' @param exact_vcov If \code{exact_vcov=TRUE}, the replicate factors will be generated
 #' such that variance estimates for totals exactly match the results from the target variance estimator.
 #' This requires that \code{num_replicates} exceeds the rank of \code{Sigma}.
@@ -355,7 +354,7 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = 1, exact_vcov = F
 #' For greater customization of the method, \code{\link[svrep]{make_quad_form_matrix}} can be used to
 #' represent several common variance estimators as a quadratic form's matrix,
 #' which can then be used as an input to \code{\link[svrep]{make_gen_boot_factors}}.
-#' The function \code{\link[svrep]{rescale_reps}} is used to implement
+#' The function \code{\link[svrep]{rescale_replicates}} is used to implement
 #' the rescaling of the bootstrap adjustment factors.
 #'
 #' See \link[svrep]{variance-estimators} for a
@@ -461,8 +460,7 @@ make_gen_boot_factors <- function(Sigma, num_replicates, tau = 1, exact_vcov = F
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' library(survey)
+#' \donttest{
 #'
 #'# Example 1: Bootstrap based on the Yates-Grundy estimator ----
 #'    set.seed(2014)

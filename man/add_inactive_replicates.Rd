@@ -2,7 +2,7 @@
 % Please edit documentation in R/add_inactive_replicates.R
 \name{add_inactive_replicates}
 \alias{add_inactive_replicates}
-\title{Add inactive replicates to a survey design object}
+\title{Add Inactive Replicates to a Survey Design Object}
 \usage{
 add_inactive_replicates(design, n_total, n_to_add, location = "last")
 }
@@ -72,7 +72,6 @@ you can update the \code{mse} option to \code{TRUE} simply by using code such as
 }
 
 \examples{
-library(survey)
 set.seed(2023)
 
 # Create an example survey design object
@@ -90,7 +89,7 @@ set.seed(2023)
   rep_design <- survey_design |>
     as.svrepdesign(type = "JK1", mse = TRUE)
 
-# Inspect replicates before subsampling
+# Inspect replicate weights
 
   rep_design |> weights(type = "analysis")
 

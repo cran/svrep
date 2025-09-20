@@ -1,4 +1,4 @@
-#' @title Convert a survey design object to a bootstrap replicate design
+#' @title Convert Survey Design to Bootstrap Replicate Design
 #' @description Converts a survey design object to a replicate design object
 #' with replicate weights formed using a bootstrap method. Supports stratified,
 #' cluster samples with one or more stages of sampling. At each stage of sampling,
@@ -25,7 +25,7 @@
 #'  \item \strong{"Antal-Tille"}: \cr
 #'    The doubled half bootstrap method proposed by Antal and Tillé (2014), which is only applicable to single-stage designs or
 #'    multistage designs where the first-stage sampling fractions are small (and can thus be ignored).
-#'    Accomodates stratified designs. Sampling within each stratum can be simple random sampling or unequal probability sampling
+#'    Accommodates stratified designs. Sampling within each stratum can be simple random sampling or unequal probability sampling
 #'    with or without replacement.
 #'  \item \strong{"Preston"}: \cr
 #'    Preston's multistage rescaled bootstrap, which is applicable to single-stage designs or multistage designs
@@ -100,7 +100,6 @@
 #'
 #'
 #' @examples
-#' library(survey)
 #' # Example 1: A multistage sample with two stages of SRSWOR
 #'
 #'   ## Load an example dataset from a multistage sample, with two stages of SRSWOR

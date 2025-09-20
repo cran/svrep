@@ -10,8 +10,7 @@ status](https://www.r-pkg.org/badges/version/svrep)](https://CRAN.R-project.org/
 [![Mentioned in Awesome Official
 Statistics](https://awesome.re/mentioned-badge.svg)](https://github.com/SNStatComp/awesome-official-statistics-software)
 [![Codecov test
-coverage](https://codecov.io/gh/bschneidr/svrep/branch/main/graph/badge.svg)](https://app.codecov.io/gh/bschneidr/svrep?branch=main)
-<!-- [![R-CMD-check](https://github.com/bschneidr/svrep/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/bschneidr/svrep/actions/workflows/R-CMD-check.yaml) -->
+coverage](https://codecov.io/gh/bschneidr/svrep/graph/badge.svg)](https://app.codecov.io/gh/bschneidr/svrep)
 <!-- badges: end -->
 
 svrep extends the survey package in R by implementing flexible
@@ -80,8 +79,8 @@ When using the ‘svrep’ package, please make sure to cite it in any
 resulting publications. This is appreciated by the package maintainer
 and helps to incentivize ongoing development, maintenance, and support.
 
-> Schneider B. (2023). “svrep: Tools for Creating, Updating, and
-> Analyzing Survey Replicate Weights”. R package version 0.7.0.
+> Schneider B. (2025). “svrep: Tools for Creating, Updating, and
+> Analyzing Survey Replicate Weights”. R package version 0.9.0. DOI:
 > <https://doi.org/10.32614/CRAN.package.svrep>.
 
 When using the ‘svrep’ package, please also cite the ‘survey’ package
@@ -141,9 +140,8 @@ generalized survey bootstrap can be used.
 data('library_stsys_sample', package = 'svrep')
 
 # First, ensure data are sorted in same order as was used in sampling
-library_stsys_sample <- library_stsys_sample[
-  order(library_stsys_sample$SAMPLING_SORT_ORDER),
-]
+library_stsys_sample <- library_stsys_sample |>
+  sort_by(~ SAMPLING_SORT_ORDER)
 
 # Create a survey design object
 design_obj <- svydesign(

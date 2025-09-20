@@ -2,7 +2,7 @@
 % Please edit documentation in R/quadratic_forms.R
 \name{make_twophase_quad_form}
 \alias{make_twophase_quad_form}
-\title{Combine quadratic forms from each phase of a two phase design}
+\title{Quadratic Form Matrix for a Two-phase Design}
 \usage{
 make_twophase_quad_form(
   sigma_1,
@@ -109,7 +109,8 @@ where the \eqn{ii}-th entry of \eqn{\Lambda_{+}} is \eqn{\max(\Lambda_{ii}, 0)}.
 }
 
 \examples{
-\dontrun{
+\donttest{
+library(survey)
 
 ## ---------------------- Example 1 ------------------------##
 ## First phase is a stratified multistage sample            ##
@@ -266,8 +267,6 @@ data('library_stsys_sample', package = 'svrep')
     Sigma = twophase_quad_form,
     num_replicates = 500
   )
-
-  library(survey)
 
   twophase_rep_design <- svrepdesign(
     data = phase2_sample,

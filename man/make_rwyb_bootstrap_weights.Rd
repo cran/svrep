@@ -2,8 +2,7 @@
 % Please edit documentation in R/make_bootstrap_weights.R
 \name{make_rwyb_bootstrap_weights}
 \alias{make_rwyb_bootstrap_weights}
-\title{Create bootstrap replicate weights for a general survey design,
-using the Rao-Wu-Yue-Beaumont bootstrap method}
+\title{Weights for Rao-Wu-Yue-Beaumont Bootstrap}
 \usage{
 make_rwyb_bootstrap_weights(
   num_replicates = 100,
@@ -110,8 +109,7 @@ For multistage sampling, replicate factors are generated using the
 method described in Section 7 ("Bootstrap for Multistage Sampling").
 }
 \examples{
-\dontrun{
- library(survey)
+\donttest{
 
  # Example 1: A multistage sample with two stages of SRSWOR
 
@@ -203,7 +201,7 @@ https://doi.org/10.3390/stats5020019
 
 Rao, J.N.K.; Wu, C.F.J.; Yue, K. (1992).
 "Some recent work on resampling methods for complex surveys."
-\strong{Surv. Methodol.}, \emph{18}: 209-217.
+\strong{Survey Methodology}, \emph{18}: 209-217.
 }
 \seealso{
 If the survey design can be accurately represented using \code{\link[survey]{svydesign}},

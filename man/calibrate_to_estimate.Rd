@@ -2,8 +2,7 @@
 % Please edit documentation in R/calibrate_to_estimate.R
 \name{calibrate_to_estimate}
 \alias{calibrate_to_estimate}
-\title{Calibrate weights from a primary survey to estimated totals from a control survey,
-with replicate-weight adjustments that account for variance of the control totals}
+\title{Sample-based Calibration to An Estimate}
 \usage{
 calibrate_to_estimate(
   rep_design,
@@ -96,11 +95,10 @@ For raking, use the following option:
 }
 
 \examples{
-\dontrun{
+\donttest{
 
 # Load example data for primary survey ----
 
-  suppressPackageStartupMessages(library(survey))
   data(api)
 
   primary_survey <- svydesign(id=~dnum, weights=~pw, data=apiclus1, fpc=~fpc) |>
@@ -169,4 +167,8 @@ Fuller, W.A. (1998).
 Opsomer, J.D. and A. Erciulescu (2021).
 "Replication variance estimation after sample-based calibration."
 \strong{Survey Methodology}, \emph{47}: 265-277.
+}
+\seealso{
+[calibrate_to_sample()] as
+an alternative when the control survey has replicate weights.
 }

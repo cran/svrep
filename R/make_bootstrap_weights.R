@@ -1,5 +1,4 @@
-#' Create bootstrap replicate weights for a general survey design,
-#' using the Rao-Wu-Yue-Beaumont bootstrap method
+#' @title Weights for Rao-Wu-Yue-Beaumont Bootstrap
 #' @description Creates bootstrap replicate weights for a multistage stratified sample design
 #' using the method of Beaumont and Émond (2022), which is a generalization of the Rao-Wu-Yue bootstrap. \cr \cr
 #' The design may have different sampling methods used at different stages.
@@ -86,7 +85,7 @@
 #'
 #' Rao, J.N.K.; Wu, C.F.J.; Yue, K. (1992).
 #' "Some recent work on resampling methods for complex surveys."
-#' \strong{Surv. Methodol.}, \emph{18}: 209-217.
+#' \strong{Survey Methodology}, \emph{18}: 209-217.
 #'
 #' @return A matrix of with the same number of rows as \code{samp_unit_ids}
 #' and the number of columns equal to the value of the argument \code{num_replicates}.
@@ -97,8 +96,7 @@
 #' @export
 #' @seealso Use \code{\link[svrep]{estimate_boot_reps_for_target_cv}} to help choose the number of bootstrap replicates.
 #' @examples
-#' \dontrun{
-#'  library(survey)
+#' \donttest{
 #'
 #'  # Example 1: A multistage sample with two stages of SRSWOR
 #'
@@ -222,7 +220,7 @@ make_rwyb_bootstrap_weights <- function(num_replicates = 100,
     stop("Must specify a single, positive number for the argument `num_replicates`.")
   }
 
-  # Initialize 3-dimensional array: ultimate unit X stage X replicates
+  # Initialize matrix of replicate factors for each ultimate unit
   adjustment_factors <- matrix(
     data = 1,
     nrow = number_of_ultimate_units,
@@ -412,7 +410,7 @@ make_rwyb_bootstrap_weights <- function(num_replicates = 100,
   return(result)
 }
 
-#' @title Create bootstrap replicate weights using the "doubled half bootstrap" method of Antal and Tillé (2014).
+#' @title Weights for "Doubled Half Bootstrap" of Antal and Tillé (2014)
 #' @description Creates bootstrap replicate weights using the method of Antal and Tillé (2014).
 #' This method is applicable to single-stage sample designs, potentially
 #' with stratification and clustering. It can be used for designs that use
@@ -458,8 +456,7 @@ make_rwyb_bootstrap_weights <- function(num_replicates = 100,
 #' @export
 #' @seealso Use \code{\link[svrep]{estimate_boot_reps_for_target_cv}} to help choose the number of bootstrap replicates.
 #' @examples
-#' \dontrun{
-#'  library(survey)
+#' \donttest{
 #'  
 #'  # Example 1: A cluster sample
 #'  
