@@ -2,7 +2,7 @@ Package: svrep
 Type: Package
 Title: Tools for Creating, Updating, and Analyzing Survey Replicate
         Weights
-Version: 0.9.0
+Version: 0.9.1
 Authors@R: 
     c(person(given = "Ben",
              family = "Schneider",
@@ -34,9 +34,9 @@ Config/testthat/edition: 3
 Depends: R (>= 4.1.0), survey (>= 4.1)
 VignetteBuilder: knitr, rmarkdown
 NeedsCompilation: no
-Packaged: 2025-09-20 15:03:43 UTC; benja
+Packaged: 2025-10-07 21:52:43 UTC; benja
 Author: Ben Schneider [aut, cre] (ORCID:
     <https://orcid.org/0000-0002-0406-8470>)
 Maintainer: Ben Schneider <benjamin.julius.schneider@gmail.com>
 Repository: CRAN
-Date/Publication: 2025-09-20 15:30:02 UTC
+Date/Publication: 2025-10-08 05:10:09 UTC
